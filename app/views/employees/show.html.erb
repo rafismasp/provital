@@ -1,0 +1,386 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', employees_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-grid">
+              <div class="uk-width-auto@m">
+                <div class="uk-grid">
+                  <div class="uk-width-1-1@m">
+                    <% if @employee.image.present? %>
+                      <% if @employee.image.url.present? %>
+                        <%= image_tag(@employee.image.url, :width=>"100px") %>
+                      <% end %>
+                    <% else %>
+                      <%= image_tag("user.svg", :width=>"100px") %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="uk-width-4-5@m">
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-2-3@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">NIK</div>
+                          <div class="uk-width-3-4@m">                            
+                            <%= text_field_tag :nik, @employee.nik, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Department</div>
+                        <div class="uk-width-2-3@m">
+                          <%= text_field_tag :department_name, @employee.department.name, :class=> "uk-input uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-2-3@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Name</div>
+                          <div class="uk-width-3-4@m">
+                            <%= text_field_tag :name, @employee.name, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Position</div>
+                        <div class="uk-width-2-3@m">
+                          <%= text_field_tag :position_name, "#{@employee.position.name}".humanize, :class=> "uk-input uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-2-3@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Place of Birth</div>
+                          <div class="uk-width-1-3@m">
+                            <div class="uk-inline">
+                              <span class="uk-form-icon" uk-icon="icon: location"></span>
+                              <%= text_field_tag :born_place, @employee.born_place, :class=> "uk-input uk-form-small", :disabled=> true %>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-3@m">
+                            <div class="uk-inline">
+                              <span class="uk-form-icon" uk-icon="icon: calendar"></span>
+                              <%= text_field_tag :born_date, @employee.born_date, :class=> "uk-input uk-form-small", :disabled=> true %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-2@m">Work Status</div>
+                        <div class="uk-width-1-2@m">
+                          <%= text_field_tag :work_status, (@employee.work_status.present? ? @employee.work_status.name : nil), :class=> "uk-input uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-2-3@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Gender</div>
+                          <div class="uk-width-3-4@m">
+                            <%= text_field_tag :gender, "#{@employee.gender}".humanize, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-2@m">Join Date</div>
+                        <div class="uk-width-1-2@m">
+                          <div class="uk-inline">
+                            <span class="uk-form-icon" uk-icon="icon: calendar"></span>
+                            <%= text_field_tag :join_date, @employee.join_date, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-2-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-4@m">Contacts</div>
+                        <div class="uk-width-1-4@m">
+                          <%= text_field_tag :phone_number, @employee.phone_number, :class=> "uk-input uk-form-small", :disabled=> true %>
+                        </div>
+                        <div class="uk-width-1-2@m">
+                          <div class="uk-inline">
+                            <span class="uk-form-icon" uk-icon="icon: mail"></span>
+                            <%= text_field_tag :email_address, @employee.email_address, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-2@m">Legality</div>
+                        <div class="uk-width-1-2@m">
+                          <%= select_tag "employee_legal_id", options_for_select([["Provital", 1], ["Techno", 2],["TSSI", 3]], @employee.employee_legal_id) , { :class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true} %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-2-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-4@m"></div>
+                        <div class="uk-width-1-4@m">
+                        </div>
+                        <div class="uk-width-1-2@m">
+                          <div class="uk-inline">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-2@m">Work Schedule</div>
+                        <div class="uk-width-1-2@m">
+                          <%= select_tag "employee_work_schedule", options_for_select(['6-2','6-0','5-0'], @employee.work_schedule) , { :class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true} %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+              <li class="uk-active"><a href="#">General</a></li>
+              <li><a href="#">Eductaion</a></li>
+              <li><a href="#">Career</a></li>
+            </ul>
+            <ul id="tab-content" class="uk-switcher">
+              <li>    
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">KTP</div>
+
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :ktp, @employee.ktp, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                          <div class="uk-width-1-4@m">
+                            <div class="uk-inline">
+                              <% if @employee.ktp_expired_date.blank? %>
+                                <i>* KTP Berlaku seumur hidup</i>
+                              <% else %>
+                                <span class="uk-form-icon" uk-icon="icon: calendar"></span>
+                                <%= text_field_tag :ktp_expired_date, @employee.ktp_expired_date, :class=> "uk-input uk-form-small", :disabled=> true %>
+                              <% end %>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Origin Address</div>
+                          <div class="uk-width-1-2@m">
+                            <%= text_field_tag :origin_address, @employee.origin_address, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Domicile Address</div>
+                          <div class="uk-width-1-2@m">
+                            <%= text_field_tag :domicile_address, @employee.domicile_address, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Blood</div>
+                          <div class="uk-width-1-5@m">
+                            <%= text_field_tag :blood, @employee.blood, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Maried Status</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :married_status, @employee.married_status, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Religion</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :religion, "#{@employee.religion}".humanize, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Last Education</div>
+                          <div class="uk-width-1-5@m">
+                            <%= text_field_tag :last_education, @employee.last_education, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :vocational_education, @employee.vocational_education, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">NPWP</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :npwp, @employee.npwp, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :npwp_address, @employee.npwp_address, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">BPJStk</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :kpj_number, @employee.kpj_number, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">BPJS kes</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :bpjs, @employee.bpjs, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag :bpjs_hospital, @employee.bpjs_hospital, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m" title="Card of Family">C. Family</div>
+                          <div class="uk-width-1-2@m">
+                            <%= text_field_tag :family_card, @employee.family_card, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">SIM A</div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_a_number, @employee.sim_a_number, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Number" %>
+                          </div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_a_date, @employee.sim_a_date, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Date" %>
+                          </div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_a_place, @employee.sim_a_place, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Place" %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">SIM B</div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_b_number, @employee.sim_b_number, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Number" %>
+                          </div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_b_date, @employee.sim_b_date, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Date" %>
+                          </div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_b_place, @employee.sim_b_place, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Place" %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">SIM C</div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_c_number, @employee.sim_c_number, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Number" %>
+                          </div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_c_date, @employee.sim_c_date, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Date" %>
+                          </div>
+                          <div class="uk-width-1-4@m">
+                            <%= text_field_tag :sim_c_place, @employee.sim_c_place, :class=> "uk-input uk-form-small", :disabled=> true, :placeholder=> "Place" %>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li>Content 2 (first open)</li>
+              <li>Content 3</li>
+            </ul>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-5@m">Status</div>
+                    <div class="uk-width-1-4@m">
+                      <%= text_field_tag :employee_status, @employee.employee_status, :class=> "uk-input uk-form-small", :disabled=> true %>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <%= text_field_tag :resign_date, @employee.resign_date, :class=> "uk-input uk-form-small", :disabled=> true, :title=> "Resign Date" %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', employees_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_employee_path(@employee), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

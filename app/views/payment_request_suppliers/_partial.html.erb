@@ -1,0 +1,133 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_supplier" %>
+	<% case field %>
+  <% when 'tax_rate_id' %>
+    <%= select_tag "payment_request_supplier[tax_rate_id]", options_for_select(@tax_rates.map{|c| ["Rp. #{number_with_precision(c.currency_value, precision: 0, delimiter: ".", separator: ",")}", c.id ]}) , { :class=> "uk-select uk-form-width-medium uk-form-small"} if @tax_rates.present? %>
+	<% when 'tax_id' %>
+    <%= select_tag "payment_request_supplier[tax_id]", options_for_select(@taxes.map{|c| [c.name, c.id ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+	<% when 'currency_id' %>
+    <%= select_tag "payment_request_supplier[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "payment_request_supplier[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+  <% when 'modal_invoice_supplier' %>              
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_invoice_suppliers">  
+      <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>Invoice Number</td>
+        <td>Invoice Date</td>
+      </tr>
+      <% c = 0 %>
+      <% @invoice_suppliers.each do |invoice_supplier| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td><input class="uk-checkbox select_invoice_supplier_id" type="checkbox" invoice_supplier_id="<%= invoice_supplier.id %>"></td>
+          <td><%= invoice_supplier.number %></td>
+          <td><%= invoice_supplier.date %></td>
+        </tr>
+      <% end if @invoice_suppliers.present? %>
+    </table>
+	<% end %>
+<% when 'load_invoice_supplier' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="item">
+    <tr>
+      <th>#</th>
+      <th>Invoice Number</th>
+      <th>Invoice Date</th>
+      <th>Subtotal</th>
+      <th>Tax Rate</th>
+      <th colspan="2">PPN Total</th>
+      <th>PPH Total</th>
+      <th>DP Total</th>
+    </tr>
+    <% c=0 %>
+    <% if @invoice_suppliers.present? %>
+      <% @invoice_suppliers.each do |invoice| %>
+        <tr>
+          <td class="counter">
+          	<%= c+=1%>
+            <%= hidden_field_tag "new_record_item[][invoice_supplier_id]", invoice.id %>
+					</td>
+          <td><%= invoice.number %>
+            <%= hidden_field_tag 'new_record_item[][status]', 'active' %></td>
+          <td><%= invoice.date %></td>
+          <td class="uk-text-right"><%= number_with_precision(invoice.subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+          <td>            
+            <%= select_tag "new_record_item[][tax_rate_id]", options_for_select(@tax_rates.where(:currency_id=> invoice.currency_id).collect {|e| [
+                " Rp. #{number_with_precision(e.currency_value, precision: 0, delimiter: ".", separator: ",")} => #{e.begin_date} sd #{e.end_date}", e.id, {:'currency_value'=> e.currency_value }]} ), 
+              {
+                :include_blank=> "-- Pilih --", 
+                :disabled=> (invoice.currency.name == "IDR" ? true : false), 
+                :onchange=>"change_currency_tax_rate(this, '"+params[:controller].to_s+"',"+c.to_s+")", 
+                :currency=> invoice.currency.name,
+                :ppn=> invoice.ppntotal, 
+                :class=> "uk-select uk-form-width-small uk-form-small"
+              } 
+            %>
+          </td>
+          <td class="currency<%= c %>"><%= invoice.currency.name %></td>
+          <td>
+            <%= text_field_tag "new_record_item[][ppntotal]", invoice.ppntotal, {:class=> "uk-input uk-form-width-medium uk-form-small ppntotal#{c}"} %>
+          </td>
+          <td class="uk-text-right"><%= number_with_precision(invoice.pphtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+          <td class="uk-text-right"><%= number_with_precision(invoice.dptotal, precision: 0, delimiter: ".", separator: ",") %></td>
+          <td align='center' width=30px>
+			      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+			    </td>
+        </tr>
+      <% end %>
+    <% else %>
+    	<tr>
+    		<td colspan="10">Tidak ada Data!</td>
+    	</tr>
+    <% end %>
+  </table>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>
+            <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+            <%= link_to approve_payment_request_supplier_path(0, :status=> 'approve3'), method: :put, :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+              <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+            <% end %>  
+          </th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Supplier</th>
+          <th>Grand Total</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @payment_request_suppliers.each do |payment_request_supplier| %>
+          <tr uk-tooltip="title: <%= row_tooltip(payment_request_supplier) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td align="left" style="vertical-align: middle;">
+              <% case payment_request_supplier.status %>
+              <% when "approved2","canceled3" %>
+                <input type='checkbox'onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= payment_request_supplier.id %>" trid="<%=@c%>">
+              <% else %>
+              -
+              <% end %>
+            </td>
+            <td><%= payment_request_supplier.status %></td>
+            <td><%= payment_request_supplier.number %></td>
+            <td><%= payment_request_supplier.date %></td>
+            <td><%= payment_request_supplier.supplier.name if payment_request_supplier.supplier.present? %></td>
+            <td><%= payment_request_supplier.currency.symbol if payment_request_supplier.currency.present? %> 
+              <%= number_with_precision(payment_request_supplier.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td><%= link_to 'Show', payment_request_supplier %></td>
+            <td><%= link_to 'Edit', edit_payment_request_supplier_path(payment_request_supplier)%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

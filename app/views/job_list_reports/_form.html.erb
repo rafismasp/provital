@@ -1,0 +1,86 @@
+        
+<%= form_with(model: job_list_report, local: true, class: 'uk-form-horizontal') do |form| %>
+  <% if job_list_report.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(job_list_report.errors.count, "error") %> prohibited this job_list_report from being saved:</h2>
+
+      <ul>
+      <% job_list_report.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class=" uk-margin-small">
+    <%= form.label :category, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.collection_select :job_category_id, @job_category,:id,:name, {}, include_blank: true, class: "uk-select uk-form-small" if @job_category.present? %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :department, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.collection_select :department_id, @department,:id,:name, {}, include_blank: true, class: "uk-select uk-form-width-small uk-form-small" if @department.present? %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :user, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.collection_select :user_id, @users,:id,:email, {}, include_blank: true, class: "uk-select uk-form-width-large uk-form-small" if @users.present? %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :job_name, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.text_field :name, id: :job_list_report_name, :class=> "uk-input uk-form-small" %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :description, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.text_area :description, id: :job_list_report_description, :class=> "uk-textarea uk-form-small", :rows=> 5 %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :time_required, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.number_field :time_required, id: :job_list_report_time_required, :class=> "uk-input uk-form-width-small uk-form-small" %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :due_date, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.date_field :due_date, id: :job_list_report_due_date, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :note, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.text_area :note, id: :job_list_report_note, :class=> "uk-textarea uk-form-small", :rows=> 3 %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :status, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.select :status, ['active','suspend'], {}, :class=> "uk-select uk-form-width-small uk-form-small" %>
+    </div>
+  </div>
+
+  <div class=" uk-margin-small">
+    <label class="uk-form-label uk-width-small">Done</label>
+    <div class="uk-form-controls">
+      <%= form.check_box :checked, :class=> "uk-checkbox uk-form-width-small uk-form-small" %>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', job_list_reports_path, class: "uk-button uk-button-secondary uk-button-small" %>
+
+    <%= button_tag(type: "submit", class: "uk-button uk-button-primary uk-button-small", title: form.object.new_record? ? "Create " : "Update ", "data-disable-with" => "<i class='fa fa-spinner fa-spin'></i> please wait...".html_safe  ) do %>
+      <%= form.object.new_record? ? "Create " : "Update " %>
+    <% end %>
+  </p>
+
+<% end %>

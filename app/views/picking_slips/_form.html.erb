@@ -1,0 +1,191 @@
+
+<%= form_with(model: picking_slip, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if picking_slip.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(picking_slip.errors.count, "error") %> prohibited this picking_slip from being saved:</h2>
+
+      <ul>
+      <% picking_slip.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Customer</div>
+            <div class="uk-width-2-3@m">
+              <%= hidden_field_tag "picking_slip[customer_id]", (form.object.customer.present? ? form.object.customer_id : ""), :class=>"customer_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "customer_id", field_value: (form.object.customer.present? ? form.object.customer.name : "") %>
+              <%#= form.collection_select :customer_id, @customers, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_customer(this, '"+params[:controller].to_s+"')" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Doc. Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :picking_slip_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Doc. Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :date, id: :picking_slip_date, :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Remarks</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :remarks, id: :picking_slip_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PO Customer</div>
+            <div class="uk-width-1-2@m sales_order_detail">
+              <%= form.select :sales_order_id, options_for_select(@sales_orders.map{|c| [c.po_number, c.id ]}, form.object.sales_order_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_sales_order_id(this, '"+params[:controller].to_s+"');"} if @sales_orders.present? %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">   
+            <div class="uk-width-1-2@m product_detail">
+              <%= render 'layouts/form_item', c: 0, field_name: 'product_id', field_value: '' %> 
+            </div>
+            <div class="uk-width-1-2@m">
+              <a class='uk-button uk-button-primary uk-button-small' href='#product-sections' uk-toggle>Select Batch</a>
+              <%#= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+          <tr>
+            <th>#</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Batch Number</th>
+            <th>Unit</th>
+            <th>Quantity available</th>
+            <th>Quantity dispatch</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @picking_slip_items.each do |picking_slip_item| %>
+            <% periode = picking_slip_item.picking_slip.date.to_date.strftime("%Y%m") %>
+            <%= hidden_field_tag 'picking_slip_item[][id]', picking_slip_item.id %>
+            <%= hidden_field_tag 'picking_slip_item[][product_id]', picking_slip_item.product_id %>
+            <%= hidden_field_tag 'picking_slip_item[][sales_order_item_id]', picking_slip_item.sales_order_item_id %>
+            <%= hidden_field_tag 'picking_slip_item[][product_batch_number_id]', picking_slip_item.product_batch_number_id, {:class=> "product_batch_number_id"} %>
+            <% part = picking_slip_item.product %>
+            <% stock_bn = (part.present? ? part.current_stock_batch_number(current_user.company_profile_id, picking_slip_item.product_batch_number_id, periode) : nil) %>
+
+            <% max_quantity = (picking_slip_item.sales_order_item.outstanding.to_f < stock_bn.to_f ? picking_slip_item.sales_order_item.outstanding : stock_bn) %>
+            <tr>
+              <td class="counter"><%= c+=1%></td>
+              <td>
+                <%= text_field_tag 'part_id', picking_slip_item.product.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_name', picking_slip_item.product.name, {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'product_batch_number', picking_slip_item.product_batch_number.number, {:class=>"product_batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name',picking_slip_item.product.unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+              <td class="uk-text-right"><%= number_with_precision(stock_bn, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td>
+                <%= number_field_tag 'picking_slip_item[][quantity]', picking_slip_item.quantity, {:placeholder=> 'quantity', :class=>"quantity#{picking_slip_item.sales_order_item_id} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "check_outstanding_po(this, '#{picking_slip_item.sales_order_item_id}', '#{picking_slip_item.sales_order_item.outstanding}');", :max=> max_quantity} %>
+              </td>
+              <td>
+                <%= text_field_tag 'picking_slip_item[][remarks]',picking_slip_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "picking_slip_item[][status]", options_for_select(['active','deleted'],
+                  picking_slip_item.status) , { :class=>'uk-input uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @picking_slip_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="product-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">Product Batch Number</h4>
+      </div>
+      <div class="uk-modal-body">           
+          
+        <table class="uk-table uk-table-small uk-table-hover uk-table-bordered uk-table-divider" id="select_product_batch_number">          
+          <tr>
+            <th>#</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Batch Number</th>
+            <th>Unit</th>
+            <th>Outstanding PO</th>
+            <th>Quantity available</th> 
+          </tr>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_product_batch_number_id(this, '"+params[:controller].to_s+"', '"+form_kind.to_s+"', '"+form.object.id.to_s+"');" %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', picking_slips_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

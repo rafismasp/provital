@@ -1,0 +1,54 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+    <thead class="bg-primary">
+      <tr>
+        <th rowspan="2" class="uk-text-center uk-text-middle">No</th>
+        <th rowspan="2" class="uk-text-center uk-text-middle">Status</th>
+        <th rowspan="2" class="uk-text-center uk-text-middle">code</th>
+        <th colspan="2" class="uk-text-center">MONDAY</th>
+        <th colspan="2" class="uk-text-center">TUESDAY</th>
+        <th colspan="2" class="uk-text-center">WEDNESDAY</th>
+        <th colspan="2" class="uk-text-center">THURSDAY</th>
+        <th colspan="2" class="uk-text-center">FRIDAY</th>
+        <th colspan="2" class="uk-text-center">SATURDAY</th>
+        <th colspan="2" class="uk-text-center">SUNDAY</th>
+        <th rowspan="2" colspan="2" class="uk-text-center uk-text-middle">Action</th>
+      </tr>
+      <tr>
+        <% 7.times do |e|  %>
+          <th class="uk-text-center uk-text-middle">in</th>
+          <th class="uk-text-center uk-text-middle">out</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @schedules.each do |schedule| %>
+        <tr uk-tooltip="title: <%# row_tooltip(schedule) %>; pos: top-left">
+          <td class="uk-text-center uk-text-middle"><%= c+=1 %></td>
+          <td class="uk-text-center"><%= schedule.status %></td>
+          <td class="uk-text-center"><%= schedule.code %></td>
+          <td class="uk-text-center"><%= schedule.monday_in.present? ? schedule.monday_in.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.monday_out.present? ? schedule.monday_out.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.tuesday_in.present? ? schedule.tuesday_in.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.tuesday_out.present? ? schedule.tuesday_out.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.wednesday_in.present? ? schedule.wednesday_in.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.wednesday_out.present? ? schedule.wednesday_out.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.thursday_in.present? ? schedule.thursday_in.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.thursday_out.present? ? schedule.thursday_out.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.friday_in.present? ? schedule.friday_in.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.friday_out.present? ? schedule.friday_out.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.saturday_in.present? ? schedule.saturday_in.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.saturday_out.present? ? schedule.saturday_out.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.sunday_in.present? ? schedule.sunday_in.strftime("%H:%M:%S") : '-' %></td>
+          <td class="uk-text-center"><%= schedule.sunday_out.present? ? schedule.sunday_out.strftime("%H:%M:%S") : '-' %></td>
+          <td style="text-align: center; vertical-align: middle;"><%= link_to 'Show', schedule, :job=>'show' %></td>
+          <td style="text-align: center; vertical-align: middle;"><%= link_to 'Edit', edit_schedule_path(schedule, :job=>'edit') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

@@ -1,0 +1,263 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', delivery_orders_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Customer</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :customer, @delivery_order.customer.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">DO Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :number, @delivery_order.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Date</div>
+                      <div class="uk-width-1-2@m">
+                        <%= date_field_tag :date, @delivery_order.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Remarks</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :remarks, @delivery_order.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Transforter</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :transforter_name, @delivery_order.transforter_name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Vehicle Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :vehicle_number, @delivery_order.vehicle_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Driver Name</div>
+                      <div class="uk-width-1-2@m">
+                        <%= text_field_tag :vehicle_driver_name, @delivery_order.vehicle_driver_name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Picking Slip</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :picking_slip, (@delivery_order.picking_slip.number if @delivery_order.picking_slip.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">PO Number</div>
+                      <div class="uk-width-1-2@m">
+                        <%= text_field_tag :sales_order_id, (@delivery_order.sales_order.po_number if @delivery_order.sales_order.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-3@m">Month Delivery</div>
+                    <div class="uk-width-1-3@m">
+                      <% select_year = @delivery_order.sales_order.month_delivery.first(4) if @delivery_order.sales_order.present? %>
+                      <% select_month = @delivery_order.sales_order.month_delivery.last(2) if @delivery_order.sales_order.present? %>
+                      <%= text_field_tag "select_month", Date::MONTHNAMES[select_month.to_i], {:class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true} %>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <%= text_field_tag "select_year", select_year, {:class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true} %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Invoice Customer</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :invoice_customer, (@delivery_order.invoice_customer.number if @delivery_order.invoice_customer.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+                    <tr>
+                      <th>#</th>
+                      <th>Product Code</th>
+                      <th>Product Name</th>
+                      <th>Product Type</th>
+                      <th>Batch Number</th>
+                      <th>Unit</th>
+                      <th>Quantity</th>
+                      <th>Remarks</th>
+                    </tr>
+                    <% c=0 %>
+                    
+                    <% @delivery_order_items.each do |delivery_order_item| %>
+                      <% part = nil %>
+                      <% if delivery_order_item.product.present? %>
+                        <% part = delivery_order_item.product %>
+                      <% elsif delivery_order_item.material.present? %>
+                        <% part = delivery_order_item.material %>
+                      <% end %>
+                      <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+                      
+                      <tr>
+                        <td class="counter"><%= c+=1%></td>
+                        <td>
+                          <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                        </td>
+                        <td>
+                          <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+                        </td>
+                        <td>
+                          <%= text_field_tag 'type_name', (part.present? ? part.type_name : nil), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                        </td>
+                        <td>
+                          <%= text_field_tag 'batch_number', (delivery_order_item.product_batch_number.present? ? delivery_order_item.product_batch_number.number : nil), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                        </td>
+                        <td>
+                          <%= text_field_tag 'unit_name', unit_name, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+                        </td>
+                        <td>
+                          <%= text_field_tag 'quantity', delivery_order_item.quantity, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+                        </td>
+                        <td>
+                          <%= text_field_tag 'remarks', delivery_order_item.remarks, {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                        </td>
+                      </tr>
+                    <% end if @delivery_order_items.present? %>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @delivery_order.status == 'new' or @delivery_order.status == 'canceled1' %>
+                        <%= link_to approve_delivery_order_path(@delivery_order, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @delivery_order.status == 'approved1' or @delivery_order.status == 'canceled2' %>
+                        <%= link_to approve_delivery_order_path(@delivery_order, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_delivery_order_path(@delivery_order, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @delivery_order.status == 'approved2' or @delivery_order.status == 'canceled3' %>   
+                        <%= link_to approve_delivery_order_path(@delivery_order, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_delivery_order_path(@delivery_order, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% elsif @delivery_order.status == 'deleted' %>
+                      <% else %>
+                        <%= link_to approve_delivery_order_path(@delivery_order, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @delivery_order.status %>
+                      <% when 'deleted' %>
+                        <%= link_to "Status: #{@delivery_order.status}", delivery_orders_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %> 
+                        <%= link_to 'Back', delivery_orders_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>                      
+                      <% when 'approved3' %>
+                        <%= link_to print_delivery_order_path(@delivery_order), method: :put, data: { disable_with: "Please wait..."}, target: :_blank, :title=>"Last Printed by: #{@delivery_order.present? ? (@delivery_order.printed.present? ? @delivery_order.printed.first_name : nil) : nil}; #{@delivery_order.printed_at if @delivery_order.present?}" do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right" >Print</button>
+                        <% end %>
+                        <%= link_to 'Back', delivery_orders_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', delivery_orders_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_delivery_order_path(@delivery_order), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

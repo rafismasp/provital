@@ -1,0 +1,251 @@
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', proforma_invoice_customers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <!-- Left -->
+                <div class="uk-width-1-3@m">
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Customer</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :customer, (@proforma_invoice_customer.customer.name if @proforma_invoice_customer.customer.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Proforma Invoice Number</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :number, @proforma_invoice_customer.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">TOP</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :top_day, @proforma_invoice_customer.top_day, :class=> "uk-input uk-form-small", :disabled=> true, :style=> "width: 50px;" %>
+                      <%= text_field_tag :term_of_payment, (@proforma_invoice_customer.term_of_payment.name if @proforma_invoice_customer.term_of_payment.present?), :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Down Payment</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :down_payment, @proforma_invoice_customer.down_payment, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=>true %> %
+                    </div>
+                  </div>
+                </div>
+                <!-- End Left -->
+
+                <!-- Right -->
+                <div class="uk-width-1-3@m">
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Proforma Invoice Date</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :date, @proforma_invoice_customer.date, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Due Date</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :due_date, @proforma_invoice_customer.due_date, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Remarks</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_area_tag :remarks, @proforma_invoice_customer.remarks, rows: 5, :class=> "uk-textarea uk-form-width-large uk-form-small", :style=>"line-height: normal !important;", :disabled=>true %>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Right -->
+
+                <hr class="uk-margin-small">
+                <div class="uk-width-1-1 uk-overflow-auto"><br><hr class="uk-margin-small">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">                 
+                    <thead>
+                      <tr>
+                        <th class="uk-text-middle">#</th>
+                        <th class="uk-text-middle uk-text-center">PO Number</th>
+                        <th class="uk-text-middle uk-text-center">Product Code</th>
+                        <th class="uk-text-middle uk-text-center">Product Name</th>
+                        <th class="uk-text-middle uk-text-center">Type</th>
+                        <th class="uk-text-middle uk-text-center">Unit</th>
+                        <th class="uk-text-middle uk-text-center">Qty</th>
+                        <th class="uk-text-middle uk-text-center">Discount</th>
+                        <th class="uk-text-middle uk-text-center">Unit Price</th>
+                        <th class="uk-text-middle uk-text-center">Amount</th>
+                        <th class="uk-text-middle uk-text-center">Attachments</th>
+                      </tr>
+                    </thead>
+                    <tbody>            
+                      <% c=0 %>
+                      <% if @proforma_invoice_customer_items.present? %>
+                        <% @proforma_invoice_customer_items.each do |pi_item| %>
+                          <% so_item = pi_item.sales_order_item %>
+                          <tr>
+                            <td class="counter">
+                              <%= c+=1%>
+                            </td>
+                            <td>
+                              <%= link_to "#{so_item.sales_order.po_number}", sales_order_path(:id=> so_item.sales_order_id) if so_item.present? %>
+                            </td>
+                            <td>
+                              <%= (so_item.product.part_id if so_item.present?) %>
+                            </td>
+                            <td>
+                              <%= (so_item.product.name if so_item.present?) %>
+                            </td>
+                            <td>
+                              <%= (so_item.product.type_name if so_item.present?) %>
+                            </td>
+                            <td>
+                              <%= (so_item.product.unit_name if so_item.present?) %>
+                            </td>
+                            <td>
+                              <%= number_with_precision((so_item.quantity if so_item.present?), precision: 2, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td>
+                              <%= (so_item.discount if so_item.present?) %>
+                            </td>
+                            <td class="uk-text-right">
+                              <%= number_with_precision((so_item.unit_price if so_item.present?), precision: 2, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td class="uk-text-right">
+                              <%= number_with_precision(pi_item.amount, precision: 2, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td>
+                              
+                              <% so_item.sales_order.sales_order_files.each do |record_file| %>
+                                <% case record_file.ext.downcase %>
+                                <% when '.pdf' %>
+                                  <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a>
+                                <% else %>
+                                  <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 100px"/></a>
+                                <% end %>
+                              <% end if so_item.present? and so_item.sales_order.present? and so_item.sales_order.sales_order_files.present? %>
+
+                            </td>
+                          </tr>
+                        <% end %>
+                      <% else %>
+                        <tr>
+                          <td colspan="10">Tidak ada Data!</td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- tabel total -->
+            <div class="uk-margin-small">
+              <div class="uk-grid uk-flex uk-flex-center@m uk-flex-right@l">
+                <div class="uk-width-1-4@m">
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Total</div>
+                      <div class="uk-width-2-3@m" title="Total = sum amount">
+                        <%= text_field_tag :total, number_with_precision(@proforma_invoice_customer.total, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Down Payment</div>
+                      <div class="uk-width-2-3@m" title="Down payment = total * % dp">
+                        <%= text_field_tag :down_payment_total, number_with_precision(@proforma_invoice_customer.down_payment_total, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Discount</div>
+                      <div class="uk-width-2-3@m" title="Discount = sum amount discount * % dp,/ Discount(dp0) = sum amount discount">
+                        <%= text_field_tag :discount_total, number_with_precision(@proforma_invoice_customer.discount_total, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">PPN</div>
+                      <div class="uk-width-2-3@m" title="PPN = down payment total - discount total * value tax%,/ PPN(dp0) = total - discount total * value tax%">
+                        <%= text_field_tag :ppn_total, number_with_precision(@proforma_invoice_customer.ppn_total, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Grand Total</div>
+                      <div class="uk-width-2-3@m" title="Grand total = down payment total - discount total + ppn,/ Grand total(dp0) = total - discount total + ppn">
+                        <%= text_field_tag :grand_total, number_with_precision(@proforma_invoice_customer.grand_total, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- APPROVE -->
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @proforma_invoice_customer.status == 'new' or @proforma_invoice_customer.status == 'canceled1' %>
+                        <%= link_to approve_proforma_invoice_customer_path(@proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @proforma_invoice_customer.status == 'approved1' or @proforma_invoice_customer.status == 'canceled2' %>
+                        <%= link_to approve_proforma_invoice_customer_path(@proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_proforma_invoice_customer_path(@proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @proforma_invoice_customer.status == 'approved2' or @proforma_invoice_customer.status == 'canceled3' %>   
+                        <%= link_to approve_proforma_invoice_customer_path(@proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_proforma_invoice_customer_path(@proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>
+                      <% else %>
+                        <%= link_to approve_proforma_invoice_customer_path(@proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @proforma_invoice_customer.status %>
+                      <% when 'approved3' %>
+                        <%= link_to 'Back', proforma_invoice_customers_path(:view_kind=> params[:view_kind], :page=> params[:page], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to print_proforma_invoice_customer_path(@proforma_invoice_customer), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                      <% else %>
+                        <%= link_to 'Back', proforma_invoice_customers_path(:view_kind=> params[:view_kind], :page=> params[:page], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_proforma_invoice_customer_path(@proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

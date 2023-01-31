@@ -1,0 +1,7 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

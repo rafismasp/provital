@@ -1,0 +1,665 @@
+
+  <% case params[:filter_column] %>
+  <% when "product_batch_number_id" %>
+    <% if @option_filter_records.present? %>
+      <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+      <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+      
+      <script>
+        record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.number}", field0: k.number, field1: "#{k.product.part_id if k.product.present?}" } }.to_json %>;
+        var field0 = "Product Batch Number",
+            width0 = "width: auto;",
+            field1 = "Product Code",
+            width1 = "width: auto;";
+    
+        $( "#filter_result" ).autocomplete({
+          minLength: 0,
+          source: function(request, response) {
+            var results = $.ui.autocomplete.filter(record, request.term);             
+            response(results.slice(0, 20)); // limit list
+          },
+          focus: function( event, ui ) {    
+            return false;
+          },
+          select: function( event, ui ) { 
+            $(this).val(ui.item.field0);
+            $("#filter_value").val(ui.item.key);
+            return false;
+          },
+          create: function () {
+            $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+              var self = this;
+              ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+              $.each(items, function (index, item) {
+                  self._renderItemData(ul, item);
+              });
+            };
+            $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+              return $("<li>")
+                .data("item.autocomplete", item)
+                .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+                .appendTo(table);
+            };        
+          },
+          change: function( event, ui) {          
+          }
+        });
+      </script>
+    <% else %>
+      No Data!
+    <% end %>
+  <% when "sales_order_id" %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.number} #{k.po_number}", field0: k.number, field1: k.po_number } }.to_json %>;
+      var field0 = "SO.Number",
+          width0 = "width: auto;",
+          field1 = "PO.Number",
+          width1 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field1);
+          $("#filter_value").val(ui.item.key);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when "so_project_name" %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.remarks}", field0: k.remarks } }.to_json %>;
+      var field0 = "Project Number",
+          width0 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.value);
+          $("#filter_value").val(ui.item.value);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when "product_type_id", "product_category_id","product_sub_category_id" %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.code} #{k.name}", field0: k.code, field1: k.name } }.to_json %>;
+      var field0 = "Name",
+          width0 = "width: auto;",
+          field1 = "Code",
+          width1 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field1);
+          $("#filter_value").val(ui.item.key);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'product_id','material_id' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: k.name, field0: k.name, field1: k.part_id } }.to_json %>;
+      var field0 = "Name",
+          width0 = "width: auto;",
+          field1 = "Code",
+          width1 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $("#filter_value").val(ui.item.key);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'periode' %>
+    <% select_year = DateTime.now().strftime("%Y") %>
+    <% select_month = DateTime.now().strftime("%m") %>
+
+    <%= select_tag "filter_value1", options_for_select([["January", '01'], ["February", '02'], ["March", '03'], ["April", "04"], ["May", "05"], ["June", "06"], ["July", "07"], ["August", "08"], ["September", "09"], ["October", "10"], ["November", "11"], ["December", "12"]], select_month), :class=>"uk-select uk-form-width-small uk-form-small", :prompt=>"--select--", 
+      :onchange=> "$('#filter_value').val($('#filter_value2').find(':selected').val()+$('#filter_value1').find(':selected').val());" %>
+
+    <%= select_tag "filter_value2", options_for_select(Date.today.year.. 3.years.from_now.year, select_year), :class=>"uk-select uk-form-width-small uk-form-small", :prompt=>"--select--", 
+      :onchange=> "$('#filter_value').val($('#filter_value2').find(':selected').val()+$('#filter_value1').find(':selected').val());"  %>
+    <%= hidden_field_tag "filter_value", "#{select_year}#{select_month}" %>            
+  <% when 'business_description','pic','email','address','telephone','remarks','part_id','po_number','vendor_name' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: k["#{params[:filter_column]}"], field0: k["#{params[:filter_column]}"], field1: k.status } }.to_json %>;
+      var field0 = "<%= params[:filter_column].humanize %>",
+          width0 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $("#filter_value").val(ui.item.field0);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'purchase_order_supplier_id' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: k["number"], field0: k["number"], field1: k.status } }.to_json %>;
+      var field0 = "PO Number",
+          width0 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        <% case controller_name %>
+        <% when 'material_receivings','product_receivings','general_receivings'%>
+          select: function( event, ui ) { 
+            $(this).val(ui.item.field0);
+            $("#filter_value").val(ui.item.key);
+            return false;
+          },
+        <% else %>
+          select: function( event, ui ) { 
+            $(this).val(ui.item.field0);
+            $("#filter_value").val(ui.item.field0);
+            return false;
+          },
+        <% end %>
+        create: function () {
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'customer_id' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.number} #{k.name}", field0: k.number, field1: k.name } }.to_json %>;
+      var field0 = "Code",
+          width0 = "width: 50px;",
+          field1 = "Name",
+          width1 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0+' - '+ui.item.field1);
+          $("#filter_value").val(ui.item.key);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'supplier_id' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.currency.name} #{k.name}", field0: k.currency.name, field1: k.name } }.to_json %>;
+      var field0 = "Cur",
+          width0 = "width: 50px;",
+          field1 = "Name",
+          width1 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field1);
+          $("#filter_value").val(ui.item.key);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'name' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: k.name, field0: k.name, field1: k.status } }.to_json %>;
+      var field0 = "Name",
+          width0 = "width: auto;",
+          field1 = "Status",
+          width1 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $("#filter_value").val(ui.item.field0);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'number' %>
+    <% if @option_filter_records.present? %>
+      <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+      <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+      
+      <script>
+        record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.number} #{k.status}", field0: k.number, field1: k.status } }.to_json %>;
+        var field0 = "Doc.Number",
+            width0 = "width: auto;",
+            field1 = "Status",
+            width1 = "width: auto;";
+    
+        $( "#filter_result" ).autocomplete({
+          minLength: 0,
+          source: function(request, response) {
+            var results = $.ui.autocomplete.filter(record, request.term);             
+            response(results.slice(0, 20)); // limit list
+          },
+          focus: function( event, ui ) {    
+            return false;
+          },
+          select: function( event, ui ) { 
+            $(this).val(ui.item.field0);
+            $("#filter_value").val(ui.item.field0);
+            return false;
+          },
+          create: function () {
+            $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+              var self = this;
+              ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+              $.each(items, function (index, item) {
+                  self._renderItemData(ul, item);
+              });
+            };
+            $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+              return $("<li>")
+                .data("item.autocomplete", item)
+                .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+                .appendTo(table);
+            };        
+          },
+          change: function( event, ui) {          
+          }
+        });
+      </script>
+    <% else %>
+      No Data!
+    <% end %>
+  <% when 'prf_number','pdm_number','po_supplier_number' %>
+    <% if @option_filter_records.present? %>
+      <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+      <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+      
+      <script>
+        record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.number} #{k.status}", field0: k.number, field1: k.status } }.to_json %>;
+        var field0 = "Doc.Number",
+            width0 = "width: auto;",
+            field1 = "Status",
+            width1 = "width: auto;";
+    
+        $( "#filter_result" ).autocomplete({
+          minLength: 0,
+          source: function(request, response) {
+            var results = $.ui.autocomplete.filter(record, request.term);             
+            response(results.slice(0, 20)); // limit list
+          },
+          focus: function( event, ui ) {    
+            return false;
+          },
+          select: function( event, ui ) { 
+            $(this).val(ui.item.field0);
+            $("#filter_value").val(ui.item.field0);
+            return false;
+          },
+          create: function () {
+            $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+              var self = this;
+              ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+              $.each(items, function (index, item) {
+                  self._renderItemData(ul, item);
+              });
+            };
+            $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+              return $("<li>")
+                .data("item.autocomplete", item)
+                .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+                .appendTo(table);
+            };        
+          },
+          change: function( event, ui) {          
+          }
+        });
+      </script>
+    <% else %>
+      No Data!
+    <% end %>
+  <% when 'status' %>
+    <% case controller_name %>
+    <% when 'invoice_customers','sales_orders','material_check_sheets','cash_submissions' %>
+      <%= select_tag "filter_value", options_for_select(@option_filter_records.group("#{params[:filter_column]}".to_sym).map { |e| [e["#{params[:filter_column]}"], e["#{params[:filter_column]}"]] }), :class=>"uk-select uk-form-width-medium uk-form-small", :prompt=>"--select--" if @option_filter_records.present? %>
+    <% when 'employee_absences' %>
+      <%= select_tag "filter_value", options_for_select(['new','approved1','approved2','approved3']), :class=>"uk-select uk-form-width-small uk-form-small", :prompt=>"--select--" %>
+    <% else %>
+      <%= select_tag "filter_value", options_for_select(['new','approved','deleted','canceled']), :class=>"uk-select uk-form-width-small uk-form-small", :prompt=>"--select--" %>
+    <% end %>
+  <% when 'status_bon' %>
+    <%= select_tag "filter_value", options_for_select(@option_filter_records.group("#{params[:filter_column]}".to_sym).map { |e| [e["#{params[:filter_column]}"], e["#{params[:filter_column]}"]] }), :class=>"uk-select uk-form-width-medium uk-form-small", :prompt=>"--select--" if @option_filter_records.present? %>
+  <% when 'kind' %>
+    <%= select_tag "filter_value", options_for_select(@option_filter_records), :class=>"uk-select uk-form-width-small uk-form-small", :prompt=>"--select--" %>
+  <% when 'vehicle_driver_name', 'vehicle_number' %>
+    <%= select_tag "filter_value", options_for_select(@option_filter_records.group("#{params[:filter_column]}".to_sym).map { |e| [e["#{params[:filter_column]}"], e["#{params[:filter_column]}"]] }), :class=>"uk-select uk-form-width-medium uk-form-small", :prompt=>"--select--" if @option_filter_records.present? %>
+  <% when 'sales_order_id_old' %>
+    <% case controller_name
+    when 'production_orders'
+      filter_value = 'number'
+    else
+      filter_value = 'po_number'
+    end
+     %>
+
+    <%= select_tag "filter_value", options_for_select(@option_filter_records.map { |e| [e["#{filter_value}"], e.id] }), :class=>"uk-select uk-form-width-medium uk-form-small", :prompt=>"--select--" if @option_filter_records.present? %>
+  <% when 'delivery_driver_id','delivery_car_id','department_id', 'currency_id','term_of_payment_id' %>
+    <%= select_tag "filter_value", options_for_select(@option_filter_records.map { |e| [e.name, e.id] }), :class=>"uk-select uk-form-width-medium uk-form-small", :prompt=>"--select--" if @option_filter_records.present? %>
+  <% when 'employee_id' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: k.name, field0: k.name, field1: k.employee_status } }.to_json %>;
+      var field0 = "Name",
+          width0 = "width: auto;",
+          field1 = "Status",
+          width1 = "width: auto;";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $("#filter_value").val(ui.item.key);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% when 'name_account','list_external_bank_account_id' %>
+    <%= text_field_tag "filter_result", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+    <%= hidden_field_tag "filter_value", params[:filter_value], :class=>"uk-input uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+  
+    <script>
+      record = <%= raw  @option_filter_records.map {|k| { key:  k.id, value: "#{k.id}" "-#{k.name_account}", field0: k.name_account, field1: "" } }.to_json %>;
+      var field0 = "Name",
+          width0 = "width: auto;",
+          field1 = "",
+          width1 = "";
+  
+      $( "#filter_result" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+
+          <% case params[:filter_column] %>
+          <% when 'name_account' %>
+            $("#filter_value").val(ui.item.field0);
+          <% when 'list_external_bank_account_id' %>
+            $("#filter_value").val(ui.item.value);
+          <% end %>
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% else %>
+    Tidak ada
+  <% end %>

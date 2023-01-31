@@ -1,0 +1,43 @@
+
+
+
+<div class="uk-section uk-flex uk-flex-middle content" uk-height-viewport>
+  <div class="uk-width-1-1">
+    <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid>
+      <div class="uk-width-1-1@m uk-animation-fade">
+        <h1 class="uk-text-center title">
+          <%= render "devise/shared/error_messages", resource: resource %></h1>
+        <div class="uk-margin uk-width-large uk-margin-auto uk-card uk-card-default uk-card-body uk-box-shadow-small account-access-forms">
+          <h3 class="uk-card-title uk-text-center">Change your password!</h3>
+          <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }, class: "uk-form-horizontal") do |f| %>
+
+            <%= f.hidden_field :reset_password_token %>
+            <div class="uk-margin">
+              <div class="uk-inline uk-width-1-1">
+                <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                <%= f.password_field :password, autocomplete: "new-password", :class=> "uk-input uk-form-large", :placeholder=> "Set a New Password" %>
+                <% if @minimum_password_length %>
+                  <em><%= @minimum_password_length %> characters minimum</em>
+                <% end %>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <div class="uk-inline uk-width-1-1">
+                <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                <%= f.password_field :password_confirmation, autocomplete: "new-password", :class=> "uk-input uk-form-large", :placeholder=> "Retype" %>
+              </div>
+            </div>
+
+            <div class="uk-margin">
+              <%= f.submit "Change my password", class: "uk-button uk-button-primary uk-button-large uk-width-1-1"  %>
+            </div>
+            <div class="uk-text-small uk-text-center">
+              <%= render "users/shared/links" %>
+            </div>
+          <% end %> 
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

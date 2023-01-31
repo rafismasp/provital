@@ -1,0 +1,38 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_item' %>
+	$('#item tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% when 'change_sales_order' %>
+	$(".form_product<%= params[:c] %>").html("<%= escape_javascript(render 'partial') %>");
+	$(".form_product<%= params[:c] %>").prop("onclick", null).off("click");
+<% when 'change_quantity' %>
+	$(".quantity<%= params[:c] %>").attr("max", "<%= @quantity_max if @quantity_max.present? %>")
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>
+
+
+function change_quantity_sfo(obj, seq) {
+	var so_id = $(".sales_order_id"+seq).val(); 
+	var prd_id = $(".product_id"+seq).val(); 
+
+	if (so_id > 0 && prd_id > 0 ) {
+	  $.ajax({
+	    url: "/<%= controller_name %>",
+	    type: "Get",
+	    data: {
+	      partial: "change_quantity", 
+	      sales_order_id: so_id,
+	      product_id: prd_id, 
+	      c: seq
+	    },
+	    dataType: "script",
+	    success: function (data){
+	    }
+	  });
+	}
+}

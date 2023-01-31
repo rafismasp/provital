@@ -1,0 +1,62 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_supplier' %>
+	$('.select_taxes').html("<%= escape_javascript(render 'partial', {field:'tax_id'}) %>");
+	$('.select_currencies').html("<%= escape_javascript(render 'partial', {field:'currency_id'}) %>");
+	$('.select_term_of_payments').html("<%= escape_javascript(render 'partial', {field:'term_of_payment_id'}) %>");
+	$('.select_top_day').val("<%= params[:select_top_day] %>");
+
+<% when 'change_purchase_request' %>
+	$('.order_kind').val("<%= params[:q] %>");
+	$('#item').html("<%= escape_javascript(render 'partial') %>");
+	$('.due_date_item').val($("#purchase_order_supplier_due_date").val());
+<% when 'change_department','change_po_base' %>
+	$('.select_section').html("<%= escape_javascript(render 'partial', {select_kind:'employee_section_id'}) %>");
+	<% case params[:po_base] %>
+	<% when 'PRF' %>
+		$('.select_purchase_requests').html("<%= escape_javascript(render 'partial', {select_kind:'purchase_request_id'} ) %>");
+	<% when 'PDM' %>
+		$('.select_purchase_requests').html("<%= escape_javascript(render 'partial', {select_kind:'pdm_id'} ) %>");
+	<% else %>
+		$('.select_purchase_requests').html("");
+	<% end %>
+	$('#item').html("");
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+
+	$(document).off('focusout','#number_of_days');
+	$(document).on('focusout','#number_of_days', function(evt){
+	  $.ajax({
+	    url: "/<%= controller_name %>",
+	    type: "Get",
+	    data: {
+	      date_begin: $("#date_begin").val(),
+	      date_end: $("#date_end").val(),
+	      view_kind: $("#select_view_kind").find(':selected').val(),
+	      number_of_days: $(this).val()
+	    },
+	    dataType: "script",
+	    success: function (data){
+	    }
+	  });
+	});
+
+
+	$(document).off('click','#export');
+	$(document).on('click','#export', function(evt){
+    var my_url = "/<%= controller_name %>/export?date_begin="+$("#date_begin").val()+"&date_end="+$("#date_end").val();
+  
+	  if ($("#select_view_kind").find(':selected').val() != null) {
+	    my_url += "&view_kind="+$("#select_view_kind").find(':selected').val();
+	  }
+
+	  if ($("#number_of_days").val() != null) {
+	    my_url += "&number_of_days="+$("#number_of_days").val();
+	  }
+	  window.open(my_url); 
+	});
+
+<% end %>

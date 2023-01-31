@@ -1,0 +1,162 @@
+
+<%= form_with(model: internal_transfer, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if internal_transfer.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(internal_transfer.errors.count, "error") %> prohibited this internal_transfer from being saved:</h2>
+
+      <ul>
+      <% internal_transfer.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% if params[:q].blank? %>
+    <% if @internal_transfer.present? %>
+      <% params[:q] = @internal_transfer.transfer_kind %>
+    <% end %>
+  <% end %>
+  <% if params[:q1].blank? %>
+    <% if @internal_transfer.present? %>
+      <% params[:q1] = @internal_transfer.transfer_from %>
+    <% end %>
+  <% end %>
+  <% if params[:q2].blank? %>
+    <% if @internal_transfer.present? %>
+      <% params[:q2] = @internal_transfer.transfer_to %>
+    <% end %>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Number</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :number, id: :internal_transfer_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-6@m">Date</div>
+            <div class="uk-width-1-3@m">
+              <%= form.date_field :date, id: :internal_transfer_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">From</div>
+            <div class="uk-width-1-3@m">
+              <% if params[:q1].present? %>
+                <%= form.select :transfer_from, ["#{params[:q1]}"], {:selected=> params[:q1]}, :class=> "uk-select uk-form-width-large uk-form-small", :required=> true %>
+              <% else %>
+                <%= form.select :transfer_from, ['Warehouse FG','Warehouse RAW Material','Production','2nd Process','Quality Control'], {:selected=> params[:q1]}, :class=> "uk-select uk-form-width-large uk-form-small", :required=> true %>
+              <% end %>
+            </div>
+            <div class="uk-width-1-6@m">To</div>
+            <div class="uk-width-1-3@m">
+              <% if params[:q2].present? %>
+                <%= form.select :transfer_to, ["#{params[:q2]}"], {:selected=> params[:q2]}, :class=> "uk-select uk-form-width-large uk-form-small", :required=> true %>
+              <% else %>
+                <%= form.select :transfer_to, ['Warehouse FG','Warehouse RAW Material','Production','2nd Process','Quality Control'], {:selected=> params[:q2]}, :class=> "uk-select uk-form-width-large uk-form-small", :required=> true %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">Kind</div>
+          <div class="uk-width-1-3@m">
+            <%= form.select :transfer_kind, ['product','material','packaging'], {:selected=> params[:q]}, :class=> "transfer_kind uk-select uk-form-width-large uk-form-small", :required=> true %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Part Name</th>
+            <th>Internal Part ID</th>
+            <th>Model</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @internal_transfer_items.each do |internal_transfer_item| %>
+            <%= hidden_field_tag 'internal_transfer_item[][id]', internal_transfer_item.id %>
+            <% part = nil %>
+            <% if internal_transfer_item.product.present? %>
+              <% part = internal_transfer_item.product %>
+            <% elsif internal_transfer_item.material.present? %>
+              <% part = internal_transfer_item.material %>
+            <% end %>
+            <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+
+            <tr>
+              <td class="counter uk-text-right"><%= c+=1%></td>
+              <td>
+                <% if internal_transfer_item.product.present? %>
+                  <%= select_tag "internal_transfer_item[][product_id]", options_for_select(@products.collect { |e| [e.name, e.id, 
+                    {:'part_id'=> e.part_id, :'unit_name' => (e.unit.name if e.unit.present?), :'part_model'=> e.part_model }]},
+                    internal_transfer_item.product_id) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-width-medium uk-form-small',
+                      :onchange=> "change_product_id(this, '"+params[:controller].to_s+"', '"+c.to_s+"');"} if @products.present? %>
+                <% elsif internal_transfer_item.material.present? %>
+                  <%= select_tag "internal_transfer_item[][material_id]", options_for_select(@materials.collect { |e| [e.name, e.id, 
+                    {:'part_id'=> e.part_id, :'unit_name' => (e.unit.name if e.unit.present?), :'part_model'=> e.part_model }]},
+                    internal_transfer_item.material_id) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-width-medium uk-form-small',
+                      :onchange=> "change_material_id(this, '"+params[:controller].to_s+"', '"+c.to_s+"');"} if @materials.present? %>
+                <% end %>
+              </td>
+             <td>
+                <%= text_field_tag 'part_id', part.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_model', part.part_model, {:class=>"part_model#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+             
+              <td>
+                <%= number_field_tag 'internal_transfer_item[][quantity]', internal_transfer_item.quantity, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'internal_transfer_item[][remarks]',internal_transfer_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "internal_transfer_item[][status]", options_for_select(['active','deleted'],
+                  internal_transfer_item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @internal_transfer_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', internal_transfers_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

@@ -1,0 +1,47 @@
+<% case params[:partial] %>
+<% when 'change_internship' %>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-4@m">Tempat tgl lahir</div>
+    <div class="uk-width-1-3@m">
+      <%= text_field_tag :employee_internship_born_place, (@employee_internship.born_place if @employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+    </div>
+    <div class="uk-width-1-3@m">
+      <%= date_field_tag :employee_internship_born_date, (@employee_internship.born_date if @employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-4@m">Education</div>
+    <div class="uk-width-1-3@m">
+      <%= text_field_tag :employee_internship_last_education, (@employee_internship.last_education if @employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+    </div>
+    <div class="uk-width-1-5@m">Gender</div>
+    <div class="uk-width-1-5@m">
+      <%= text_field_tag :employee_internship_gender, (@employee_internship.gender if @employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-4@m">Phone</div>
+    <div class="uk-width-1-3@m">
+      <%= text_field_tag :employee_internship_phone_number, (@employee_internship.phone_number if @employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-4@m">Address</div>
+    <div class="uk-width-1-2@m">
+      <%= text_area_tag :employee_internship_address, (@employee_internship.address if @employee_internship.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :disabled=> true, :rows=> '5' %>
+    </div>
+  </div>
+<% when 'change_employee' %>   
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-4@m">Jabatan</div>
+    <div class="uk-width-1-3@m">
+      <%= text_field_tag :employee_position, (@employee.position.name if @employee.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-4@m">Address</div>
+    <div class="uk-width-1-2@m">
+      <%= text_area_tag :employee_domicile_address, (@employee.domicile_address if @employee.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :disabled=> true, :rows=> '5'  %>
+    </div>
+  </div>       
+<% end %>

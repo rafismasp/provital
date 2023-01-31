@@ -1,0 +1,27 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Nama</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @direct_labor_workers.each do |direct_labor_worker| %>
+            <tr uk-tooltip="title: <%= row_tooltip(direct_labor_worker) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= direct_labor_worker.name %></td>
+              <td><%= link_to 'Show', direct_labor_worker %></td>
+              <td><%= link_to 'Edit', edit_direct_labor_worker_path(direct_labor_worker, job: 'edit') %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+<% end %>

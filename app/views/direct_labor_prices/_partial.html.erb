@@ -1,0 +1,103 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'add_item' %>
+  <tr id=trid"<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-right'><%= params[:c] %></td>
+    <td>
+      <%= text_field_tag 'new_record_item[][activity_name]',nil, { :class=>"uk-input uk-form-small"} %>
+    </td>
+    <td>
+      <%= number_field_tag 'new_record_item[][target_quantity_perday]', nil, {:step=> "any", :class=>"target_quantity_perday#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "
+      $('.unit_price"+params[:c].to_s+"').val( $('.pay_perday"+params[:c].to_s+"').val( ) / $('.target_quantity_perday"+params[:c].to_s+"').val( ))
+      "} %> / Hari
+    </td>
+    <td>
+      <%= number_field_tag 'new_record_item[][pay_perday]', nil, {:step=> "any", :class=>"pay_perday#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "
+      $('.unit_price"+params[:c].to_s+"').val( $('.pay_perday"+params[:c].to_s+"').val( ) / $('.target_quantity_perday"+params[:c].to_s+"').val( ))
+      "} %> / Hari
+    </td>
+    <td>
+      <%= number_field_tag 'new_record_item[][unit_price]',nil, {:step=> "any", :class=>"unit_price#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+    </td>
+    <td align='center' width=30px>
+      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Aktivitas</th>
+            <th>Target/ Hari</th>
+            <th>Upah/ Hari</th>
+            <th>Harga Borongan</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @direct_labor_prices.each do |direct_labor_price| %>
+            <% direct_labor_price.direct_labor_price_details.each do |item| %>
+              <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+                <td><%= c+=1 %></td>
+                <td><%= direct_labor_price.status %></td>
+                <td><%= direct_labor_price.product.part_id if direct_labor_price.product.present? %></td>
+                <td><%= direct_labor_price.product.name if direct_labor_price.product.present? %></td>
+                <td><%= item.activity_name %></td>                
+                <td class="uk-text-right"><%= number_with_precision(item.target_quantity_perday, precision: 0, delimiter: ".", separator: ",") %></td>
+                <td class="uk-text-right"><%= number_with_precision(item.pay_perday, precision: 0, delimiter: ".", separator: ",") %></td>
+                <td class="uk-text-right"><%= number_with_precision(item.unit_price, precision: 0, delimiter: ".", separator: ",") %></td>
+                <td><%= link_to 'Show', direct_labor_price %></td>
+                <td><%= link_to 'Edit', edit_direct_labor_price_path(direct_labor_price, job: 'edit') %></td>
+              </tr>
+            <% end if direct_labor_price.direct_labor_price_details.present? %>
+          <% end if @direct_labor_prices.present? %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Product Type</th>
+            <th>Unit Price</th>
+            <th>Unit</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @direct_labor_prices.each do |direct_labor_price| %>
+            <tr uk-tooltip="title: <%= row_tooltip(direct_labor_price) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= direct_labor_price.status %></td>
+              <td><%= direct_labor_price.product.part_id if direct_labor_price.product.present? %></td>
+              <td><%= direct_labor_price.product.name if direct_labor_price.product.present? %></td>
+              <td><%= direct_labor_price.product.type_name if direct_labor_price.product.present? %></td>
+              <td>
+                <%= direct_labor_price.currency.name if direct_labor_price.currency.present? %>
+                <%= direct_labor_price.unit_price %></td>
+              <td><%= direct_labor_price.product.unit_name if direct_labor_price.product.present? %></td>
+              <td><%= link_to 'Show', direct_labor_price %></td>
+              <td><%= link_to 'Edit', edit_direct_labor_price_path(direct_labor_price, job: 'edit') %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% end %>
+<% end %>

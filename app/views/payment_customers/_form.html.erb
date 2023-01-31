@@ -1,0 +1,239 @@
+
+<%= form_with(model: payment_customer, local: true, class: "uk-form-horizontal") do |form| %>
+  
+  <% if payment_customer.errors.any? %>
+    <% alert = "<h4> #{pluralize(payment_customer.errors.count, 'error')} prohibited this payment_customer from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% payment_customer.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end %>
+
+ <% if payment_customer.present? %>
+  <% if payment_customer.currency_id.present? and payment_customer.currency.name == "IDR" %>
+    <% currency_sign = 2 %>
+  <% else %>
+    <% currency_sign = 4 %> 
+  <% end %>
+<% else %>
+  <% currency_sign = 4 %> 
+<% end %>
+
+  <div class="uk-margin-small">
+    <%= hidden_field_tag "invoice_kind", invoice_kind %>
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Customers</div>
+            <div class="uk-width-3-4@m">
+              <%= hidden_field_tag "payment_customer[customer_id]", (form.object.customer.present? ? form.object.customer_id : ""), :class=>"customer_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "customer_id", field_value: (form.object.customer.present? ? form.object.customer.name : "") %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :payment_customer_number, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Bank Transfer</div>
+            <div class="uk-width-3-4@m">
+              <%= form.select :bank_transfer_id, options_for_select(@bank_transfers.map{|c| [c.description, c.id ]}, form.object.bank_transfer_id), {:include_blank => true}, {class: "uk-select uk-form-width-large uk-form-small", :required=> true} if @bank_transfers.present? %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Remarks</div>
+            <div class="uk-width-3-4@m">
+              <%= form.text_field :remarks, id: :payment_customer_remarks, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Currency</div>
+            <div class="uk-width-1-4@m select_currencies">
+              <%= form.select :currency_id, options_for_select(@currencies.map{|c| [c.name, c.id, {:'name'=> c.name} ]}, form.object.currency_id), {:include_blank => true}, {class: "uk-select uk-form-width-large uk-form-small", :required=> true} if @currencies.present? %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Date</div>
+            <div class="uk-width-2-3@m">
+              <%= form.date_field :date, id: :payment_customer_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Total Pajak Invoice</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "payment_customer[total_tax]", (number_with_precision(form.object.total_tax, precision: currency_sign, delimiter: ".", separator: ",") if form.object.present? ), {:readonly=>true, :class=>'total_tax uk-input uk-form-small uk-text-right'} %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Total Amount Invoice</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "payment_customer[total_amount]", (number_with_precision(form.object.total_amount, precision: currency_sign, delimiter: ".", separator: ",") if form.object.present? ), {:readonly=>true, :class=>'total_amount uk-input uk-form-small uk-text-right'} %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Biaya Adm.Bank</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "payment_customer[adm_fee]", (number_with_precision(form.object.adm_fee, precision: currency_sign, delimiter: ".", separator: ",") if form.object.present? ), {:class=>'adm_fee uk-input uk-form-small uk-text-right', :onchange=> "change_payment_amount(this, '"+params[:controller].to_s+"');"} %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Potongan Lain.</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "payment_customer[other_cut_cost]", (number_with_precision(form.object.other_cut_cost, precision: currency_sign, delimiter: ".", separator: ",") if form.object.present? ), {:class=>'other_cut_cost uk-input uk-form-small uk-text-right', :onchange=> "change_payment_amount(this, '"+params[:controller].to_s+"');"} %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Jumlah Transfer</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "payment_customer[paid]", (number_with_precision(form.object.paid, precision: currency_sign, delimiter: ".", separator: ",") if form.object.present? ), {:readonly=>true, :class=>'paid uk-input uk-form-small uk-text-right'} %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m button-invoice-modal">
+        <a class='uk-button uk-button-primary uk-button-small' href='#invoice-sections' uk-toggle>Select <%= params[:kind] == 'proforma' ? 'Proforma Invoice' : 'Invoice' %></a>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@s">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+          <thead>      
+            <tr>
+              <th>#</th>
+              <th>Invoice Number</th>
+              <th>Jumlah</th>
+              <th>Pajak</th>
+              <th>Discount</th>
+              <th>Down Payment</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @invoice_customer_by_payments.present? %>
+              <% c = 0 %>
+              <% @invoice_customer_by_payments.each do |invoice| %>
+                <% case invoice_kind %>
+                <% when 'proforma' %>
+                  <%= hidden_field_tag "record[][proforma_invoice_customer_id]", invoice.id %>
+                  <tr>
+                    <td><%= c+= 1%></td>
+                    <td><%= invoice.number %></td>
+                    <td class="uk-text-right"><%= number_with_precision(invoice.grand_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= number_with_precision(invoice.ppn_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= number_with_precision(invoice.discount_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= number_with_precision(invoice.down_payment_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= select_tag "record[][status]", options_for_select(['active','deleted'], invoice.status) , {:class=>'uk-select'} %> </td>
+                  </tr>
+                <% else %>
+                  <%= hidden_field_tag "record[][invoice_customer_id]", invoice.id %>
+                  <tr>
+                    <td><%= c+= 1%></td>
+                    <td><%= invoice.number %></td>
+                    <td class="uk-text-right"><%= number_with_precision(invoice.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= number_with_precision(invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= number_with_precision(invoice.discount, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= number_with_precision(0, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td class="uk-text-right"><%= select_tag "record[][status]", options_for_select(['active','deleted'], invoice.status) , {:class=>'uk-select'} %> </td>
+                  </tr>
+                <% end %>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="10">Tidak ada Invoice </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="invoice-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title"><%= params[:kind] == 'proforma' ? 'Proforma Invoice' : 'Invoice Customers' %></h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_invoice_customers">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>Invoice Number</td>
+            <td>Invoice Date</td>
+          </tr>
+          <% c = 0 %>
+          <% if @invoice_customers.present? %>
+            <% @invoice_customers.each do |invoice| %>
+              <tr>
+                <td><%= c+=1 %></td>
+                <td><input class="uk-checkbox select_invoice_customer_id" type="checkbox" invoice_customer_id="<%= invoice.id %>"></td>
+                <td><%= invoice.number %></td>
+                <td><%= invoice.date %></td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="10">Not Found</td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_invoice_customer_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', payment_customers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

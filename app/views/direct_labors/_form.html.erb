@@ -1,0 +1,180 @@
+
+<%= form_with(model: direct_labor, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if direct_labor.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(direct_labor.errors.count, "error") %> prohibited this direct_labor from being saved:</h2>
+
+      <ul>
+      <% direct_labor.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-2-3@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Number</div>
+          <div class="uk-width-1-4@m">
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= text_field_tag "number", form.object.number, {:class=> "uk-input uk-form-small", :disabled=> true} %>
+            <% else %>
+              <%= form.text_field :number, id: :direct_labor_number, :class=> "uk-input uk-form-small", :readonly=> true, :placeholder=> "Auto Number" %>
+            <% end %>
+          </div>
+          <div class="uk-width-1-5@m">Date</div>
+          <div class="uk-width-1-4@m">
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= date_field_tag "date", form.object.date, {:title=>"Tanggal tidak bisa diubah, karena mempengaruhi penomoran Dokumen", :class=> "uk-input uk-form-small", :disabled=> true} %>
+            <% else %>
+              <%= form.date_field :date, id: :direct_labor_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-small" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-2-3@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">PIC</div>
+          <div class="uk-width-1-4@m">
+            <%= form.select :direct_labor_worker_id, options_for_select(@direct_labor_workers.map{|c| [c.name, c.id ]}, form.object.direct_labor_worker_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small"} if @direct_labor_workers.present? %>
+          </div>
+          <div class="uk-width-1-5@m">Remarks</div>
+          <div class="uk-width-1-4@m">
+            <%= form.text_field :remarks, id: :direct_labor_remarks, :class=> "uk-input uk-form-small" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :id=> "add_item", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1 uk-overflow-auto">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">                 
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Batch Number</th>
+              <th>Part Code</th>
+              <th>Part Name</th>
+              <th>Part Type</th>
+              <th>Unit</th>
+              <th>Summary Qty</th>
+              <th>Summary Price</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>            
+            <% c=0 %>
+            <% if @direct_labor_items.present? %>
+              <% @direct_labor_items.each do |direct_labor_item| %>
+                <% part = direct_labor_item.product %>
+                <tr>
+                  <td class="counter">
+                    <%= c+=1%>
+                    <%= hidden_field_tag 'record_item[][id]', direct_labor_item.id %>
+                    <%= hidden_field_tag "product_batch_number_id", direct_labor_item.product_batch_number_id, :class=>"product_batch_number_id product_batch_number_id#{c}  uk-input uk-form-width-medium uk-form-small" %>
+                  </td>
+                  <td class="uk-width-small">
+                    <%= direct_labor_item.product_batch_number.number %>
+                  </td>
+                  <td class="uk-width-small">
+                    <%= (part.part_id if part.present?) %>
+                  </td>
+                  <td class="uk-width-medium">
+                    <%= (part.name if part.present?) %>
+                  </td>
+                  <td class="uk-width-small">
+                    <%= (part.type_name if part.present?) %>
+                  </td>
+                  <td class="uk-width-small uk-text-center">
+                    <%= (part.unit_name if part.present?) %>
+                  </td>
+                  <td class="uk-width-small">
+                    <%= number_field_tag 'record_item[][quantity]', direct_labor_item.quantity, {:class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :readonly=> true} %>
+                  </td>
+                  <td class="uk-width-small">
+                    <%= number_field_tag 'record_item[][unit_price]', direct_labor_item.unit_price, {:class=>"unit_price#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :readonly=> true} %>
+
+                  </td>
+                  <td class="uk-width-large">
+                    <%= text_field_tag 'record_item[][remarks]', direct_labor_item.remarks, {:class=>"uk-input uk-form-small"} %>
+                  </td>
+                  <td>
+                    <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], direct_labor_item.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td width=22px class='counter uk-text-right' style="color:white;"><%= c %></td>
+                  <td colspan="10">                              
+                    <div class="divTable">
+                      <div class="divTableBody">
+                        <div class="divTableRow">
+                          <div class="divTableCell">Jam Kerja</div>
+                          <div class="divTableCell">Code</div>
+                          <div class="divTableCell">Hasil Aktual</div>
+                          <div class="divTableCell">Harga/pcs</div>
+                          <div class="divTableCell">Total</div>
+                        </div>
+                        <% begin_h = "08:00" %>
+                        <% (1..9).each do |n| %>
+                          <div class="divTableRow">
+                            <div class="divTableCell"><%= begin_h %> - <%= begin_h = (begin_h.to_time+1.hours).strftime("%H:%M") %> (<%= c %> H)</div>
+                            <div class="divTableCell">
+                              <% dlpd = @direct_labor_price_details.find_by(:direct_labor_price_id=> direct_labor_item.direct_labor_price_id, :id=> direct_labor_item["activity_h#{n}"]) %>
+                              <%= select_tag "record_item[][activity_h#{n}]", options_for_select(@direct_labor_price_details.where(:direct_labor_price_id=> direct_labor_item.direct_labor_price_id).map { |e| [e.activity_name, e.id, {:'price'=> e.unit_price, :'ratio'=> e.ratio}] },
+                                direct_labor_item["activity_h#{n}"] ) , { :class=>"#{c}activity_h#{n} uk-select uk-form-small uk-form-width-small", :prompt => "Please select", 
+                                  :activity_c=> n, :c=> c,
+                                  :onchange=> "change_activity_labor(this, '"+params[:controller].to_s+"', '"+c.to_s+"');" } %>
+                            </div>
+                            <div class="divTableCell">
+                              <%= number_field_tag "record_item[][quantity_h#{n}]", direct_labor_item["quantity_h#{n}"], {:class=>"#{c}quantity_hour #{c}quantity_h#{n} uk-input uk-form-width-small uk-form-small uk-text-right", 
+                              :activity_c=> n, :c=> c, 
+                              :ratio=> (dlpd.present? ? dlpd.ratio : 1),
+                              :onchange=> "change_activity_labor(this, '"+params[:controller].to_s+"', '"+c.to_s+"');" } %>
+                            </div>
+                            <div class="divTableCell">
+                              <%= number_field_tag "record_item[][price_h#{n}]", direct_labor_item["price_h#{n}"], {:step=> :any, :class=>"#{c}price_h#{n} uk-input uk-form-width-small uk-form-small uk-text-right" } %>
+                            </div>
+                            <div class="divTableCell">
+                              <%= number_field_tag "record_item[][total_h#{n}]", direct_labor_item["total_h#{n}"], {:step=> :any, :class=>"#{c}total_hour #{c}total_h#{n} uk-input uk-form-width-small uk-form-small uk-text-right" } %>
+                            </div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', direct_labors_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

@@ -1,0 +1,137 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+<% when 'add_bon' %>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-2-3@m">
+      <%= link_to 'Add Item', 'javascript:;', :class=>"uk-button uk-button-primary uk-button-small", :onclick=>"add_new_item(1,'#{params[:controller].to_s}')" %>
+    </div>
+    <div class="uk-width-1-3@m">
+      <%= file_field_tag 'bon_file', :class=>'btn btn-default btn-sm', :onchange=>"readFile(this)" %>
+      <input type="hidden" value="" class="files_base64">
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+          <thead> 
+            <tr>
+              <th class="uk-text-middle">No</th>  
+              <th class="uk-text-middle">Delete</th>  
+              <th class="uk-text-middle uk-text-center">Payment Type</th>
+              <th class="uk-text-middle uk-text-center">COA Name</th>
+              <th class="uk-text-middle uk-text-center">Payment Name</th>
+              <th class="uk-text-middle uk-text-center">Description</th>
+              <th class="uk-text-middle uk-text-center">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="new_tbody_item">
+            <tr trid="1">
+              <td>1.</td>
+              <td><%= link_to "Delete","javascript:;", :onclick=>"delete_new_item(1,'#{params[:controller].to_s}')", :class=>"btn btn-primary" %></td>
+              <td><%= text_field_tag 'payment_type', nil , {:class=>"uk-input uk-form-small"} %></td>
+              <td><%= text_field_tag 'coa_name', nil , {:class=>"uk-input uk-form-small"} %></td>
+              <td><%= text_field_tag 'payment_name', nil , {:class=>"uk-input uk-form-small"} %></td>
+              <td><%= text_field_tag 'description', nil , {:class=>"uk-input uk-form-small"} %></td>
+              <td><%= number_field_tag 'amount', 0 , {:class=>"uk-input uk-form-small", :step=>"any"} %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% when 'add_item' %>
+<% when 'load_bon' %>
+  <% count = params[:count].to_i %>
+  <% rowspan = params[:obj].as_json.length %>
+  <% c = 1 %>
+  <% params[:obj].each do |v,k| %>
+    <tr trid="<%= count %>" bon_count="<%= params[:bon_count] %>">
+      <%= hidden_field_tag "cash_settlement_item[][bon_count]", params[:bon_count] %>
+      <td><%= count %>.</td>
+      <% if c==1 %>
+        <td rowspan="<%= rowspan %>">
+          <%= link_to "Delete","javascript:;", :onclick=>"delete_bon('#{params[:bon_count]}','#{params[:controller].to_s}')", :class=>"btn btn-primary" %>
+          ||
+          <%= link_to "View File","javascript:;", :class=>"btn btn-primary bon_files", :onClick=>"showFiles(this)" %>
+          <%= hidden_field_tag "cash_settlement_file[][bon_count]", params[:bon_count] %>
+          <%= hidden_field_tag "cash_settlement_file[][attachment]", nil, :class=>"save_bon_file" %>
+
+        </td>
+      <% end %>
+      <td><%= text_field_tag 'cash_settlement_item[][payment_type]', k["payment_type"] , {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= text_field_tag 'cash_settlement_item[][coa_name]', k["coa_name"] , {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= text_field_tag 'cash_settlement_item[][payment_name]', k["payment_name"] , {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= text_field_tag 'cash_settlement_item[][description]', k["description"] , {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= number_field_tag 'cash_settlement_item[][amount]', k["amount"] , {:class=>"uk-input uk-form-small", :step=>"any", :onchange=>"calculation_amount(this, '"+params[:controller].to_s+"')", :step=>"any"} %></td>
+    </tr>
+    <% count += 1 %>
+    <% c += 1 %>
+  <% end %>
+<% when 'change_department' %>
+  <%= select_tag "cash_settlement[cash_submission_id]", options_for_select(@cash_submissions.map { |e| ["#{e.number} - #{e.description}",e.id,{:amount=>e.amount,:currency_id=>e.currency_id,:currency_name=>e.currency.name}]}, @cash_submission.present? ? @cash_submission.id : nil), {:prompt=>"-- Select --", class: "uk-select uk-form-small", :onchange=>"change_cash_submission(this, '"+params[:controller].to_s+"')"} %>
+<% when 'add_new_item' %>
+  <tr trid="<%= params[:count] %>">
+    <td><%= params[:count] %>.</td>
+    <td><%= link_to "Delete","javascript:;", :onclick=>"delete_new_item('#{params[:count]}','#{params[:controller].to_s}')", :class=>"btn btn-primary" %></td>
+    <td><%= text_field_tag 'payment_type', nil , {:class=>"uk-input uk-form-small"} %></td>
+    <td><%= text_field_tag 'coa_name', nil , {:class=>"uk-input uk-form-small"} %></td>
+    <td><%= text_field_tag 'payment_name', nil , {:class=>"uk-input uk-form-small"} %></td>
+    <td><%= text_field_tag 'description', nil , {:class=>"uk-input uk-form-small"} %></td>
+    <td><%= number_field_tag 'amount', 0 , {:class=>"uk-input uk-form-small", :step=>"any"} %></td>
+  </tr>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>
+            <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+            <%= link_to approve_cash_settlement_path(0, :status=> 'approve3'), method: :put, :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+              <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+            <% end %>  
+          </th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Department</th>
+          <th>Bon Total</th>
+          <th>Setllement Total</th>
+          <th>Advantage</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @cash_settlements.each do |cash_settlement| %>
+          <tr uk-tooltip="title: <%= row_tooltip(cash_settlement) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td align="left" style="vertical-align: middle;">
+              <% case cash_settlement.status %>
+              <% when "approved2","canceled3" %>
+                <input type='checkbox'onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= cash_settlement.id %>" trid="<%=@c%>">
+              <% else %>
+              -
+              <% end %>
+            </td>
+            <td><%= cash_settlement.status %></td>
+            <td><%= cash_settlement.number %></td>
+            <td><%= cash_settlement.date %></td>
+            <td><%= cash_settlement.department.name %></td>
+            <td><%= number_with_precision(cash_settlement.expenditure_total.to_f, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= number_with_precision(cash_settlement.settlement_total.to_f, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= number_with_precision(cash_settlement.advantage.to_f, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= link_to 'Show', cash_settlement %></td>
+            <td><%= link_to 'Edit', edit_cash_settlement_path(cash_settlement) %></td>
+          </tr>
+        <% end if @cash_settlements.present? %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

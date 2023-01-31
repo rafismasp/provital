@@ -1,0 +1,2 @@
+class PaperSize < ApplicationRecord
+end

@@ -1,0 +1,115 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_supplier" %>
+	<% case field %>
+	<% when 'tax_id' %>
+    <%= select_tag "delivery_order_supplier[tax_id]", options_for_select(@taxes.map{|c| [c.name, c.id ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+	<% when 'currency_id' %>
+    <%= select_tag "delivery_order_supplier[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "delivery_order_supplier[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+	<% end %>
+<% when 'add_item' %>
+  <tr id="trid<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-right'><%= params[:c] %></td>
+    <td>
+      <%= hidden_field_tag "new_record_item[][material_batch_number_id]", nil, :class=>"material_batch_number_id#{params[:c]} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+      <%= render 'layouts/form_item', c: params[:c], field_name: "material_batch_number_id", field_value: "" %>
+    </td>
+    <td>
+      <%= hidden_field_tag 'new_record_item[][material_id]',nil, {:class=>"material_id#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+      <%= text_field_tag 'part_name',nil, {:class=>"part_name#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'part_id',nil, {:class=>"part_id#{params[:c]} uk-input uk-form-width-small uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'unit_name',nil, {:class=>"unit_name#{params[:c]} uk-input uk-form-small uk-text-center", :disabled=> true, :style=> "width:50px;"} %>
+    </td>
+
+    <td>
+      <%= number_field_tag 'new_record_item[][quantity]',nil, {:placeholder=> 'quantity', :class=>"quantity#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+    </td>
+    <td align='center' width=30px>
+      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Number</th>
+            <th>Part Code</th>
+            <th>Part Name</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Remarks Item</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @delivery_order_suppliers.each do |item| %>
+            <% part = (item.material if item.material.present?) %>
+            <% unit_name = (part.present? ? part.unit_name : "") %>
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= item.delivery_order_supplier.status %></td>
+              <td><%= item.delivery_order_supplier.number %></td>
+              <td><%= part.part_id if part.present? %></td>
+              <td><%= part.name if part.present? %></td>
+              <td><%= unit_name %></td>
+              <td><%= item.quantity %></td>
+              <td><%= item.remarks %></td>
+              <td><%= link_to 'Show', delivery_order_supplier_path(:id=> item.delivery_order_supplier_id) %></td>
+              <td><%= link_to 'Edit', edit_delivery_order_supplier_path(:id=> item.delivery_order_supplier_id)%></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Supplier</th>
+            <th>Currency</th>
+            <th colspan="2">TOP</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @delivery_order_suppliers.each do |delivery_order_supplier| %>
+            <tr uk-tooltip="title: <%= row_tooltip(delivery_order_supplier) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= delivery_order_supplier.status %></td>
+              <td><%= delivery_order_supplier.number %></td>
+              <td><%= delivery_order_supplier.date %></td>
+              <td><%= delivery_order_supplier.supplier.name if delivery_order_supplier.supplier.present? %></td>
+              <td><%= delivery_order_supplier.currency.name if delivery_order_supplier.currency.present? %></td>
+              <td><%= delivery_order_supplier.top_day %></td>
+              <td><%= delivery_order_supplier.term_of_payment.name if delivery_order_supplier.term_of_payment.present? %></td>
+              <td><%= link_to 'Show', delivery_order_supplier_path(:id=> delivery_order_supplier.id) %></td>
+              <td><%= link_to 'Edit', edit_delivery_order_supplier_path(:id=> delivery_order_supplier.id)%></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% end %>
+<% end %>

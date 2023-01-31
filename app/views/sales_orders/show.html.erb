@@ -1,0 +1,470 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', sales_orders_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Customer</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :customer, @sales_order.customer.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m" title="Terms of Payment">TOP</div>
+                      <div class="uk-width-1-2@m">    
+                        <div class="uk-flex">
+                          <%= text_field_tag :top_day, @sales_order.top_day, :class=> "uk-input uk-form-small", :disabled=> true, :style=> "width: 50px;" %>
+                          <%= text_field_tag :term_of_payment, (@sales_order.term_of_payment.name if @sales_order.term_of_payment.present?), :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m" title="Terms of Payment">Service Type</div>
+                      <div class="uk-width-1-2@m">
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-3@m" title="Design, Deevlopment and Validation">
+                              <div class="uk-flex">
+                                <%= check_box_tag "service_type_ddv", @sales_order.service_type_ddv, (@sales_order.service_type_ddv.to_i == 1 ? true : false), :disabled=> true %><b>DDV</b>
+                              </div>
+                            </div>
+                            <div class="uk-width-1-3@m" title="Manufacturing">
+                              <div class="uk-flex">
+                                <%= check_box_tag "service_type_mfg", @sales_order.service_type_mfg, (@sales_order.service_type_mfg.to_i == 1 ? true : false), :disabled=> true %><b>MFG</b>
+                              </div>
+                            </div>
+                            <div class="uk-width-1-3@m" title="Other">
+                              <div class="uk-flex">
+                                <%= check_box_tag "service_type_oth", @sales_order.service_type_oth, (@sales_order.service_type_oth.to_i == 1 ? true : false), :disabled=> true %><b>OTH</b>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">SO Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :number, @sales_order.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Date</div>
+                      <div class="uk-width-1-2@m">
+                        <%= date_field_tag :date, @sales_order.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m" title="Terms of Payment"></div>
+                      <div class="uk-width-1-2@m">
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-3@m" title="Sterilization">
+                              <div class="uk-flex">
+                                <%= check_box_tag "service_type_str", @sales_order.service_type_str, (@sales_order.service_type_str.to_i == 1 ? true : false), :disabled=> true %><b>STR</b>
+                              </div>
+                            </div>
+                            <div class="uk-width-1-3@m" title="Laboratory Testing">
+                              <div class="uk-flex">
+                                <%= check_box_tag "service_type_lab", @sales_order.service_type_lab, (@sales_order.service_type_lab.to_i == 1 ? true : false), :disabled=> true %><b>LAB</b>
+                              </div>
+                            </div>
+                            <div class="uk-width-1-3@m">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">PO Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :po_number, @sales_order.po_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">PO Received</div>
+                      <div class="uk-width-1-2@m">
+                        <%= date_field_tag :po_received, @sales_order.po_received, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Delivery Date</div>
+                      <div class="uk-width-1-3@m">
+                        <% select_year = @sales_order.month_delivery.first(4) if @sales_order.month_delivery.present? %>
+                        <% select_month = @sales_order.month_delivery.last(2) if @sales_order.month_delivery.present? %>
+                        <%= text_field_tag :month_delivery_mm, Date::MONTHNAMES[select_month.to_i], :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :month_delivery_yyyy, select_year, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Quotation No.</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :quotation_number, @sales_order.quotation_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Remarks</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :remarks, @sales_order.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Type of Tax</div>
+                      <div class="uk-width-2-3@m">    
+                        <div class="uk-flex">
+                          <%= text_field_tag :tax, (@sales_order.tax.name if @sales_order.tax.present?), :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+
+            <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+              <li class="uk-active"><a href="#">Detail</a></li>
+              <li><a href="#">Attacments</a></li>
+              <li><a href="#">Delivery Orders</a></li>
+              <li><a href="#">Purchase Orders</a></li>
+            </ul>
+            <ul id="tab-content" class="uk-switcher">
+              <li>    
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1@m">
+                      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+                        <tr>
+                          <th>#</th>
+                          <th>Product Name</th>
+                          <th>Product Code</th>
+                          <th>Type</th>
+                          <th>Unit</th>
+                          <th>Quantity</th>
+                          <th title="PO yang belum dibuat DO">Outstanding</th>
+                          <th>Discount</th>
+                          <th>Unit Price</th>
+                          <th>Due Date</th>
+                          <th>Remarks</th>
+                        </tr>
+                        <% c=0 %>
+                        
+                        <% @sales_order_items.each do |sales_order_item| %>
+                          <% part = nil %>
+                          <% if sales_order_item.product.present? %>
+                            <% part = sales_order_item.product %>
+                          <% elsif sales_order_item.material.present? %>
+                            <% part = sales_order_item.material %>
+                          <% end %>
+                          <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+                          
+                          <tr>
+                            <td class="counter"><%= c+=1%></td>
+                            <td><%= (part.present? ? "#{part.name}" : nil) %></td>
+                            <td><%= (part.present? ? part.part_id : nil) %></td>
+                            <td><%= (part.present? ? "#{part.type_name}" : nil) %></td>
+                            <td><%= unit_name %></td>
+                            <td class="uk-text-right">
+                              <%= number_with_precision(sales_order_item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td class="uk-text-right">
+                              <%= number_with_precision(sales_order_item.outstanding, precision: 0, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td style="width: 50px;" class="uk-text-right"><%= sales_order_item.discount %> %</td>
+                            <td class="uk-text-right">
+                              <%= number_with_precision(sales_order_item.unit_price, precision: 0, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td><%= sales_order_item.due_date %></td>
+                            <td><%= sales_order_item.remarks %></td>
+                          </tr>
+                        <% end if @sales_order_items.present? %>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li>                 
+                <table class="uk-table uk-table-striped">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>File</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% cf = 0 %>
+                    <% @record_files.each do |record_file| %>
+                      <tr>
+                        <td><%= cf+=1 %></td>
+                        <td>
+                          <% case record_file.ext.downcase %>
+                          <% when '.pdf' %>
+                            <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a>
+                          <% when '.xlsx', '.xls' %>
+                            <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View Excel FIle</a>
+                          <% when '.docx', '.doc' %>
+                            <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View Word FIle</a>
+                          <% else %>
+                            <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 100px"/></a>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end if @record_files.present? %>
+                  </tbody> 
+                </table>
+              </li>
+              <li>
+                <% permission_base = PermissionBase.find_by(:link=> "/delivery_orders" ) %>
+                <% if permission_base.present? %>
+                  <% delivery_order_access = UserPermission.find_by(:company_profile_id=> current_user.company_profile_id, :user_id=> current_user.id, :permission_base_id=> permission_base.id, :access_view=> 1) %>
+                  <% if delivery_order_access.present? %>
+                    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Action</th>
+                          <th>DO Status</th>
+                          <th>DO Number</th>
+                          <th>DO Date</th>
+                          <th>Product Name</th>
+                          <th>Product Code</th>
+                          <th>Batch Number</th>
+                          <th>Type</th>
+                          <th>Unit</th>
+                          <th>Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% do_c =0 %>
+                        <% @sales_order_items.each do |so_item | %>
+                          <% so_item.delivery_order_items.each do |do_item| %>
+                            <tr>
+                              <td><%= do_c+=1 %></td>
+                              <td><%= link_to 'Show', do_item.delivery_order, target: :_blank %></td>
+                              <td><%= do_item.delivery_order.status %></td>
+                              <td><%= do_item.delivery_order.number %></td>
+                              <td><%= do_item.delivery_order.date %></td>
+                              <td><%= do_item.product.name if do_item.product.present? %></td>
+                              <td><%= do_item.product.part_id if do_item.product.present? %></td>
+                              <td><%= do_item.product_batch_number.number if do_item.product_batch_number.present? %></td>
+                              <td><%= do_item.product.product_type.name if do_item.product.present? and do_item.product.product_type.present? %></td>
+                              <td><%= do_item.product.unit.name if do_item.product.present? and do_item.product.unit.present? %></td>
+                              <td><%= number_with_precision(do_item.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                            </tr>
+                          <% end %>
+                        <% end if @sales_order_items.present? %>
+                      </tbody> 
+                    </table>
+                  <% else %>
+                    <b>Tidak ada Hak akses modul Delvery Order </b>
+                  <% end %>
+                <% end %>
+              </li>
+              <li>
+                <% permission_base = PermissionBase.find_by(:link=> "/purchase_order_suppliers" ) %>
+                <% if permission_base.present? %>
+                  <% purchase_order_supplier_access = UserPermission.find_by(:company_profile_id=> current_user.company_profile_id, :user_id=> current_user.id, :permission_base_id=> permission_base.id, :access_view=> 1) %>
+                  <% if purchase_order_supplier_access.present? %>
+                    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+                      <thead>
+                        <tr>
+                          <th colspan="2">#</th>
+                          <th>SPP</th>
+                          <th>PRF</th>
+                          <th>PO Supplier</th>
+                          <th>Material Name</th>
+                          <th>Material Code</th>
+                          <th>Unit</th>
+                          <th>PRF Qty</th>
+                          <th>PO Qty</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% c_po = 0 %>
+                        <% @sales_order_items.each do |so_item| %>
+                          <% so_item.production_order_items.each do |spp_item| %>
+                            <% spp_item.production_order_used_prves.each do |spp_used| %>
+                              <% if spp_used.purchase_request_item.present? %>
+                                <% prf_item = spp_used.purchase_request_item %>
+                                <% part = nil %>
+                                <% if prf_item.product.present? %>
+                                  <% part = prf_item.product %>
+                                <% elsif prf_item.material.present? %>
+                                  <% part = prf_item.material %>
+                                <% elsif prf_item.consumable.present? %>
+                                  <% part = prf_item.consumable %>
+                                <% elsif prf_item.equipment.present? %>
+                                  <% part = prf_item.equipment %>
+                                <% elsif prf_item.general.present? %>
+                                  <% part = prf_item.general %>
+                                <% end %>
+                                <% prf_item.purchase_order_supplier_items.each do |po_item| %>
+                                  <tr>
+                                    <td rowspan="3"><%= c_po += 1 %></td>
+                                    <td>Number: </td>
+                                    <td><%= link_to "#{spp_item.production_order.number}", production_order_path(:id=> spp_item.production_order_id) %></td>
+                                    <td><%= link_to "#{prf_item.purchase_request.number}", purchase_request_path(:id=> prf_item.purchase_request_id, :q=> prf_item.purchase_request.request_kind) %>
+                                    </td>
+                                    <td><%= link_to "#{po_item.purchase_order_supplier.number}", purchase_order_supplier_path(:id=> po_item.purchase_order_supplier_id, :q=> po_item.purchase_order_supplier.kind) %>
+                                    </td>
+                                    <td rowspan="3"><%= part.name if part.present? %></td>
+                                    
+                                    <td rowspan="3"><%= part.part_id if part.present? %></td>
+                                    
+                                    <td rowspan="3"><%= part.unit_name if part.present? %></td>
+                                    
+                                    <td rowspan="3"><%= prf_item.quantity %></td>
+                                    
+                                    <td rowspan="3"><%= po_item.quantity %></td>
+                                  </tr>
+                                  <tr>
+                                    <td>Date: </td>
+                                    <td><%= spp_item.production_order.date %></td>
+                                    <td><%= prf_item.purchase_request.date %></td>
+                                    <td><%= po_item.purchase_order_supplier.date %></td>
+                                  </tr>
+                                  <tr>
+                                    <td>Status: </td>
+                                    <td><%= spp_item.production_order.status %></td>
+                                    <td><%= prf_item.purchase_request.status %></td>
+                                    <td><%= po_item.purchase_order_supplier.status %></td>
+                                  </tr>
+                                <% end if spp_used.purchase_request_item.purchase_order_supplier_items.present? %>
+                              <% end %>
+                            <% end if spp_item.production_order_used_prves.present? %>
+                          <% end if so_item.production_order_items.present? %>
+                        <% end if @sales_order_items.present? %>
+                      </tbody>
+                    </table>
+                  <% end %>
+                <% end %>
+              </li>
+            </ul>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @sales_order.status == 'new' or @sales_order.status == 'canceled1' %>
+                        <%= link_to approve_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @sales_order.status == 'approved1' or @sales_order.status == 'canceled2' %>
+                        <%= link_to approve_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @sales_order.status == 'approved2' or @sales_order.status == 'canceled3' %>   
+                        <%= link_to approve_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @sales_order.status %>
+                      <% when 'approved3' %>
+                        <%= link_to print_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', sales_orders_path(:page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', sales_orders_path(:page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_sales_order_path(@sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

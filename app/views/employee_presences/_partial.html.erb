@@ -1,0 +1,674 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_employee' %>
+  <% employee = @employees.find_by(:id=>params[:employee_id]) %>
+  <% case field %>
+  <% when 'item_general' %>
+    <div class="uk-grid">
+      <% period_att_begin = "#{params[:period].to_s[0,4]}-#{params[:period].to_s[4,2]}-21".to_date %>
+      <% period_att_end   = (period_att_begin+1.month).to_date.strftime("%Y-%m-21").to_date %>                        
+      <% period_att_array = report_3a0(current_user.company_profile_id, period_att_begin, period_att_end, params[:employee_id]) %>
+      <div class="uk-width-1-2@m">
+        <div>Attendances</div>
+        <table class="uk-table uk-table-small uk-table-striped">          
+          <tr>
+            <th class="uk-text-middle">DAY</th>  
+            <th class="uk-text-middle">DATE</th>
+            <th class="uk-text-middle">IN</th>
+            <th class="uk-text-middle">OUT</th>
+            <th class="uk-text-middle">WORKING HOUR</th>
+          </tr>
+          <% double_date_counter = 0 %>
+          <% period_att_array.each do |att| %>
+            <% if att[:double_date] == true %>
+              <% tr_class = 'uk-warning' %>
+              <% tr_title = 'terdapat periode shift yg sama' %>
+              <% double_date_counter += 1 %>
+            <% else %>
+              <% tr_class = nil %>
+              <% tr_title = nil %>
+            <% end %>
+            <% if att[:wrong_date] == true %>
+              <% td1_class = 'uk-warning' %>
+              <% td1_title = 'terdapat periode shift yg salah' %>
+            <% else %>
+              <% td1_class = nil %>
+              <% td1_title = nil %>
+            <% end %>
+            <tr class="<%= tr_class %>" title="<%= tr_title %>">
+              <td><%= att[:period_shift].to_date.strftime("%A") %></td>
+              <td class="<%= td1_class %>" title="<%= td1_title %>"><%= att[:period_shift] %></td>
+              <td><%= att[:att_in] %></td>
+              <td><%= att[:att_out] %><%= att[:att_out_overday] == true ? " (+1)" : nil %></td>
+              <td><%= att[:working_hour] %></td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div>
+          <div>
+            <p>Working Hour</p>
+          </div>
+          <div class="uk-grid-small uk-child-width-expand@s uk-text-center uk-grid-match" uk-grid>
+            <% c=0 %><% period_att_array.map { |e| c += 1 if e[:working_hour] > 20 } %>
+            <div>
+              <div class="uk-card uk-card-<%= c > 0 ? 'secondary' : 'primary' %> uk-card-body uk-light uk-padding uk-panel" style="color: white;">
+                <h4 class="uk-card-title" style="color: white;"><%= c %></h4>
+                <p style="color: white;">> 20 hours</p>
+              </div>
+            </div>
+            <% c=0 %><% period_att_array.map { |e| c += 1 if e[:working_hour] > 0 and e[:working_hour] < 2 } %>
+            <div>
+              <div class="uk-card uk-card-<%= c > 0 ? 'secondary' : 'primary' %> uk-card-body uk-light uk-padding uk-panel" style="color: white;">
+                <h4 class="uk-card-title" style="color: white;"><%= c %></h4>
+                <p style="color: white;">< 2 hours</p>
+              </div>
+            </div>
+            <div>
+              <div class="uk-card uk-card-<%= double_date_counter > 0 ? 'secondary' : 'primary' %> uk-card-body uk-light uk-padding uk-panel" style="color: white;">
+                <h4 class="uk-card-title" style="color: white;"><%= double_date_counter %></h4>
+                <p style="color: white;">Double Date</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <div class="uk-width-1-2@m">
+          <table class="uk-table uk-table-small uk-table-striped">
+            <tr>
+              <td>Note :</td>
+            </tr>
+            <tr>
+              <td class="uk-button-primary"></td>
+              <td>Attendance Period</td>
+            </tr>
+            <tr>
+              <td class="uk-button-danger"></td>
+              <td><b>IN</b> without <b>OUT</b> or <b>OUT</b> without <b>IN</b></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% when 'item_adjust' %>
+
+    <% att_log = [] %>
+    <% count = 0 %>
+    <% @attendences.each do |att|
+      att_log << {:att_id=> att.id, :empl_code=> att.id_number, :tr_date=> att.date.strftime("%Y-%m-%d"), :tr_time=> att.time.strftime("%H:%M:%S"), :date_time=> att.date_time, :acc_code=> att.mode_presence, :type_presence=> att.type_presence }
+      count += 1
+    end if @attendences.present? %>
+
+    <% att_array = [] %>
+    <% att_log.each do |att| %>
+      <% period_shift = (att[:period_shift].present? ? att[:period_shift].to_date.strftime("%Y-%m-%d") : att[:tr_date]) 
+        schedule = @employee_schedules.find_by(:date=> period_shift)
+        if period_shift.present?
+          day_name = "#{period_shift.to_date.strftime('%A')}".downcase 
+          schedule_att_in  = (day_name.present? ? (schedule.schedule["#{day_name}_in"] if schedule.present? and schedule.schedule.present?) : nil)
+          schedule_att_out = (day_name.present? ? (schedule.schedule["#{day_name}_out"] if schedule.present? and schedule.schedule.present?) : nil)
+        else
+          schedule_att_in = nil
+          schedule_att_out = nil
+        end
+      %>
+      <% att_array << {
+        :att_id=> att[:att_id], 
+        :id_number=> att[:empl_code], 
+        :period_shift=> period_shift, 
+        :date=> att[:tr_date], 
+        :time=> att[:tr_time], 
+        :date_time=> att[:date_time], 
+        :mode_presence=> att[:acc_code], 
+        :type_presence=> att[:type_presence],
+        :schedule_att_in=> (schedule_att_in.present? ? schedule_att_in.to_time.strftime("%H:%M:%S") : nil), 
+        :schedule_att_out=> (schedule_att_out.present? ? schedule_att_out.to_time.strftime("%H:%M:%S") : nil), 
+      } %>
+    <% end %>
+    <% (0..count).each do |c| %>
+      <% if att_array[c+1].present? %>
+        <% if att_array[c][:date] == att_array[c+1][:date] and att_array[c][:date] == att_array[c-1][:date]%>
+          <% att_array[c-1].merge!(:double_record=> true ) if att_array[c].present? %>
+        <% elsif att_array[c][:type_presence] == att_array[c+1][:type_presence] or att_array[c][:date] != att_array[c][:period_shift]%>
+          <% att_array[c].merge!(:double_record=> true ) if att_array[c].present? %>
+        <% else %>
+          <% att_array[c].merge!(:double_record=> false ) if att_array[c].present? %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Periode Shift</th>
+          <th>Tanggal</th>
+          <th>Waktu</th>
+          <th colspan="2">Mode</th>
+          <th>Hapus</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <% (0..(count)).each do |c| %>  
+          <% if att_array[c].present? and att_array[c][:double_record] == true %>
+            <% bg_color = '#E8FFC2' %>
+            <% tr_title = 'Please Check' %>
+          <% else %>
+            <% tr_title = '' %>
+            <% bg_color = '' %>
+          <% end %>
+          <tr style="background: <%= bg_color %>;" title="<%= tr_title %>">
+            <td><%= c +1 %></td>
+            <td>
+              <% permission_base = PermissionBase.find_by(:link=> "/employee_presences" ) %>
+              <% if permission_base.present? %>
+                <% employee_presence_access = UserPermission.find_by(:company_profile_id=> current_user.company_profile_id, :user_id=> current_user.id, :permission_base_id=> permission_base.id, :access_edit=> 1) %>
+              <% end %>
+              <% if employee_presence_access.present? %>
+                <%= date_field_tag 'att[][period_shift]', att_array[c][:period_shift], {:required=> true, :class=> "uk-input uk-form-small"} if att_array[c].present? %>
+              <% else %>
+                <%= date_field_tag 'att_period_shift', att_array[c][:period_shift], {:disabled=> true, :class=> "uk-input uk-form-small"} if att_array[c].present? %>
+              <% end %>                                  
+            </td>
+            <td>
+              <%= att_array[c][:date_time].to_datetime.strftime("%Y-%m-%d") if att_array[c].present? %>
+            </td>
+            <td title="<%= att_array[c][:date_time] if att_array[c].present? %>">
+              <%= att_array[c][:time].to_datetime.strftime("%H:%M:%S") if att_array[c].present? %>
+              <%# if att_array[c][:date_time].to_datetime.strftime("%Y-%m-%d") != att_array[c][:date] %>
+                <!-- (+1) -->
+              <%# end if att_array[c].present? %>
+            </td>
+            <td> <%= att_array[c][:mode_presence] if att_array[c].present? %></td>
+            <td>
+              <% if employee_presence_access.present? %>
+                <%= hidden_field_tag 'att[][id]', att_array[c][:att_id] if att_array[c].present? %>
+                <%= select_tag 'att[][type_presence]', options_for_select([['in'],['out']], att_array[c][:type_presence]) , {:required=> true, :prompt=>"Select" ,:class=>"uk-select uk-form-small uk-form-width-small"} if att_array[c].present? %>
+              <% else %>
+                <%= att_array[c][:type_presence] if att_array[c].present? %>
+              <% end %>
+            </td>
+            <td>
+              <% if employee_presence_access.present? %>
+                <%= check_box_tag 'att[][remove]', 1, false if att_array[c].present?%>
+              <% end %>
+            </td>
+          </tr>
+          <% count += 1 %>
+        <% end %>
+      </tbody>
+    </table> 
+  <% when 'employee_nik' %>
+    <%= text_field_tag 'employee_nik', (params[:employee_nik].present? ? params[:employee_nik] : @employee.nik), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% when 'department_name' %>
+    <% ws = @employees.find_by(:id=>params[:employee_id]) %>
+    <%= text_field_tag 'department_name', (params[:department_name].present? ? params[:department_name] : ws.department.name), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% when 'employee_pin' %>
+    <% att_user = @attendance_users.find_by(:employee_id=>params[:employee_id]) %> 
+    <%= text_field_tag 'employee_pin', (att_user.present? ? att_user.id_number : nil), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% when 'work_schedule' %>
+    <% ws = @employees.find_by(:id=>params[:employee_id]) %>
+    <%= text_field_tag 'employee_work_schedule', (params[:work_schedule].present? ? params[:work_schedule] : ws.work_schedule), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% when 'check' %>
+    <%= link_to 'Check', new_employee_presence_path(:id=>(params[:employee_id].present? ? params[:employee_id] : params[:id]), :view_kind=>'show_record', :department_id=>params[:department_id], :period=>params[:period]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= link_to 'PRECOMPILE', 'javascript:;', :id=>(params[:employee_id].present? ? params[:employee_id] : params[:id]), :status=>'update_precompile_employee', :onclick=>"precompile_process(this, '"+params[:controller].to_s+"')", class: "uk-button uk-button-primary uk-button-small" %>
+    <%= link_to 'get_attendance', 'javascript:;', :id=>(params[:employee_id].present? ? params[:employee_id] : params[:id]), :status=>'get_attendance', :onclick=>"precompile_process(this, '"+params[:controller].to_s+"')", class: "uk-button uk-button-primary uk-button-small" %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+      <thead class="bg-primary">
+        <tr>
+          <th class="uk-text-center">No</th>
+          <th class="uk-text-center">PIN</th>
+          <th class="uk-text-center">NIK</th>
+          <th class="uk-text-center">NAME</th>
+          <th class="uk-text-center">DEPARTMENT</th>
+          <th class="uk-text-center">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+        <% c=1 %>
+        <% @employee_presences.each do |employee_presence| %>
+          <tr uk-tooltip="title: <%= row_tooltip(employee_presence) %>; pos: top-left">
+            <td><%= c %></td>
+            <td><%= employee_presence.id_number %></td>
+            <td><%= employee_presence.employee.nik if employee_presence.employee.present? %></td>
+            <td><%= employee_presence.employee.name if employee_presence.employee.present? %></td>
+            <td><%= employee_presence.department.name if employee_presence.department.present? %></td>
+            <td><%= link_to 'Show', employee_presence_path(:id=>employee_presence.employee_id, :view_kind=>'show_record', :department_id=>params[:department_id], :period=>params[:period], :job=>'edit') %></td>
+          </tr>
+          <% c+=1 %>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+<% when 'show_list' %>
+  <% permission_base = PermissionBase.find_by(:link=> "/employee_presences" ) %>
+  <% if permission_base.present? %>
+    <% employee_presence_access = UserPermission.find_by(:company_profile_id=> current_user.company_profile_id, :user_id=> current_user.id, :permission_base_id=> permission_base.id, :access_edit=> 1) %>
+  <% end %>
+  <% case params[:kind_tbl] %>
+  <% when 'working_hour_over_20h','working_hour_under_2h' %>
+    <thead>
+      <tr>
+        <tr>
+        <td>No</td>
+        <td>Nama</td>
+        <td>Departemen</td>
+        <td>PIN</td>
+        <td>Periode</td>
+        <td>IN</td>
+        <td>OUT</td>
+        <td>Jam Kerja</td>
+        <td class="uk-form-width-small" colspan="3">Schedule</td>
+      </tr>
+      </tr>
+    </thead>
+    <tbody>
+      <% c = 0 %>
+      <% if @records.present? %>
+        <% @records.each do |att| %>
+          <%= hidden_field_tag 'att[][id]', att[:id] if att[:wrong_mode] == true %>
+          <%= hidden_field_tag 'att[][employee_id]', att[:employee_id] if att[:wrong_mode] == true %>
+          <tr style="background: <%= att[:wrong_mode] == true ? '#E8FFC2' : nil %>;">
+            <td><%= c+=1 %>.</td>
+            <td><%= att[:employee_name] %></td>
+            <td><%= att[:department_name] %></td>
+            <td><%= att[:id_number] %></td>
+            <td><%= att[:period_shift] %></td>
+            <td><%= att[:att_date_time_in] %></td>
+            <td><%= att[:att_date_time_out] %></td>
+            <td><%= att[:working_hour] %></td>
+            <td><%= att[:schedule_code] %></td>
+            <td><%= att[:schedule_time_in] %></td>
+            <td><%= att[:schedule_time_out] %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="8">Tidak ada</td>
+        </tr>
+      <% end %>
+    </tbody>
+  <% when 'att_in_without_out', 'att_out_without_in' %>
+    <thead>
+      <tr>
+        <td>No</td>
+        <td>Nama</td>
+        <td>Departemen</td>
+        <td>PIN</td>
+        <td>Periode</td>
+        <td>Masuk</td>
+        <td>Keluar</td>
+        <td>Status</td>
+      </tr>
+    </thead>
+    <tbody>
+      <% c = 0 %>
+      <% if @records.present? %>
+        <% if employee_presence_access.present? and (current_user.department_id.to_i == 3 or current_user.department_id.to_i == 5 )%>
+          <% @records.each do |att| %>
+            <%= hidden_field_tag 'new_att[][period_shift]', att[:period_shift], {:class=> "uk-form-small"} %>
+            <%= hidden_field_tag 'new_att[][employee_id]', att[:employee_id] %>
+            <%= hidden_field_tag 'new_att[][id_number]', att[:id_number] %>
+            <tr style="background: <%= att[:wrong_mode] == true ? '#E8FFC2' : nil %>;">
+              <td><%= c+=1 %>.</td>
+              <td><%= att[:employee_name] %></td>
+              <td><%= att[:department_name] %></td>
+              <td><%= att[:id_number] %></td>
+              <td><%= att[:period_shift] %></td>
+              <td>
+                <div class="uk-column-1-2@m">
+                  <% if (att[:att_time_in].present? and att[:att_time_out].blank?) %>
+                    <div><%= att[:mode_presence_in] %></div>
+                    <div>
+                      <%= att[:att_date_in] %>
+                    </div>
+                    <div>
+                      <%= att[:att_time_in] %>
+                    </div>
+                  <% else %>
+                    <%= hidden_field_tag 'new_att[][type_presence]', 'in' %>
+                    <div>
+                      <%= date_field_tag 'new_att[][date]', att[:att_date_in], {:class=> "uk-input uk-form-small"} %>
+                    </div>
+                    <div>
+                      <%= time_field_tag "new_att[][time]", att[:att_time_in] , {:class=> "uk-input uk-form-small"} %>
+                    </div>
+                  <% end %>
+                </div>
+              </td>
+              <td>
+                <div class="uk-column-1-2@m">
+                  <% if( att[:att_time_out].present? and att[:att_time_in].blank?) %>
+                    <div><%= att[:mode_presence_out] %></div>
+                    <div>
+                      <%= att[:att_date_out] %>
+                    </div>
+                    <div>
+                      <%= att[:att_time_out] %>
+                    </div>
+                  <% else %>
+                    <%= hidden_field_tag 'new_att[][type_presence]', 'out' %>
+                    <div>
+                      <%= date_field_tag 'new_att[][date]', att[:att_date_out], {:class=> "uk-form-small"} %>
+                    </div>
+                    <div>
+                      <%= time_field_tag "new_att[][time]", att[:att_time_out] , {:class=> "uk-form-small"} %>
+                    </div>
+                  <% end %>
+                </div>
+              </td>
+              <td><%= att[:att_manual_status] %></td>
+            </tr>
+          <% end %>
+        <% else %>
+          <% @records.each do |att| %>
+            <tr style="background: <%= att[:wrong_mode] == true ? '#E8FFC2' : nil %>;">
+              <td><%= c+=1 %>.</td>
+              <td><%= att[:employee_name] %></td>
+              <td><%= att[:department_name] %></td>
+              <td><%= att[:id_number] %></td>
+              <td><%= date_field_tag 'att_period_shift', att[:period_shift], {:class=> "uk-form-small", :disabled=> true} %></td>
+              <td>
+                <div class="uk-column-1-2@m">
+                  <% if (att[:att_time_in].present? and att[:att_time_out].blank?) or att[:att_manual_status] == 'new' %>
+                    <div><%= att[:mode_presence_in] %></div>
+                    <div>
+                      <%= date_field_tag 'att_date_in', att[:att_date_in], {:class=> "uk-form-small", :disabled=> true} %>
+                    </div>
+                    <div>
+                      <%= time_field_tag "att_in", att[:att_time_in] , {:class=> "uk-form-small", :disabled=> true} %>
+                    </div>
+                  <% else %>
+                    <div>-</div>
+                    <div>-</div>
+                  <% end %>
+                </div>
+              </td>
+              <td>
+                <div class="uk-column-1-2@m">
+                  <% if( att[:att_time_out].present? and att[:att_time_in].blank?) or att[:att_manual_status] == 'new'  %>
+                    <div><%= att[:mode_presence_out] %></div>
+                    <div>
+                      <%= date_field_tag 'att_date_out', att[:att_date_out], {:class=> "uk-form-small", :disabled=> true} %>
+                    </div>
+                    <div>
+                      <%= time_field_tag "att_out", att[:att_time_out] , {:class=> "uk-form-small", :disabled=> true} %>
+                    </div>
+                  <% else %>
+                    <div>-</div>
+                    <div>-</div>
+                  <% end %>
+                </div>
+              </td>
+              <td><%= att[:att_manual_status] %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="8">Tidak ada</td>
+        </tr>
+      <% end %>
+    </tbody>
+  <% when 'schedule_without_hk' %>
+    <thead>
+      <tr>
+        <td>No</td>
+        <td>Nama</td>
+        <td>Departemen</td>
+        <td>PIN</td>
+        <td>Periode</td>
+        <td>Schedule IN</td>
+        <td>Schedule OUT</td>
+        <td>Create Manual</td>
+      </tr>
+    </thead>
+    <tbody>
+      <% c = 0 %>
+      <% if @records.present? %>
+        <% @records.each do |att| %>
+          <% if employee_presence_access.present? %>
+            <%= hidden_field_tag 'new_att2[][id]', att[:id] %>
+            <%= hidden_field_tag 'new_att2[][employee_id]', att[:employee_id] %>
+            <%= hidden_field_tag 'new_att2[][id_number]', att[:id_number] %>
+            <%= hidden_field_tag 'new_att2[][period_shift]', att[:period_shift] %> 
+            <%= hidden_field_tag 'new_att2[][date_in]', att[:schedule_att_date_in] %>
+            <%= hidden_field_tag "new_att2[][time_in]", att[:schedule_att_time_in] %> 
+            <%= hidden_field_tag 'new_att2[][date_out]', att[:schedule_att_date_out] %>
+            <%= hidden_field_tag "new_att2[][time_out]", att[:schedule_att_time_out] %>
+          <% end %>
+          <tr>
+            <td><%= c+=1 %>.</td>
+            <td><%= att[:employee_name] %></td>
+            <td><%= att[:department_name] %></td>
+            <td><%= att[:id_number] %></td>
+            <td><%= att[:period_shift] %></td>
+            <td><%= att[:schedule_att_time_in] %></td>
+            <td><%= att[:schedule_att_time_out] %></td>
+            <td>
+              <% if employee_presence_access.present? %>
+                <%= check_box_tag 'new_att2[][use]', 1, false  %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="8">Tidak ada</td>
+        </tr>
+      <% end %>
+    </tbody>
+  <% when 'hk_without_schedule' %>
+    <thead>
+      <tr>
+        <td>No</td>
+        <td>Nama</td>
+        <td>Departemen</td>
+        <td>PIN</td>
+        <td>Periode</td>
+        <td>Tanggal</td>
+        <td>Waktu</td>
+        <td>Mode</td>
+        <td>Hapus</td>
+      </tr>
+    </thead>
+    <tbody>
+      <% c = 0 %>
+      <% if @records.present? %>
+        <% @records.each do |att| %>
+          <% if employee_presence_access.present? %>
+            <%= hidden_field_tag 'att[][id]', att[:id] %>
+            <%= hidden_field_tag 'att[][employee_id]', att[:employee_id] %>
+          <% end %>
+          <tr style="background: <%= att[:wrong_mode] == true ? '#E8FFC2' : nil %>;">
+            <td><%= c+=1 %>.</td>
+            <td><%= att[:employee_name] %></td>
+            <td><%= att[:department_name] %></td>
+            <td><%= att[:id_number] %></td>
+            <td><%= att[:period_shift] %></td>
+            <td><%= att[:date] %></td>
+            <td><%= att[:time] %></td>
+            <td><%= "#{att[:mode_presence]} / #{att[:type_presence]}" %></td>
+            <td>
+              <% if employee_presence_access.present? %>
+                <%= check_box_tag 'att[][remove]', 1, false  %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="8">Tidak ada</td>
+        </tr>
+      <% end %>
+    </tbody>
+  <% else %>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Name</th>
+        <th>Department</th>
+        <th>PIN</th>
+        <th>Periode</th>
+        <th>Tanggal</th>
+        <th>Waktu</th>
+        <th>Mode</th>
+        <th>New Mode</th>
+        <th class="uk-form-width-small">Hapus</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c = 0 %>
+      <% if @records.present? %>
+        <% @records.each do |att| %>
+          <% if employee_presence_access.present?  %>
+            <%= hidden_field_tag 'att[][id]', att[:id] if att[:wrong_mode] == true %>
+            <%= hidden_field_tag 'att[][employee_id]', att[:employee_id] if att[:wrong_mode] == true %>
+          <% end %>
+          <tr style="background: <%= att[:wrong_mode] == true ? '#E8FFC2' : nil %>;">
+            <td class="uk-text-middle"><%= c+=1 %>.</td>
+            <td class="uk-text-middle"><%= att[:employee_name] %></td>
+            <td class="uk-text-middle"><%= att[:department_name] %></td>
+            <td class="uk-text-middle"><%= att[:id_number] %></td>
+            <td class="uk-text-middle">
+              <% if employee_presence_access.present? and att[:wrong_mode] == true %>
+                <%= date_field_tag 'att[][period_shift]', att[:period_shift], {:required=> true, :class=> "uk-input uk-form-small"} %>
+              <% else %>
+                <%= att[:period_shift].to_date.strftime("%d-%m-%Y") %>
+              <% end %>
+            </td>
+            <td class="uk-text-middle"><%= att[:date].to_date.strftime("%d-%m-%Y") %></td>
+            <td class="uk-text-middle"><%= att[:time] %></td>
+            <td class="uk-text-middle"><%= "#{att[:mode_presence]} / #{att[:type_presence]}" %></td>
+            <td class="uk-text-middle">
+              <% if employee_presence_access.present? %>
+                <%= select_tag 'att[][type_presence]', options_for_select([['in'],['out']], att[:type_presence]) , {:required=> true, :prompt=>"Select" , :class=>"uk-select uk-form-small uk-form-width-small"} if att[:wrong_mode] == true %>
+              <% else %>
+                <%= att[:type_presence] %>
+              <% end %>
+            </td>
+            <td class="uk-text-middle">
+              <% if employee_presence_access.present? %>
+                <%= check_box_tag 'att[][remove]', 1, false if att[:wrong_mode] == true %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="8">Tidak ada</td>
+        </tr>
+      <% end %>
+    </tbody>
+  <% end %>
+<% when 'precompile_process' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="precompile_data">
+    <tr>
+      <td>No</td>
+      <td>PIN</td>
+      <td>Name</td>
+      <td>Time Process</td>
+      <td>Status</td>
+    </tr>
+    <tr>
+      <td colspan="5">Tidak ada karyawan di department ini</td>
+    </tr>
+  </table>
+<% else %>
+  <div class="uk-grid-small uk-child-width-expand@s uk-text-center" uk-grid>
+    <div>
+      <div class="uk-card uk-card-primary uk-padding uk-light uk-panel" style="color: white;" title="salah tekan Att atau Ext" multiple_employee="<%= @possibly_wrong_push_employee_id if @possibly_wrong_push_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @possibly_wrong_push_count if @possibly_wrong_push_count.present? %></h3>
+        <%= link_to 'salah tekan Att atau Ext', edit_employee_presence_path(:id=>(@possibly_wrong_push_employee_id.present? ? @possibly_wrong_push_employee_id : 1), :multiple_employee=>(@possibly_wrong_push_employee_id if @possibly_wrong_push_employee_id.present?), :kind_tbl=>'possibly_wrong_push', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %> 
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-secondary uk-light uk-padding uk-panel" style="color: white;" title="Jam Kerja diatas 20 Jam" multiple_employee="<%= @working_hour_over_20h_employee_id if @working_hour_over_20h_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @working_hour_over_20h if @working_hour_over_20h.present? %></h3>
+        <%= link_to 'Jam Kerja > 20 Jam', edit_employee_presence_path(:id=>(@working_hour_over_20h_employee_id.present? ? @working_hour_over_20h_employee_id : 1), :multiple_employee=>(@working_hour_over_20h_employee_id if @working_hour_over_20h_employee_id.present?), :kind_tbl=>'working_hour_over_20h', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-primary uk-padding uk-light uk-panel" style="color: white;" title="Jam Kerja dibawah 2 jam" multiple_employee="<%= @working_hour_under_2h_employee_id if @working_hour_under_2h_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @working_hour_under_2h if @working_hour_under_2h.present? %></h3>
+        <%= link_to 'Jam Kerja dibawah 2 jam', edit_employee_presence_path(:id=>(@working_hour_under_2h_employee_id.present? ? @working_hour_under_2h_employee_id : 1), :multiple_employee=>(@working_hour_under_2h_employee_id if @working_hour_under_2h_employee_id.present?), :kind_tbl=>'working_hour_under_2h', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-secondary uk-light uk-padding uk-panel" style="color: white;" title="Jumlah Karyawan yang Presensi ada IN tanpa OUT" multiple_employee="<%= @att_in_without_out_employee_id if @att_in_without_out_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @att_in_without_out if @att_in_without_out.present? %></h3>
+        <%= link_to 'Att IN without OUT', edit_employee_presence_path(:id=>(@att_in_without_out_employee_id.present? ? @att_in_without_out_employee_id : 1), :multiple_employee=>(@att_in_without_out_employee_id if @att_in_without_out_employee_id.present?), :kind_tbl=>'att_in_without_out', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-primary uk-padding uk-light uk-panel" style="color: white;" title="Jumlah Karyawan yang Presensi ada OUT tanpa IN" multiple_employee="<%= @att_out_without_in_employee_id if @att_out_without_in_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @att_out_without_in if @att_out_without_in.present? %></h3>
+        <%= link_to 'Att OUT without IN', edit_employee_presence_path(:id=>(@att_out_without_in_employee_id.present? ? @att_out_without_in_employee_id : 1), :multiple_employee=>(@att_out_without_in_employee_id if @att_out_without_in_employee_id.present?), :kind_tbl=>'att_out_without_in', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-grid-small uk-child-width-expand@s uk-text-center" uk-grid>
+    <div>
+      <div class="uk-card uk-card-secondary uk-padding uk-light uk-panel" style="color: white;" title="Jumlah Karyawan dengan Duplikat 'IN' dihari yg sama" multiple_employee="<%= @duplicate_mode_in_same_day_employee_id if @duplicate_mode_in_same_day_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @duplicate_mode_in_same_day if @duplicate_mode_in_same_day.present? %></h3>
+        <%= link_to 'Duplicate IN', edit_employee_presence_path(:id=>(@duplicate_mode_in_same_day_employee_id.present? ? @duplicate_mode_in_same_day_employee_id : 1), :multiple_employee=>(@duplicate_mode_in_same_day_employee_id if @duplicate_mode_in_same_day_employee_id.present?), :kind_tbl=>'duplicate_in', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-primary uk-light uk-padding uk-panel" style="color: white;" title="Jumlah Karyawan dengan Duplikat 'OUT' dihari yg sama" multiple_employee="<%= @duplicate_mode_out_same_day_employee_id if @duplicate_mode_out_same_day_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @duplicate_mode_out_same_day if @duplicate_mode_out_same_day.present? %></h3>
+        <%= link_to 'Duplicate OUT', edit_employee_presence_path(:id=>(@duplicate_mode_out_same_day_employee_id.present? ? @duplicate_mode_out_same_day_employee_id : 1), :multiple_employee=>(@duplicate_mode_out_same_day_employee_id if @duplicate_mode_out_same_day_employee_id.present?), :kind_tbl=>'duplicate_out', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-secondary uk-padding uk-light uk-panel" style="color: white;" title="Jumlah Karyawan ada schedule tidak ada handkey" multiple_employee="<%= @schedule_without_hk_employee_id if @schedule_without_hk_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @schedule_without_hk if @schedule_without_hk.present? %></h3>
+        <%= link_to 'Schedule without HK', edit_employee_presence_path(:id=>(@schedule_without_hk_employee_id.present? ? @schedule_without_hk_employee_id : 1), :multiple_employee=>(@schedule_without_hk_employee_id if @schedule_without_hk_employee_id.present?), :kind_tbl=>'schedule_without_hk', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-primary uk-light uk-padding uk-panel" style="color: white;" title="Jam kerja tanpa schedule" multiple_employee="<%= @working_hour_without_schedule_employee_id if @working_hour_without_schedule_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @working_hour_without_schedule if @working_hour_without_schedule.present? %></h3>
+        <%= link_to 'HK Without Schedule', edit_employee_presence_path(:id=>(@working_hour_without_schedule_employee_id.present? ? @working_hour_without_schedule_employee_id : 1), :multiple_employee=>(@working_hour_without_schedule_employee_id if @working_hour_without_schedule_employee_id.present?), :kind_tbl=>'hk_without_schedule', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-secondary uk-padding uk-light uk-panel" style="color: white;" title="Masuk schedule izin" multiple_employee="<%= @schedule_i_employee_id if @working_hour_over_20h_employee_id.present? %>">
+        <h3 class="uk-card-title" style="color: white;"><%= @schedule_i if @schedule_i.present? %></h3>
+        <%= link_to 'Masuk Schedule I', edit_employee_presence_path(:id=>(@schedule_i_employee_id.present? ? @schedule_i_employee_id : 1), :multiple_employee=>(@schedule_i_employee_id if @working_hour_over_20h_employee_id.present?), :kind_tbl=>'', :period=>params[:period], :department_id=>params[:department_id], :job=>'edit', :partial=>'show_list') %>
+      </div>
+    </div>
+  </div>
+
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+    <thead class="bg-primary">
+      <tr>
+        <th class="uk-text-center">No</th>
+        <th class="uk-text-center">PIN</th>
+        <th class="uk-text-center">NIK</th>
+        <th class="uk-text-center">NAME</th>
+        <th class="uk-text-center">DEPARTMENT</th>
+        <th class="uk-text-center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=1 %>
+      <% @employee_presences.each do |employee_presence| %>
+        <tr uk-tooltip="title: <%= row_tooltip(employee_presence) %>; pos: top-left">
+          <td><%= c %></td>
+          <td><%= employee_presence.id_number %></td>
+          <td><%= employee_presence.employee.nik if employee_presence.employee.present? %></td>
+          <td><%= employee_presence.employee.name if employee_presence.employee.present? %></td>
+          <td><%= employee_presence.department.name if employee_presence.department.present? %></td>
+          <td><%= link_to 'Show', new_employee_presence_path(:id=>employee_presence.employee_id, :view_kind=>'show_record', :department_id=>params[:department_id], :period=>params[:period], :job=>'edit') %></td>
+        </tr>
+        <% c += 1%>
+      <% end if @employee_presences.present? %> 
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

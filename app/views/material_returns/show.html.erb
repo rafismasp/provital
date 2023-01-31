@@ -1,0 +1,273 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', material_returns_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Doc. Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :number, @material_return.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Date</div>
+                      <div class="uk-width-1-2@m">
+                        <%= date_field_tag :date, @material_return.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Remarks</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :remarks, @material_return.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">MI Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :mi_number, @material_return.material_outgoing.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">MI Date</div>
+                      <div class="uk-width-1-2@m">
+                        <%= date_field_tag :mi_date, (@material_return.material_outgoing.date), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">SFO Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :sfo_number, @material_return.material_outgoing.shop_floor_order.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">SFO Date</div>
+                      <div class="uk-width-1-2@m">
+                        <%= date_field_tag :sfo_date, (@material_return.material_outgoing.shop_floor_order.date), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">SFO Qty</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :sfo_qty, number_with_precision(@material_return.sfo_quantity, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Product Name</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :product_name, @material_return.product_batch_number.product.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Batch number</div>
+                      <div class="uk-width-1-2@m">
+                        <%= text_field_tag :product_batch_number, (@material_return.product_batch_number.number), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Product Return Qty</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :product_return_quantity, number_with_precision(@material_return.product_return_quantity, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m" id="item">
+                  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+                    <tr>
+                      <th>KIND</th>
+                      <th>Summary Qty</th>
+                      <th>Outstanding Qty</th>
+                      <th>Document</th>
+                    </tr>
+                    <% if @product_sterilization %>
+                      <tr>
+                        <td>SFG</td>
+                        <td><%= fg_qty = @sfg_items.present? ? @sfg_items.sum(:quantity) : 0 %></td>
+                        <td><%= fg_outstanding = (@sfo_quantity.to_f - fg_qty.to_f)  %></td>
+                        <td><%= @sfg_items.map { |e| e.semi_finish_good_receiving.number }.join(", ") if @sfg_items.present? %></td>
+                      </tr> 
+                    <% else %>
+                      <tr>
+                        <td>FG</td>
+                        <td><%= fg_qty = @fg_items.present? ? @fg_items.sum(:quantity) : 0 %></td>
+                        <td><%= fg_outstanding = (@sfo_quantity.to_f - fg_qty.to_f)  %></td>
+                        <td><%= @fg_items.map { |e| e.finish_good_receiving.number }.join(", ") if @fg_items.present? %></td>
+                      </tr>
+                    <% end %>
+                    <% if @material_return_approved.present? %>
+                      <tr>
+                        <td>RM</td>
+                        <td><%= rm_qty = @material_return_approved.sum(:product_return_quantity) %></td>
+                        <td><%= fg_outstanding = (fg_outstanding.to_f - rm_qty.to_f)  %></td>
+                        <td><%= @material_return_approved.map { |e| e.number }.join(", ") %></td>
+                      </tr>
+                    <% end %>
+                  </table>
+                  <hr>
+                  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+                    <tr>
+                      <th>#</th>
+                      <th>Batch Number</th>
+                      <th>Material Name</th>
+                      <th>Material Code</th>
+                      <th>Unit</th>
+                      <th>Material Issue Qty</th>
+                      <th title="(Material Issue Qty / SFO Qty ) * Outstanding">Return Material Qty</th>
+                      <th>Remarks</th>
+                      <th>Status</th>
+                    </tr>
+                    <% c=0 %>
+                    
+                    <% @material_return_items.each do |material_return_item| %>
+                      <% part = nil %>
+                      <% if material_return_item.material.present? %>
+                        <% part = material_return_item.material %>
+                      <% end %>
+                      <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+                      
+                      <tr>
+                        <td class="counter"><%= c+=1%></td>
+                        <td><%= (part.present? ? part.part_id : nil) %></td>
+                        <td><%= (part.present? ? part.name : nil) %></td>
+                        <td>
+                          <%= material_return_item.material_batch_number.number if material_return_item.material_batch_number.present? %>
+                        </td>
+                        <td><%= unit_name %></td>
+                        <td class="uk-text-right"><%= number_with_precision(material_return_item.material_outgoing_item.quantity, delimiter: ".", separator: ",") %></td>
+                        <td class="uk-text-right" title="<%= "(#{material_return_item.material_outgoing_item.quantity} / #{@sfo_quantity.to_f} ) * #{fg_outstanding}" %>"><%= number_with_precision(material_return_item.quantity, delimiter: ".", separator: ",") %></td>
+                        <td><%= material_return_item.remarks %></td>
+                        <td><%= material_return_item.category %></td>
+                      </tr>
+                    <% end if @material_return_items.present? %>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @material_return.status == 'new' or @material_return.status == 'canceled1' %>
+                        <%= link_to approve_material_return_path(@material_return, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @material_return.status == 'approved1' or @material_return.status == 'canceled2' %>
+                        <%= link_to approve_material_return_path(@material_return, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_material_return_path(@material_return, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @material_return.status == 'approved2' or @material_return.status == 'canceled3' %>   
+                        <%= link_to approve_material_return_path(@material_return, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_material_return_path(@material_return, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_material_return_path(@material_return, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @material_return.status %>
+                      <% when 'approved1','canceled2','approved2','canceled3','approved3' %>
+                        <!-- approved1 oleh warehouse -->
+                        <%= link_to print_material_return_path(@material_return), method: :put, data: { disable_with: "Please wait..."}, target: :_blank, :title=>"Last Printed by: #{@material_return.present? ? (@material_return.printed.present? ? @material_return.printed.first_name : nil) : nil}; #{@material_return.printed_at if @material_return.present?}" do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', material_returns_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', material_returns_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_material_return_path(@material_return), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+
+<% when 'add_item' %>
+
+<% when 'change_department' %>
+  <%= select_tag "select_routine", options_for_select(@routine_cost_interval.map { |e| ["#{e.routine_cost.number} - #{e.routine_cost.cost_name} - #{( e.routine_cost.interval =='annual' ? e.date.strftime("%Y") : (e.routine_cost.interval == 'monthly' ? e.date.strftime("%b-%Y") : (e.routine_cost.interval == 'weekly' ? e.date.strftime("%A, %W , %Y") : nil )))}",e.id]  }), class: "uk-select uk-form-small select_routine_cost", :onchange=>"select_routine_cost(this, '"+params[:controller].to_s+"')", :multiple=>"multiple" %>
+<% when 'select_routine_cost' %>
+  <% c=0 %>
+  <% @routine_cost_interval.where(:id=>params[:interval_id]).each do |routine_cost_interval| %>
+    <tr trid='<%= routine_cost_interval.id %>' class="new_tr">
+      <%= hidden_field_tag 'new_record_item[][routine_cost_interval_id]', routine_cost_interval.id %>
+      <%= hidden_field_tag 'new_record_item[][routine_cost_id]', routine_cost_interval.routine_cost.id %>
+      <% permanent = routine_cost_interval.routine_cost.nominal_type == "permanent" ? "permanent" : "not-permanent" %>
+      <td><%= c+=1 %></td>
+      <td><%= link_to "Delete","javascript:;", :onclick=>"delete_routine(#{routine_cost_interval.id},'#{params[:controller].to_s}')", :class=>"btn btn-primary" %></td>
+      <td><%= text_field_tag 'number', routine_cost_interval.routine_cost.number, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+      <td><%= text_field_tag 'new_record_item[][coa_number]', nil, {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= text_field_tag 'new_record_item[][coa_name]', nil, {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= text_field_tag 'cost_name', routine_cost_interval.routine_cost.cost_name, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+      <td><%= text_field_tag 'date', routine_cost_interval.routine_cost.date, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+      <td><%= text_field_tag 'nominal_type', routine_cost_interval.routine_cost.nominal_type, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+      <td><%= number_field_tag 'new_record_item[][amount]', routine_cost_interval.routine_cost.amount, {:class=>"uk-input uk-form-small", :readonly=>(permanent == "permanent" ? true : false), :onchange=>"routine_price_change()"} %></td>
+    </tr>
+  <% end %>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Bpk Status</th>
+          <th>Bpk Number</th>
+          <th>Req Date</th>
+          <th>Req Status</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @routine_cost_payment_open_prints.each do |item| %>
+          <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td><%= item.routine_cost_payment.status %></td>
+            <td><%= item.routine_cost_payment.number %></td>
+            <td><%= item.date %></td>
+            <td><%= item.status %></td>
+            <td><%= link_to 'Show', item %></td>
+            <td><%= link_to 'Edit', routine_cost_payment_open_print_path(item) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

@@ -1,0 +1,240 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_supplier" %>
+	<% case field %>
+  <% when 'tax_rate_id' %>
+    <%= select_tag "payment_supplier[tax_rate_id]", options_for_select(@tax_rates.map{|c| ["Rp. #{number_with_precision(c.currency_value, precision: 0, delimiter: ".", separator: ",")}", c.id ]}) , { :class=> "uk-select uk-form-width-medium uk-form-small"} if @tax_rates.present? %>
+	<% when 'tax_id' %>
+    <%= select_tag "payment_supplier[tax_id]", options_for_select(@taxes.map{|c| [c.name, c.id ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+	<% when 'currency_id' %>
+    <%= select_tag "payment_supplier[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "payment_supplier[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+  <% when 'modal_payment_request_supplier' %>
+              
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_payment_request_suppliers">  
+      <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>Payreq Number</td>
+        <td>Payreq Date</td>
+      </tr>
+      <% c = 0 %>
+      <% @payment_request_suppliers.each do |payreq| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td>
+            <input class="uk-checkbox select_payment_request_supplier_id" type="checkbox" <%= payreq.payment_supplier_id.to_i == @payment_supplier.id.to_i ? "checked" : nil if @payment_supplier.present? %> payment_request_supplier_id="<%= payreq.id %>"></td>
+          </td>
+          <td><%= payreq.number %></td>
+          <td><%= payreq.date %></td>
+        </tr>
+      <% end if @payment_request_suppliers.present? %>
+    </table>
+	<% end %>
+<% when 'load_payment_request_supplier' %>
+  <!-- DPP = tanpa menampilkan ppn -->
+  <ul uk-tab class="uk-margin-small">
+    <% case params[:payment_supplier_kind_dpp] %>
+    <% when 'DPP+PPN' %>
+      <li class="uk-active"><a href="#">DPP+PPN</a></li>
+    <% else %>
+      <li class="uk-active"><a href="#">DPP</a></li>
+      <li><a href="#">PPN</a></li>
+    <% end %>
+  </ul>
+
+  <ul class="uk-switcher uk-margin">
+    <% case params[:payment_supplier_kind_dpp] %>
+    <% when 'DPP+PPN' %>
+      <li>
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider">
+            <tr>
+              <th>#</th>
+              <th>Payreq Number</th>
+              <th>Invoice Number</th>
+              <th>PO Number</th>
+              <th>GRN Number</th>
+              <th>Currency</th>
+              <th>PPN</th>
+            </tr>
+            <% c=0 %>
+            <% if @payment_request_supplier_items.present? %>
+              <% @payment_request_supplier_items.each do |payreq_item| %>
+
+                <% po_number = @invoice_supplier_items.where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).map { |e| e.purchase_order_supplier.number }.join(", ") %>
+                <% grn_number = @invoice_supplier_items.where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).map { |e| e.material_receiving.number }.join(", ") %>
+                <tr>
+                  <td class="counter">
+                  	<%= c+=1%>
+                    <%= hidden_field_tag "new_record_item[][invoice_supplier_id]", payreq_item.invoice_supplier_id %>
+                    <%= hidden_field_tag "new_record_item[][payment_request_supplier_id]", payreq_item.payment_request_supplier_id %>
+                    <%= hidden_field_tag "new_record_item[][payment_request_supplier_item_id]", payreq_item.id %>
+                    <%= hidden_field_tag "new_record_item[][tax_rate_id]", payreq_item.tax_rate_id %>
+                    <%= hidden_field_tag "new_record_item[][ppntotal]", payreq_item.ppntotal %>
+        					</td>
+                  <td><%= payreq_item.payment_request_supplier.number %></td>
+                  <td><%= payreq_item.invoice_supplier.number %></td>
+                  <td><%= po_number %></td>
+                  <td><%= grn_number %></td>
+                  <td><%= payreq_item.payment_request_supplier.currency.name %></td>
+                  <td>Rp. <%= number_with_precision(payreq_item.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                </tr>
+              <% end %>
+            <% else %>
+            	<tr>
+            		<td colspan="10">Tidak ada Data!</td>
+            	</tr>
+            <% end %>
+          </table>
+        </div>
+      </li>
+    <% else %>
+      <li>
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider">
+            <tr>
+              <th>#</th>
+              <th>Payreq Number</th>
+              <th>Invoice Number</th>
+              <th>PO Number</th>
+              <th>GRN Number</th>
+              <th>Currency</th>
+              <th>Subtotal</th>
+              <th>PPH</th>
+              <th>DP</th>
+              <th>Total</th>
+            </tr>
+            <% c=0 %>
+            <% if @payment_request_supplier_items.present? %>
+              <% @payment_request_supplier_items.each do |payreq_item| %>
+
+                <% po_number = @invoice_supplier_items.where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).group(:purchase_order_supplier_id).map { |e| e.purchase_order_supplier.number }.join(", ") %>
+                <% grn_number = @invoice_supplier_items.where("material_receiving_id > 0").where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).group(:material_receiving_id).map { |e| e.material_receiving.number }.join(", ") %>
+                <% prn_number = @invoice_supplier_items.where("product_receiving_id > 0").where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).group(:product_receiving_id).map { |e| e.product_receiving.number }.join(", ") %>
+                
+                <tr>
+                  <td class="counter">
+                    <%= c+=1%>
+                    <%= hidden_field_tag "new_record_item[][invoice_supplier_id]", payreq_item.invoice_supplier_id %>
+                    <%= hidden_field_tag "new_record_item[][payment_request_supplier_id]", payreq_item.payment_request_supplier_id %>
+                    <%= hidden_field_tag "new_record_item[][payment_request_supplier_item_id]", payreq_item.id %>
+                    <%= hidden_field_tag "new_record_item[][tax_rate_id]", payreq_item.tax_rate_id %>
+                    <%= hidden_field_tag "new_record_item[][ppntotal]", payreq_item.ppntotal %>
+                  </td>
+                  <td><%= payreq_item.payment_request_supplier.number %></td>
+                  <td><%= payreq_item.invoice_supplier.number %></td>
+                  <td><%= po_number %></td>
+                  <td><%= "#{grn_number}" "#{prn_number}" %></td>
+                  <td><%= payreq_item.payment_request_supplier.currency.name %></td>
+                  <td>
+                    <%= hidden_field_tag "invoice_subtotal#{c}", payreq_item.invoice_supplier.subtotal, {:class=> 'invoice_subtotal'} %>
+                    <%= hidden_field_tag "invoice_pphtotal#{c}", payreq_item.invoice_supplier.pphtotal, {:class=> 'invoice_pphtotal'} %>
+                    <%= hidden_field_tag "invoice_ppntotal#{c}", payreq_item.invoice_supplier.ppntotal, {:class=> 'invoice_ppntotal'} %>
+                    <%= hidden_field_tag "invoice_dptotal#{c}", payreq_item.invoice_supplier.dptotal, {:class=> 'invoice_dptotal'} %>
+                    <%= hidden_field_tag "invoice_grandtotal#{c}", payreq_item.invoice_supplier.grandtotal, {:class=> 'invoice_grandtotal'} %>
+                    <%= number_with_precision(payreq_item.invoice_supplier.subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td>
+                    <%= number_with_precision(payreq_item.invoice_supplier.pphtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td><%= number_with_precision(payreq_item.invoice_supplier.dptotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td><%= number_with_precision(payreq_item.invoice_supplier.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="10">Tidak ada Data!</td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+      </li>
+      <li>
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider">
+            <tr>
+              <th>#</th>
+              <th>Payreq Number</th>
+              <th>Invoice Number</th>
+              <th>PO Number</th>
+              <th>GRN Number</th>
+              <th>Currency</th>
+              <th>PPN</th>
+            </tr>
+            <% c=0 %>
+            <% if @payment_request_supplier_items.present? %>
+              <% @payment_request_supplier_items.each do |payreq_item| %>
+                <% po_number = @invoice_supplier_items.where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).group(:purchase_order_supplier_id).map { |e| e.purchase_order_supplier.number }.join(", ") %>
+                <% grn_number = @invoice_supplier_items.where("material_receiving_id > 0").where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).group(:material_receiving_id).map { |e| e.material_receiving.number }.join(", ") %>
+                <% prn_number = @invoice_supplier_items.where("product_receiving_id > 0").where(:invoice_supplier_id=> payreq_item.invoice_supplier_id).group(:product_receiving_id).map { |e| e.product_receiving.number }.join(", ") %>
+
+                <tr>
+                  <td class="counter">
+                    <%= c+=1%>
+                  </td>
+                  <td><%= payreq_item.payment_request_supplier.number %></td>
+                  <td><%= payreq_item.invoice_supplier.number %></td>
+                  <td><%= po_number %></td>
+                  <td><%= "#{grn_number}" "#{prn_number}" %></td>
+                  <td><%= payreq_item.payment_request_supplier.currency.name %></td>
+                  <td>Rp. <%= number_with_precision(payreq_item.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="10">Tidak ada Data!</td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>
+            <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+            <%= link_to approve_payment_supplier_path(0, :status=> 'approve3'), method: :put, :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+              <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+            <% end %>  
+          </th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Supplier</th>
+          <th>Grand Total</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @payment_suppliers.each do |payment_supplier| %>
+          <tr uk-tooltip="title: <%= row_tooltip(payment_supplier) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td align="left" style="vertical-align: middle;">
+              <% case payment_supplier.status %>
+              <% when "approved2","canceled3" %>
+                <input type='checkbox'onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= payment_supplier.id %>" trid="<%=@c%>">
+              <% else %>
+              -
+              <% end %>
+            </td>
+            <td><%= payment_supplier.status %></td>
+            <td><%= payment_supplier.number %></td>
+            <td><%= payment_supplier.date %></td>
+            <td><%= payment_supplier.supplier.name if payment_supplier.supplier.present? %></td>
+            <td><%= payment_supplier.currency.symbol if payment_supplier.currency.present? %> 
+              <%= number_with_precision(payment_supplier.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td><%= link_to 'Show', payment_supplier %></td>
+            <td><%= link_to 'Edit', edit_payment_supplier_path(payment_supplier)%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

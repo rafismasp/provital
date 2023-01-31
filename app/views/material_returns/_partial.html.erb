@@ -1,0 +1,285 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_material_outgoing' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+    <tr>
+      <th>KIND</th>
+      <th>Summary Qty</th>
+      <th>Outstanding Qty</th>
+      <th>Document</th>
+    </tr>
+    <% if @product_sterilization %>
+      <tr>
+        <td>SFG</td>
+        <td><%= fg_qty = @sfg_items.present? ? @sfg_items.sum(:quantity) : 0 %></td>
+        <td><%= fg_outstanding = (@sfo_quantity.to_f - fg_qty.to_f)  %></td>
+        <td><%= @sfg_items.map { |e| e.semi_finish_good_receiving.number }.join(", ") if @sfg_items.present? %></td>
+      </tr> 
+    <% else %>
+      <tr>
+        <td>FG</td>
+        <td><%= fg_qty = @fg_items.present? ? @fg_items.sum(:quantity) : 0 %></td>
+        <td><%= fg_outstanding = (@sfo_quantity.to_f - fg_qty.to_f)  %></td>
+        <td><%= @fg_items.map { |e| e.finish_good_receiving.number }.join(", ") if @fg_items.present? %></td>
+      </tr>
+    <% end %>
+    <% if @material_return_approved.present? %>
+      <tr>
+        <td>RM</td>
+        <td><%= rm_qty = @material_return_approved.sum(:product_return_quantity) %></td>
+        <td><%= fg_outstanding = (fg_outstanding.to_f - rm_qty.to_f)  %></td>
+        <td><%= @material_return_approved.map { |e| e.number }.join(", ") %></td>
+      </tr>
+    <% end %>
+    <script type="text/javascript">
+      $("#material_return_product_return_quantity").val(0);
+      $("#material_return_product_return_quantity").attr("max",<%= fg_outstanding %>);
+    </script>
+  </table>
+  <hr>
+
+  <% if Rails.env == 'development' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+      <tr>
+        <th>KIND</th>
+        <th>Material name</th>
+        <th>Material Code</th>
+        <th>Std Qty</th>
+        <th>Allowance</th>
+        <th>Qty</th>
+        <th>Std Qty * QTY SFO</th>
+        <th>Qty * QTY SFO</th>
+        <th>Div</th>
+      </tr>
+      <% @material_outgoing_items.each do |material_outgoing_item| %>
+        <% if material_outgoing_item.material.present? %>
+          <% @bom_wip.bill_of_material_items.where(:material_id=> material_outgoing_item.material_id).each do |bom_item| %>
+            <tr>
+              <td>BOM Main</td>
+              <td><%= bom_item.material.name %></td>
+              <td><%= bom_item.material.part_id %></td>
+              <td><%= bom_item.standard_quantity %></td>
+              <td><%= bom_item.allowance %></td>
+              <td><%= bom_item.quantity %></td>
+              <td><%= std_qty = bom_item.standard_quantity.to_f * @sfo_quantity.to_f %></td>
+              <td><%= mi_qty = bom_item.quantity.to_f * @sfo_quantity.to_f %></td>
+              <td><%= mi_qty - std_qty %></td>
+            </tr>
+          <% end if @bom_wip.bill_of_material_items.where(:material_id=> material_outgoing_item.material_id).present? %>
+
+          <% @wip1_bom_items.where(:material_id=> material_outgoing_item.material_id).each do |bom_item| %>
+            <tr>
+              <td>BOM WIP1 Detail</td>
+              <td><%= bom_item.material.name %></td>
+              <td><%= bom_item.material.part_id %></td>
+              <td><%= bom_item.standard_quantity %></td>
+              <td><%= bom_item.allowance %></td>
+              <td><%= bom_item.quantity %></td>
+              <td><%= std_qty = bom_item.standard_quantity.to_f * @sfo_quantity.to_f %></td>
+              <td><%= mi_qty = bom_item.quantity.to_f * @sfo_quantity.to_f %></td>
+              <td><%= mi_qty - std_qty %></td>
+            </tr>
+          <% end if @wip1_bom_items.present? and @wip1_bom_items.where(:material_id=> material_outgoing_item.material_id).present? %>
+
+          <% @wip2_bom_items.where(:material_id=> material_outgoing_item.material_id).each do |bom_item| %>
+            <tr>
+              <td>BOM WIP2 Detail</td>
+              <td><%= bom_item.material.name %></td>
+              <td><%= bom_item.material.part_id %></td>
+              <td><%= bom_item.standard_quantity %></td>
+              <td><%= bom_item.allowance %></td>
+              <td><%= bom_item.quantity %></td>
+              <td><%= std_qty = bom_item.standard_quantity.to_f * @sfo_quantity.to_f %></td>
+              <td><%= mi_qty = bom_item.quantity.to_f * @sfo_quantity.to_f %></td>
+              <td><%= mi_qty - std_qty %></td>
+            </tr>
+          <% end if @wip2_bom_items.present? and @wip2_bom_items.where(:material_id=> material_outgoing_item.material_id).present? %>
+        <% elsif material_outgoing_item.product.present? %>
+          <% if @bom_wip.product_wip1.present? %>
+            <tr>
+              <td>BOM WIP1</td>
+              <td><%= @bom_wip.product_wip1.name %></td>
+              <td><%= @bom_wip.product_wip1.part_id %></td>
+              <td><%= @bom_wip.product_wip1_quantity %></td>
+              <td>-</td>
+              <td><%= @bom_wip.product_wip1_quantity %></td>
+              <td><%= @bom_wip.product_wip1_quantity.to_f * @sfo_quantity.to_f %></td>
+            </tr>
+          <% end %>
+          <% if @bom_wip.product_wip2.present? %>
+            <tr>
+              <td>BOM WIP2</td>
+              <td><%= @bom_wip.product_wip2.name %></td>
+              <td><%= @bom_wip.product_wip2.part_id %></td>
+              <td><%= @bom_wip.product_wip2_quantity %></td>
+              <td>-</td>
+              <td><%= @bom_wip.product_wip2_quantity %></td>
+              <td><%= @bom_wip.product_wip2_quantity.to_f * @sfo_quantity.to_f %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    </table>
+    <hr>
+  <% end %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+    <tr>
+      <th>#</th>
+      <th>Batch Number</th>
+      <th>Material Name</th>
+      <th>Material Code</th>
+      <th>Unit</th>
+      <th>Material Issue Qty</th>
+      <th title="((Material Issue Qty / SFO Qty ) * Outstanding ) + Div Allowance">Return Material Qty</th>
+      <th>Remarks</th>
+      <th>Status</th>
+      <th>Remove</th>
+    </tr>
+    <% c=0 %>
+    <% @material_outgoing_items.each do |material_outgoing_item| %>
+      <% standard_quantity_bom = 0 %>
+      <% quantity_bom = material_outgoing_item.quantity.to_f %>
+      
+      <% if @bom_wip.bill_of_material_items.where(:material_id=> material_outgoing_item.material_id).present? %>
+        <% standard_quantity_bom = @bom_wip.bill_of_material_items.where(:material_id=> material_outgoing_item.material_id).sum(:standard_quantity) * @sfo_quantity.to_f %>
+      
+      <% elsif @wip1_bom_items.present? and @wip1_bom_items.where(:material_id=> material_outgoing_item.material_id).present? %>
+        <% standard_quantity_bom = @wip1_bom_items.where(:material_id=> material_outgoing_item.material_id).sum(:standard_quantity) * @sfo_quantity.to_f %>
+      <% elsif @wip2_bom_items.present? and @wip2_bom_items.where(:material_id=> material_outgoing_item.material_id).present? %>
+        <% standard_quantity_bom = @wip2_bom_items.where(:material_id=> material_outgoing_item.material_id).sum(:standard_quantity) * @sfo_quantity.to_f %>
+      <% end %>
+
+      <% div_qty = standard_quantity_bom.to_f > 0 ? (quantity_bom.to_f > standard_quantity_bom.to_f ? quantity_bom.to_f - standard_quantity_bom.to_f : standard_quantity_bom.to_f - quantity_bom.to_f).round(4) : 0 %>
+
+      <% quanitty_available = (fg_outstanding > 0 ? (material_outgoing_item.quantity / @sfo_quantity.to_f) * fg_outstanding : 0)  %>
+      <% quanitty_available += div_qty if quanitty_available == 0 %>
+
+      <% part = nil %>
+      <% if material_outgoing_item.material.present? %>
+        <% part = material_outgoing_item.material %>
+      <% elsif material_outgoing_item.product.present? %>
+        <% part = material_outgoing_item.product %>
+      <% end %>
+      <% unit_name = (part.present? ? part.unit_name : nil) %>
+
+      <tr class="uk-animation-shake">
+        <td class="counter uk-text-right"><%= c+=1%></td>
+        <td>
+          <%= hidden_field_tag 'new_record_item[][material_outgoing_item_id]', material_outgoing_item.id %>
+          <%= hidden_field_tag "new_record_item[][material_batch_number_id]", material_outgoing_item.material_batch_number_id %>
+          <%= hidden_field_tag "new_record_item[][material_id]", material_outgoing_item.material_id %>
+          <%= hidden_field_tag "new_record_item[][product_batch_number_id]", material_outgoing_item.product_batch_number_id %>
+          <%= hidden_field_tag "new_record_item[][product_id]", material_outgoing_item.product_id %>
+
+          <% if material_outgoing_item.material_batch_number.present? %>
+            <%= text_field_tag "batch_number_row#{c}", "#{material_outgoing_item.material_batch_number.number}", {:class=>"batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+          <% elsif material_outgoing_item.product_batch_number.present? %>
+            <%= text_field_tag "batch_number_row#{c}", "#{material_outgoing_item.product_batch_number.number}", {:class=>"batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+          <% end %>
+        </td>
+        <td>
+          <%= text_field_tag 'part_name', "#{part.name if part.present?}", {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag 'part_id', "#{part.part_id if part.present?}", {:class=>"part_id#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+        </td>
+        <td title="std bom= <%= standard_quantity_bom %>">
+          <%= text_field_tag "mi_quantity#{c}", "#{material_outgoing_item.quantity}", {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+        </td>
+       
+        <td title="<%= "((#{material_outgoing_item.quantity} / #{@sfo_quantity.to_f} ) * #{fg_outstanding} ) + #{div_qty}" %>">
+          <%= number_field_tag 'new_record_item[][quantity]', nil, {step: :any, :max=> quanitty_available, :placeholder=> 'quantity', :class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :qty_base=> (material_outgoing_item.quantity / @sfo_quantity.to_f), :qty_div=> div_qty } %>
+          <% if quanitty_available.to_f > 0 %>
+            <%= link_to "max", 'javascript:;', {:class=> "uk-button uk-button-primary uk-button-small", :onclick=> "$('.quantity#{c}').val(#{quanitty_available});" } %>
+          <% end %>
+        </td>
+        <td>
+          <%= text_field_tag 'new_record_item[][remarks]',material_outgoing_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+        </td>
+        <td>
+          <%= select_tag "new_record_item[][category]", options_for_select(['Good','Not Good']) , { :class=>'uk-select uk-form-small'} %>
+        </td>
+        <td>
+          <%= check_box_tag 'new_record_item[][use]', 1, false, :onclick=>"setTimeout(() => { $(this).parent().parent().remove()}, 1000);" %>
+        </td>
+      </tr>
+    <% end if @material_outgoing_items.present? %>
+  </table>
+<% else %>
+    <% case params[:view_kind] %>
+    <% when 'item' %>
+      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>RM Number</th>
+            <th>MI Number</th>
+            <th>Batch Number</th>
+            <th>Material Code</th>
+            <th>Material Number</th>
+            <th>MI Qty</th>
+            <th>RM Qty</th>
+            <th>Remarks Item</th>
+            <th>Category</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @c = (@c.present? ? @c : 0) %>   
+          <% @material_returns.each do |item| %>
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= @c+=1 %></td>
+              <td><%= item.material_return.status %></td>
+              <td><%= item.material_return.number %></td>
+              <td><%= item.material_return.material_outgoing.number %></td>
+              <td><%= item.material_batch_number.number if item.material_batch_number.present? %></td>
+              <td><%= item.material.part_id %></td>
+              <td><%= item.material.name %></td>
+              <td class="uk-text-right">
+                <%= number_with_precision(item.material_outgoing_item.quantity, precision: (item.material_outgoing_item.quantity.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",") %>
+              </td>
+              <td class="uk-text-right">
+                <%= number_with_precision(item.quantity, precision: (item.quantity.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",") %>
+              </td>
+              <td><%= item.remarks %></td>
+              <td><%= item.category %></td>
+              <td><%= link_to 'Show', item.material_return %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% else %>
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>RM Number</th>
+            <th>RM Date</th>
+            <th>MI Number</th>
+            <th>Batch Number</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @material_returns.each do |material_return| %>          
+            <tr uk-tooltip="title: <%= row_tooltip(material_return) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= material_return.status %></td>
+              <td><%= material_return.number %></td>
+              <td><%= material_return.date %></td>
+              <td><%= material_return.material_outgoing.number if material_return.material_outgoing.present? %></td>
+              <td><%= link_to 'Show', material_return %></td>
+              <td><%= link_to 'Edit', edit_material_return_path(material_return) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% end %>
+<% end %>

@@ -1,0 +1,2 @@
+class TermOfPayment < ApplicationRecord
+end

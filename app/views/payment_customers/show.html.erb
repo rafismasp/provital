@@ -1,0 +1,245 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>">
+
+              <% title = "Show: #{feature("name")}" %>
+              <% case @payment_customer.invoice_kind %>
+              <% when 'invoice' %>
+                <% title += " by Invoice" %>
+              <% when 'proforma' %>
+                <% title += " by Proforma Invoices" %>
+              <% end %>
+              <%= "<h4>#{title}</h4>".html_safe %>
+            </div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', payment_customers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">     
+             <% if @payment_customer.present? %>
+              <% if @payment_customer.currency_id.present? and @payment_customer.currency.name == "IDR" %>
+                <% currency_sign = 2 %>
+              <% else %>
+                <% currency_sign = 4 %> 
+              <% end %>
+            <% else %>
+              <% currency_sign = 4 %> 
+            <% end %>       
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Customer</div>
+                      <div class="uk-width-3-4@m">
+                        <%= text_field_tag :customer_name, @payment_customer.customer.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :number, @payment_customer.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Bank Transfer</div>
+                      <div class="uk-width-3-4@m">
+                        <%= text_field_tag :bank_transfer, @payment_customer.bank_transfer.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Remarks</div>
+                      <div class="uk-width-3-4@m">
+                        <%= text_field_tag :remarks, @payment_customer.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Currency</div>
+                      <div class="uk-width-1-4@m select_currencies">
+                        <%= text_field_tag :currency, @payment_customer.currency.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Date</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :date, @payment_customer.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                  </div>
+                </div>
+
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Total Pajak Invoice</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag "total_tax", (number_with_precision(@payment_customer.total_tax, precision: currency_sign, delimiter: ".", separator: ",") if @payment_customer.present? ), {:disabled=>true, :class=>'total_tax uk-input uk-form-small uk-text-right'} %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Total Amount Invoice</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag "total_amount", (number_with_precision(@payment_customer.total_amount, precision: currency_sign, delimiter: ".", separator: ",") if @payment_customer.present? ), {:disabled=>true, :class=>'total_amount uk-input uk-form-small uk-text-right'} %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Biaya Adm.Bank</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag "adm_fee", (number_with_precision(@payment_customer.adm_fee, precision: currency_sign, delimiter: ".", separator: ",") if @payment_customer.present? ), {:disabled=>true, :class=>'adm_fee uk-input uk-form-small uk-text-right', :onchange=> "change_payment_amount(this, '"+params[:controller].to_s+"');"} %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Potongan Lain.</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag "other_cut_cost", (number_with_precision(@payment_customer.other_cut_cost, precision: currency_sign, delimiter: ".", separator: ",") if @payment_customer.present? ), {:disabled=>true, :class=>'other_cut_cost uk-input uk-form-small uk-text-right', :onchange=> "change_payment_amount(this, '"+params[:controller].to_s+"');"} %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Jumlah Transfer</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag "paid", (number_with_precision(@payment_customer.paid, precision: currency_sign, delimiter: ".", separator: ",") if @payment_customer.present? ), {:disabled=>true, :class=>'paid uk-input uk-form-small uk-text-right'} %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <hr class="uk-margin-small">
+            <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+              <thead>      
+                <tr>
+                  <th>#</th>
+                  <th>Invoice Number</th>
+                  <th>Jumlah</th>
+                  <th>Pajak</th>
+                  <th>Discount</th>
+                  <th>Down Payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if @invoice_customer_by_payments.present? %>
+                  <% c = 0 %>
+                  <% @invoice_customer_by_payments.each do |invoice| %>
+                    <% case @payment_customer.invoice_kind %>
+                    <% when 'proforma' %>
+                      <%= hidden_field_tag "record[][proforma_invoice_customer_id]", invoice.id %>
+                      <tr>
+                        <td><%= c+= 1%></td>
+                        <td><%= invoice.number %></td>
+                        <td class="uk-text-right"><%= number_with_precision(invoice.grand_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td class="uk-text-right"><%= number_with_precision(invoice.ppn_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td class="uk-text-right"><%= number_with_precision(invoice.discount_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td class="uk-text-right"><%= number_with_precision(invoice.down_payment_total, precision: 0, delimiter: ".", separator: ",") %></td>
+                      </tr>
+                    <% else %>
+                      <%= hidden_field_tag "record[][invoice_customer_id]", invoice.id %>
+                      <tr>
+                        <td><%= c+= 1%></td>
+                        <td><%= invoice.number %></td>
+                        <td class="uk-text-right"><%= number_with_precision(invoice.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td class="uk-text-right"><%= number_with_precision(invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td class="uk-text-right"><%= number_with_precision(invoice.discount, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td class="uk-text-right"><%= number_with_precision(0, precision: 0, delimiter: ".", separator: ",") %></td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                <% else %>
+                  <tr>
+                    <td colspan="10">Tidak ada Invoice </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>            
+            <hr>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-3-4@m uk-margin-remove">
+                      <%= form_tooltip(@payment_customer) %>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="uk-grid">
+                    <div class="uk-width-3-4@m">
+                      <% if @payment_customer.status == 'new' or @payment_customer.status == 'canceled1' %>
+                        <%= link_to approve_payment_customer_path(@payment_customer, :status=> 'approve1', :kind=> @payment_customer.invoice_kind), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @payment_customer.status == 'approved1' or @payment_customer.status == 'canceled2' %>
+                        <%= link_to approve_payment_customer_path(@payment_customer, :status=> 'cancel_approve1', :kind=> @payment_customer.invoice_kind), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_payment_customer_path(@payment_customer, :status=> 'approve2', :kind=> @payment_customer.invoice_kind), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @payment_customer.status == 'approved2' or @payment_customer.status == 'canceled3' %>   
+                        <%= link_to approve_payment_customer_path(@payment_customer, :status=> 'cancel_approve2', :kind=> @payment_customer.invoice_kind), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_payment_customer_path(@payment_customer, :status=> 'approve3', :kind=> @payment_customer.invoice_kind), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_payment_customer_path(@payment_customer, :status=> 'cancel_approve3', :kind=> @payment_customer.invoice_kind), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                      
+                        <%= link_to print_payment_customer_path(@payment_customer, :print_kind=> "print", :kind=> @payment_customer.invoice_kind), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                      <% if @payment_customer.status != 'approved3' %>
+                        <%= link_to 'Delete', @payment_customer, method: :delete, data: { confirm: 'Are you sure?' }, :class=> "uk-button uk-button-danger uk-button-small" %>
+                      <% end %>
+
+                    </div>
+                    <div class="uk-width-1-4@m">
+                      <%= link_to 'Back', payment_customers_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <%= link_to 'Edit', edit_payment_customer_path(@payment_customer, :kind=> @payment_customer.invoice_kind), class: "uk-button uk-button-primary uk-button-small uk-align-right" if @payment_customer.status != 'approved3' %>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

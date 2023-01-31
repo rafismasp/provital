@@ -1,0 +1,88 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_supplier" %>
+	<% case field %>
+	<% when 'currency_id' %>
+		<%= text_field_tag "currency", @currency.name, {:class=> 'uk-input uk-form-small', :disabled=> true} if @currency.present? %>
+	<% end %>
+<% when "change_fp_number" %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">   
+   	<thead>
+   		<tr>
+   			<td>#</td>
+   			<td>Invoice Number</td>
+   			<td>Invoice Date</td>
+   			<td>Invoice Status</td>
+   			<td>Invoice Subtotal</td>
+   			<td>Invoice PPN</td>
+   			<td>Invoice PPH</td>
+   			<td>Invoice GrandTotal</td>
+   		</tr>
+   	</thead>
+   	<tbody>
+   		<% c= 0 %>
+   		<% if @invoice_suppliers.present? %>
+				<% @invoice_suppliers.each do |invoice| %>
+		   		<tr>
+		   			<td><%= c+=1 %></td>
+		   			<td><%= invoice.number %></td>
+		   			<td><%= invoice.date %></td>
+		   			<td class="<%= invoice.status == 'approved3' ? nil : 'uk-alert-danger' %>"><%= invoice.status %></td>
+		   			<td class="uk-text-right"><%= number_with_precision(invoice.subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		   			<td class="uk-text-right"><%= number_with_precision(invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		   			<td class="uk-text-right"><%= number_with_precision(invoice.pphtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		   			<td class="uk-text-right"><%= number_with_precision(invoice.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		   		</tr>				
+				<% end %>
+			<% else %>
+				<tr>
+					<td colspan="12">Tidak ada invoice</td>
+				</tr>
+			<% end %>
+   	</tbody>
+	</table>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+	  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+	    <thead class="bg-primary">
+	      <tr>
+	        <th>#</th>
+	        <th>Supplier</th>
+	        <th>NPWP</th>
+	        <th>No.E-faktur</th>
+	        <th>Tanggal</th>
+	        <th>DPP</th>
+	        <th>PPN</th>
+	        <th>Acc</th>
+	        <th>Masa Pelaporan Pajak</th>
+	        <th colspan="2">Action</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      <% c=0 %>
+	      <% if @supplier_tax_invoices.present? %>
+		      <% @supplier_tax_invoices.each do |supplier_tax_invoice| %>
+		        <tr>
+		          <td><%= c+=1 %></td>
+		          <td><%= supplier_tax_invoice.supplier.name if supplier_tax_invoice.supplier.present? %></td>
+		          <td><%= supplier_tax_invoice.supplier.npwp_number if supplier_tax_invoice.supplier.present? %></td>
+		          <td><%= supplier_tax_invoice.number %></td>
+		          <td><%= supplier_tax_invoice.date %></td>
+		          <td class="uk-text-right"><%= number_with_precision(supplier_tax_invoice.dpptotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		          <td class="uk-text-right"><%= number_with_precision(supplier_tax_invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		          <td><%= supplier_tax_invoice.checked %></td>
+		          <td><%= supplier_tax_invoice.date.to_date.strftime("%B %Y") if supplier_tax_invoice.date.present? %></td>
+		          <td><%= link_to 'Show', supplier_tax_invoice %></td>
+		          <td><%= link_to 'Edit', edit_supplier_tax_invoice_path(supplier_tax_invoice) %></td>
+		        </tr>
+		      <% end %>
+		    <% else %>
+		    	<tr>
+		    		<td colspan="10">record not found</td>
+		    	</tr>
+		    <% end %>
+	    </tbody>
+	  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+	</div>
+<% end %>

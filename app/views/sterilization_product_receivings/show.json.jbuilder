@@ -1,0 +1,1 @@
+json.partial! "sterilization_product_receivings/sterilization_product_receiving", sterilization_product_receiving: @sterilization_product_receiving

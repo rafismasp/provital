@@ -1,0 +1,17 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_item' %>
+	$('#sales_order_service_type_lab').css('pointer-events','none');
+	$('.service_type_non_str').css('pointer-events','none');
+	$('.service_type_str').css('pointer-events','none');
+	$('#item tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% when 'change_interval' %>
+  $('.payment_date_form').html("<%= escape_javascript(render 'partial') %>");
+
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

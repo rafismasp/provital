@@ -1,0 +1,112 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_supplier" %>
+	<% case field %>
+  <% when 'tax_rate_id' %>
+    <%= select_tag "invoice_supplier_receiving[tax_rate_id]", options_for_select(@tax_rates.map{|c| ["Rp. #{number_with_precision(c.currency_value, precision: 0, delimiter: ".", separator: ",")}", c.id ]}) , { :class=> "uk-select uk-form-width-medium uk-form-small"} if @tax_rates.present? %>
+	<% when 'tax_id' %>
+    <%= select_tag "invoice_supplier_receiving[tax_id]", options_for_select(@taxes.map{|c| [c.name, c.id ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+	<% when 'currency_id' %>
+    <%= select_tag "invoice_supplier_receiving[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "invoice_supplier_receiving[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+  <% when 'modal_material_receiving' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_material_receivings">  <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>GRN Number</td>
+        <td>GRN Date</td>
+        <td>PO Number</td>
+      </tr>
+      <% c = 0 %>
+      <% if @material_receivings.present? %>
+        <% @material_receivings.each do |grn| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><input class="uk-checkbox select_material_receiving_id" type="checkbox" material_receiving_id="<%= grn.id %>"></td>
+            <td><%= grn.number %></td>
+            <td><%= grn.date %></td>
+            <td><%= grn.purchase_order_supplier.number if grn.purchase_order_supplier.present? %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Not Found</td>
+        </tr>
+      <% end %>
+    </table>
+	<% end %>
+<% when "add_item" %>  
+  <tr id="trid<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-right'><%= params[:c] %></td>
+    <td>
+      <%= text_field_tag 'new_record_item[][index_number]', nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :placeholder=> "Otomatis"} %> 
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][invoice_number]', nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][fp_number]', nil, {:class=>"efaktur_number#{params[:c]} uk-input uk-form-width-medium uk-form-small uk-text-right", :onchange=> "change_efaktur_number(this, '#{params[:c]}')"} %> 
+    </td>
+    <td>
+      <%= date_field_tag 'new_record_item[][invoice_date]', nil, {:class=>"invoice_date#{params[:c]} uk-input uk-form-small uk-text-right", :style=>"width:150px;", :required=> true, :onchange=> "change_efaktur_number(this, '#{params[:c]}')"} %> 
+    </td>
+    <td>
+      <%= select_tag "new_record_item[][tax_rate_id]", options_for_select(@tax_rates.map{|c| ["Rp. #{number_with_precision(c.currency_value, precision: 0, delimiter: ".", separator: ",")}", c.id ]}) , { :class=> "uk-select uk-form-width-small uk-form-small"} if @tax_rates.present? %>
+    </td>
+    <td>
+      <%= select_tag "new_record_item[][currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}) , { :class=> "uk-select uk-form-width-small uk-form-small"} if @currencies.present? %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][dpp]', nil, {:class=>"dpp#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "change_efaktur_number(this, '#{params[:c]}')"} %> 
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][ppn]', nil, {:class=>"ppn#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :readonly=> true} %> 
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][total]', nil, {:class=>"total#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :readonly=> true} %> 
+    </td>
+    <td>
+      <%= check_box_tag 'new_record_item[][erp_system]', 1, true %>
+    </td>
+    <td align='center' width=30px>
+      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Supplier</th>
+          <th>Currency</th>
+          <th colspan="2">TOP</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @invoice_supplier_receivings.each do |item| %>
+          <tr uk-tooltip="title: <%= row_tooltip(item.invoice_supplier_receiving) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= item.invoice_supplier_receiving.status %></td>
+            <td><%= item.index_number %></td>
+            <td><%= item.invoice_supplier_receiving.date %></td>
+            <td><%= item.invoice_supplier_receiving.supplier.name if item.invoice_supplier_receiving.supplier.present? %></td>
+            <td><%= item.currency.name if item.currency.present? %></td>
+            <td><%= item.invoice_supplier_receiving.supplier.top_day if item.invoice_supplier_receiving.supplier.present? %></td>
+            <td><%= item.invoice_supplier_receiving.supplier.term_of_payment.name if item.invoice_supplier_receiving.supplier.present? %></td>
+
+            <td><%= link_to 'Show', item.invoice_supplier_receiving %></td>
+            <td><%= link_to 'Edit', edit_invoice_supplier_receiving_path(item.invoice_supplier_receiving)%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

@@ -1,0 +1,593 @@
+
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', inventories_path(:select_inventory_kind=> params[:select_inventory_kind]), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Batch Number</div>
+                      <div class="uk-width-1-2@m">       
+                        <%= text_field_tag :batch_number, @record.number, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Product Code</div>
+                      <div class="uk-width-1-2@m">       
+                        <%= text_field_tag :name, @product.part_id, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Product Name</div>
+                      <div class="uk-width-3-4@m">       
+                        <%= text_field_tag :name, @product.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m" title="Jumlah maksimal Produk Sekali Produksi">Batch Size</div>
+                      <div class="uk-width-1-4@m">       
+                        <%= text_field_tag :max_batch, @product.max_batch, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Customer</div>
+                      <div class="uk-width-1-2@m">       
+                        <%= text_field_tag :customer_name, (@product.customer.present? ? @product.customer.name : nil), :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Category</div>
+                      <div class="uk-width-1-2@m">       
+                        <%= text_field_tag :product_category_name, @product.product_category.name, :class=> "uk-select uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Sub Category</div>
+                      <div class="uk-width-1-2@m">       
+                        <%= text_field_tag :product_sub_category_name, @product.product_sub_category.name, :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Type</div>
+                      <div class="uk-width-1-2@m">       
+                        <%= text_field_tag :product_type_name, @product.product_type.name, :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+
+            <% batch_number = @record.number %>
+            <% batch_number_created_at = @record.created_at %>
+
+
+            <% sfo_id = @record.document_production("id") %>
+            <% sfo_number = @record.document_production("number") %>
+            <% sfo_date = @record.document_production("approved3_at") %>
+            <% sfo_quantity = @record.document_production("quantity") %>
+
+            <% sterilization_product_receiving_process = @record.sterilization_product_receiving(current_user.company_profile_id) %>
+            <% sterilization_process = @record.sterilization_process(current_user.company_profile_id) %>
+            <% sterilization_ext_process = @record.sterilization_ext_process(current_user.company_profile_id) %>
+            <% semifg_process = @record.semifg_receiving_process(current_user.company_profile_id) %>
+            <% semifg_sterilization_process = @record.semifg_outgoing_process(current_user.company_profile_id) %>
+            <% warehouse_process = @record.fg_receiving_process(current_user.company_profile_id) %>
+            <% picking_process = @record.picking_process(current_user.company_profile_id) %>
+            <% delivery_process = @record.delivery_process(current_user.company_profile_id) %>
+            <% adj_process = @record.adj_process(current_user.company_profile_id) %>
+            <% last_updated_at = @sfo_date %>
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Shop Floor Order: Production</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Action</td>
+                    </tr>
+                    <% if sfo_number.present? %>
+                      <tr>
+                        <td><%= sfo_number %></td>
+                        <td><%= sfo_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if sfo_date.present? %></td>
+                        <td><%= number_with_precision(sfo_quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td>
+                          <%= link_to 'Show', shop_floor_order_path(:id=> sfo_id), :class=>"uk-button uk-button-small uk-button-primary" %>
+                          <%= link_to 'recheck', shop_floor_order_path(:id=> sfo_id, :recheck=> true), :class=>"uk-button uk-button-small uk-button-primary" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Semi Finish Good Receiving Note</h3>
+                  <h4>Note: hanya product yg risk category "Non Elektromedik Steril"</h4>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Action</td>
+                    </tr>
+
+
+                    <% semifg_proces_date = nil %>
+                    <% if semifg_process.present? %>  
+                      <% summary_semifg_qty = 0 %>
+                      <% semifg_process.each do |semifg_proces| %>  
+                        <% semifg_proces_number = semifg_proces.semi_finish_good_receiving.number %> 
+                        <% semifg_proces_date   = semifg_proces.semi_finish_good_receiving.approved3_at %> 
+                        
+                        <tr>
+                          <td><%= semifg_proces_number %></td>
+                          <td><%= semifg_proces_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if semifg_proces_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(semifg_proces.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td>
+                            <%= link_to 'show', semi_finish_good_receiving_path(:id=> semifg_proces.semi_finish_good_receiving_id), :class=>"uk-button uk-button-primary uk-button-small" %>
+                          </td>
+                          <% last_updated_at = semifg_proces_date %>
+                          <% summary_semifg_qty += semifg_proces.quantity %>
+                        </tr>
+                      <% end %>
+                      
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_semifg_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% else %>
+                      <tr>
+                        <td colspan="10"> tidak menggunakan dokumen ini</td>
+                      </tr>
+                    <% end %>
+
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <h3>Sterilization Product Receipt Note</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Action</td>
+                    </tr>
+
+
+                    <% str_prd_rcv_proces_date = nil %>
+                    <% if sterilization_product_receiving_process.present? %>  
+                      <% summary_str_prd_rcv_qty = 0 %>
+                      <% sterilization_product_receiving_process.each do |str_prd_rcv_proces| %>  
+                        <% semifg_proces_number = str_prd_rcv_proces.sterilization_product_receiving.number %> 
+                        <% str_prd_rcv_proces_date   = str_prd_rcv_proces.sterilization_product_receiving.approved3_at %> 
+                        
+                        <tr>
+                          <td><%= semifg_proces_number %></td>
+                          <td><%= str_prd_rcv_proces_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if str_prd_rcv_proces_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(str_prd_rcv_proces.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td>
+                            <%= link_to 'show', sterilization_product_receiving_path(:id=> str_prd_rcv_proces.sterilization_product_receiving_id), :class=>"uk-button uk-button-primary uk-button-small" %>
+                          </td>
+                          <% last_updated_at = str_prd_rcv_proces_date %>
+                          <% summary_str_prd_rcv_qty += str_prd_rcv_proces.quantity %>
+                        </tr>
+                      <% end %>
+                      
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_str_prd_rcv_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% else %>
+                      <tr>
+                        <td colspan="10"> tidak menggunakan dokumen ini</td>
+                      </tr>
+                    <% end %>
+
+                  </table>
+                  <hr>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Shop Floor Order: Sterilization (internal)</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Prd to Str</td>
+                      <td>Action</td>
+                    </tr>
+                    <% str_process_date = nil %>
+                    <% if sterilization_process.present? %>   
+                      <% summary_sterilization_qty = 0 %>
+                      <% sterilization_process.each do |str_process| %>   
+                        <% str_process_number = str_process.shop_floor_order_sterilization.number %>
+                        <% str_process_date   = str_process.shop_floor_order_sterilization.approved3_at %>
+                        <tr>
+                          <td><%= str_process_number %></td>
+                          <td><%= str_process_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if str_process_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(str_process.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td title="Production to Sterilization ">
+                                <%= TimeDifference.between(sfo_date, str_process_date).in_hours if sfo_date.present? and str_process_date.present? %> Hours
+                          </td>
+                          <td>
+                            <%= link_to 'Show', shop_floor_order_sterilization_path(:id=> str_process.shop_floor_order_sterilization_id), :class=>"uk-button uk-button-small uk-button-primary" %>
+                          </td>
+                        </tr>
+                        <% last_updated_at = str_process_date %>
+                        <% summary_sterilization_qty += str_process.quantity%>
+                      <% end %>
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_sterilization_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% end %>
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <h3>Shop Floor Order: Sterilization (External)</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Prd to Str</td>
+                      <td>Action</td>
+                    </tr>
+                    <% str_process_date = nil %>
+                    <% if sterilization_ext_process.present? %>   
+                      <% summary_sterilization_qty = 0 %>
+                      <% sterilization_ext_process.each do |str_process| %>   
+                        <% str_process_number = str_process.shop_floor_order_sterilization.number %>
+                        <% str_process_date   = str_process.shop_floor_order_sterilization.approved3_at %>
+                        <tr>
+                          <td><%= str_process_number %></td>
+                          <td><%= str_process_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if str_process_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(str_process.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td title="Production to Sterilization ">
+                                <%= TimeDifference.between(sfo_date, str_process_date).in_hours if sfo_date.present? and str_process_date.present? %> Hours
+                          </td>
+                          <td>
+                            <%= link_to 'Show', shop_floor_order_sterilization_path(:id=> str_process.shop_floor_order_sterilization_id), :class=>"uk-button uk-button-small uk-button-primary" %>
+                          </td>
+                        </tr>
+                        <% last_updated_at = str_process_date %>
+                        <% summary_sterilization_qty += str_process.quantity%>
+                      <% end %>
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_sterilization_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% end %>
+                  </table>
+                  <hr>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Semi Finish Good For Sterilization</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Action</td>
+                    </tr>
+
+
+                    <% semifg_str_proces_date = nil %>
+                    <% if semifg_sterilization_process.present? %>  
+                      <% summary_semifg_str_qty = 0 %>
+                      <% semifg_sterilization_process.each do |semifg_str_proces| %>  
+                        <% semifg_str_proces_number = semifg_str_proces.semi_finish_good_outgoing.number %> 
+                        <% semifg_str_proces_date   = semifg_str_proces.semi_finish_good_outgoing.approved3_at %> 
+                        
+                        <tr>
+                          <td><%= semifg_str_proces_number %></td>
+                          <td><%= semifg_str_proces_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if semifg_str_proces_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(semifg_str_proces.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td>
+                            <%= link_to 'show', semi_finish_good_outgoing_path(:id=> semifg_str_proces.semi_finish_good_outgoing_id), :class=>"uk-button uk-button-primary uk-button-small" %>
+                          </td>
+                          <% last_updated_at = semifg_str_proces_date %>
+                          <% summary_semifg_str_qty += semifg_str_proces.quantity %>
+                        </tr>
+                      <% end %>
+                      
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_semifg_str_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% end %>
+
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Finish Good Receiving</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Prd to WH</td>
+                      <td>Action</td>
+                    </tr>
+
+
+                    <% whfg_process_date = nil %>
+                    <% if warehouse_process.present? %>  
+                      <% summary_fg_qty = 0 %>
+                      <% warehouse_process.each do |whfg_process| %>  
+                        <% whfg_process_number = whfg_process.finish_good_receiving.number %> 
+                        <% whfg_process_date   = whfg_process.finish_good_receiving.approved3_at %> 
+                        
+                        <tr>
+                          <td><%= whfg_process_number %></td>
+                          <td><%= whfg_process_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if whfg_process_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(whfg_process.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td title="Production to Warehouse">
+                            <%= TimeDifference.between(sfo_date, whfg_process_date).in_hours if sfo_date.present? and whfg_process_date.present? %> Hours
+                          </td>
+                          <td>
+                            <%= link_to 'show', finish_good_receiving_path(:id=> whfg_process.finish_good_receiving_id), :class=>"uk-button uk-button-primary uk-button-small" %>
+                          </td>
+                          <% last_updated_at = whfg_process_date %>
+                          <% summary_fg_qty += whfg_process.quantity %>
+                        </tr>
+                      <% end %>
+                      
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_fg_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% end %>
+
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Picking Slip</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Action</td>
+                    </tr>
+
+
+                    <% picking_proces_date = nil %>
+                    <% if picking_process.present? %>  
+                      <% summary_picking_qty = 0 %>
+                      <% picking_process.each do |picking_proces| %>  
+                        <% picking_proces_number = picking_proces.picking_slip.number %> 
+                        <% picking_proces_date   = picking_proces.picking_slip.approved3_at %> 
+                        
+                        <tr>
+                          <td><%= picking_proces_number %></td>
+                          <td><%= picking_proces_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if picking_proces_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(picking_proces.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td>
+                            <%= link_to 'show', picking_slip_path(:id=> picking_proces.picking_slip_id), :class=>"uk-button uk-button-primary uk-button-small" %>
+                          </td>
+                          <% last_updated_at = picking_proces_date %>
+                          <% summary_picking_qty += picking_proces.quantity %>
+                        </tr>
+                      <% end %>
+                      
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_picking_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% end %>
+
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Delivery Order</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Action</td>
+                    </tr>
+
+
+                    <% dlv_proces_date = nil %>
+                    <% if delivery_process.present? %>  
+                      <% summary_dlv_qty = 0 %>
+                      <% delivery_process.each do |dlv_proces| %>  
+                        <% dlv_proces_number = dlv_proces.delivery_order.number %> 
+                        <% dlv_proces_date   = dlv_proces.delivery_order.approved3_at %> 
+                        
+                        <tr>
+                          <td><%= dlv_proces_number %></td>
+                          <td><%= dlv_proces_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if dlv_proces_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(dlv_proces.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td>
+                            <%= link_to 'show', delivery_order_path(:id=> dlv_proces.delivery_order_id), :class=>"uk-button uk-button-primary uk-button-small" %>
+                          </td>
+                          <% last_updated_at = dlv_proces_date %>
+                          <% summary_dlv_qty += dlv_proces.quantity %>
+                        </tr>
+                      <% end %>
+                      
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_dlv_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% end %>
+
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <h3>Adjustments</h3>
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+                    <tr>
+                      <td>Number</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Action</td>
+                    </tr>
+
+
+                    <% adj_proces_date = nil %>
+                    <% if adj_process.present? %>  
+                      <% summary_adj_qty = 0 %>
+                      <% adj_process.each do |adj_proces| %>  
+                        <% adj_proces_number = adj_proces.inventory_adjustment.number %> 
+                        <% adj_proces_date   = adj_proces.inventory_adjustment.approved3_at %> 
+                        
+                        <tr>
+                          <td><%= adj_proces_number %></td>
+                          <td><%= adj_proces_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if adj_proces_date.present? %></td>
+                          <td class="uk-text-right"><%= number_with_precision(adj_proces.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                          <td>
+                            <%= link_to 'show', inventory_adjustment_path(:id=> adj_proces.inventory_adjustment_id), :class=>"uk-button uk-button-primary uk-button-small" %>
+                          </td>
+                          <% last_updated_at = adj_proces_date %>
+                          <% summary_adj_qty = adj_proces.quantity if summary_adj_qty == 0 %>
+                        </tr>
+                      <% end %>
+                      
+                      <tr>
+                        <td colspan="2" class="uk-text-right">Total</td>
+                        <td class="uk-text-right"><%= number_with_precision(summary_adj_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td colspan="2"></td>
+                      </tr>
+                    <% end %>
+
+                  </table>
+                  <hr>
+                </div>
+                <div class="uk-width-1-2@m">
+                </div>
+              </div>
+            </div>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+                    <tr>
+                      <td>Summary FG Receiving</td>
+                      <td><%= number_with_precision(summary_fg_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                    </tr>
+                    <tr>
+                      <td>Summary Delivery</td>
+                      <td><%= number_with_precision(summary_dlv_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                    </tr>
+                    <tr>
+                      <td>FG - DLv</td>
+                      <td><%= number_with_precision(summary_fg_qty.to_f - summary_dlv_qty.to_f, precision: 0, delimiter: ".", separator: ",") %></td>
+                    </tr>
+                    <tr>
+                      <td>Last Adjustment</td>
+                      <td><%= number_with_precision(summary_adj_qty, precision: 0, delimiter: ".", separator: ",") %></td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">
+                  <%= link_to 'Back', '/monitoring_kanbans', class: "uk-button uk-button-secondary uk-button-small" %>
+                </div>
+                <div class="uk-width-1-4@m">
+                </div>
+                <div class="uk-width-1-4@m">
+                </div>
+                <div class="uk-width-1-4@m">
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

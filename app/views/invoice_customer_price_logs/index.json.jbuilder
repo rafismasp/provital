@@ -1,0 +1,1 @@
+render partial: 'invoice_customer_price_logs/partial.html.erb'

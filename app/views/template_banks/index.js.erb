@@ -1,0 +1,17 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'load_payment_supplier' %>
+	$('#item').html("<%= escape_javascript(render 'partial') %>");
+	var sum = 0;
+	$('.vp_sum_amount').each(function(i, obj){
+	    sum += parseFloat($(this).attr("grand_total"));
+	});
+	$("#grand_total").val(sum.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+  $("#template_bank_grand_total").val(sum); //save
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

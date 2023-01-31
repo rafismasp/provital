@@ -1,0 +1,145 @@
+
+  <ul uk-tab class="uk-margin-small">
+    <li class="uk-active"><a href="#">Summary by Invoice</a></li>
+    <li><a href="#">Summary by Part ID</a></li>
+    <li><a href="#">Detail DO</a></li>
+  </ul>
+
+  <ul class="uk-switcher uk-margin">
+    <li>
+      <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">   
+          <thead>
+            <tr>
+              <td>#</td>
+              <td>Invoice Number</td>
+              <td>Invoice Date</td>
+              <td>Invoice Status</td>
+              <td>Invoice Subtotal</td>
+              <td>Invoice PPN</td>
+              <td>Invoice GrandTotal</td>
+            </tr>
+          </thead>
+          <tbody>
+            <% c= 0 %>
+            <% if @invoice_customers.present? %>
+              <% @invoice_customers.each do |invoice| %>
+                <tr>
+                  <td><%= c+=1 %></td>
+                  <td><%= invoice.number %><%= hidden_field_tag "invoice_customer[][invoice_customer_id]", invoice.id %></td>
+                  <td><%= invoice.date %></td>
+                  <td class="<%= invoice.status == 'approved3' ? nil : 'uk-alert-danger' %>"><%= invoice.status %></td>
+                  <td class="uk-text-right"><%= number_with_precision(invoice.subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(invoice.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                </tr>       
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="12">Tidak ada invoice</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </li>
+    <li>
+      <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">   
+          <thead>
+            <tr>
+              <td>#</td>
+              <td>Product Code</td>
+              <td>Product Name</td>
+              <td>Type</td>
+              <td>Qty DO</td>
+              <td>Unit Price</td>
+              <td>Subtotal</td>
+              <td>PPN Total</td>
+              <td>Grand Total</td>
+            </tr>
+          </thead>
+          <tbody>
+            <% c= 0 %>
+            <% if @invoice_customer_items.present? %>
+              <% @invoice_customer_items.group(:product_id).each do |item| %>
+                <% sum_qty_delivery = @invoice_customer_items.where(:product_id=> item.product_id).sum(:quantity) %>
+                <% subtotal = (sum_qty_delivery.to_f*item.unit_price.to_f) %>
+                <% ppntotal = 0 %>
+                <% grandtotal = subtotal %>
+                <tr>
+                  <td><%= c+=1 %></td>
+                  <td><%= item.product.part_id if item.product.present? %></td>
+                  <td><%= item.product.name if item.product.present? %></td>
+                  <td><%= item.product.type_name if item.product.present? %></td>
+                  <td><%= sum_qty_delivery %></td>
+                  <td class="uk-text-right"><%= number_with_precision(item.unit_price, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                </tr>       
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="12">Tidak ada invoice</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </li>
+    <li>
+      <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">   
+          <thead>
+            <tr>
+              <td>#</td>
+              <td>No.Invoice</td>
+              <td>No.DO</td>
+              <td>Product Code</td>
+              <td>Product Name</td>
+              <td>Type</td>
+              <td>Qty DO</td>
+              <td>Unit Price</td>
+              <td>Subtotal</td>
+              <td>PPN Total</td>
+              <td>Grand Total</td>
+            </tr>
+          </thead>
+          <tbody>
+            <% c= 0 %>
+            <% if @delivery_order_items.present? %>
+              <% @delivery_order_items.each do |item| %>
+                <% unit_price_by_so = (item.sales_order_item.present? ? item.sales_order_item.unit_price : 0) %>
+                <% subtotal = (item.quantity.to_f*unit_price_by_so.to_f) %>
+                <% ppntotal = 0 %>
+                <% grandtotal = subtotal %>
+                <tr>
+                  <td><%= c+=1 %></td>
+                  <td><%= item.delivery_order.number if item.delivery_order.present? %></td>
+                  <td><%= item.delivery_order.invoice_customer.number if item.delivery_order.present? %></td>
+                  <td><%= item.product.part_id if item.product.present? %></td>
+                  <td><%= item.product.name if item.product.present? %></td>
+                  <td><%= item.product.type_name if item.product.present? %></td>
+                  <td class="uk-text-right">
+                    <%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+                  </td>
+                  <td class="uk-text-right">
+                    <%= number_with_precision(unit_price_by_so, precision: 0, delimiter: ".", separator: ",") %>
+                  </td>
+                  <td class="uk-text-right"><%= number_with_precision(subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  
+                </tr>       
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="12">Tidak ada DO</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </li>
+  </ul>

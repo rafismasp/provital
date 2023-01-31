@@ -1,0 +1,75 @@
+<%= stylesheet_link_tag 'hrd' %>
+<%= form_with(model: schedule, local: true, class: "uk-form-horizontal") do |form| %>
+  
+  <% if schedule.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(schedule.errors.count, "error") %> prohibited this schedule from being saved:</h2>
+
+      <ul>
+      <% schedule.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Kode</div>
+            <div class="uk-width-1-5@m">
+              <%= form.text_field :code, id: :schedule_code, :value=> (form.object.code.present? ? form.object.code : nil), :required=>true, :class=> "uk-input uk-form-small" %>
+            </div>
+            <div class="uk-width-1-6@m">Type</div>
+            <div class="uk-width-1-5@m">
+              <%= form.select :status, options_for_select([["Active","active"],["Suspend","suspend"]], (form.object.status if form.object.present?)), {:prompt => " -- select -- "}, {:class=> "uk-select uk-form-width-large uk-form-small"} %>
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Note</div>
+            <div class="uk-width-3-4@m">
+              <%= form.text_area :description, id: :schedule_description, :class=> "uk-textarea uk-input uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m" id="item">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">          
+          <tr>
+            <th class="uk-text-middle">DAY</th>  
+            <th class="uk-text-middle uk-text-center">IN</th>
+            <th class="uk-text-middle uk-text-center">OUT</th>
+          </tr>
+          <% day = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"] %>
+          <% day.each do |d| %>
+            <tr>
+              <td><%= d.upcase %></td>
+              <td><%= form.time_field "#{d}_in", id: "schedule_#{d}_in", :class=> "uk-input uk-form-small" %></td>
+              <td><%= form.time_field "#{d}_out", id: "schedule_#{d}_out", :class=> "uk-input uk-form-small" %></td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', schedules_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

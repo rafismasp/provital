@@ -1,0 +1,178 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', suppliers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-grid">
+              <div class="uk-width-1-2@m">
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-3@m">Name</div>
+                    <div class="uk-width-2-3@m">       
+                      <%= text_field_tag :name, @supplier.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-3@m">Number</div>
+                    <div class="uk-width-1-3@m">       
+                      <%= text_field_tag :number, @supplier.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+              <li class="uk-active"><a href="#">General</a></li>
+              <li><a href="#">Bank</a></li>
+            </ul>
+            <ul id="tab-content" class="uk-switcher">
+              <li>    
+                <div class="uk-grid">
+                  <div class="uk-width-1-2@m">
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Currency</div>
+                        <div class="uk-width-1-5@m">  
+                          <%= text_field_tag :currency, (@supplier.currency.name if @supplier.currency.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Type of Tax</div>
+                        <div class="uk-width-1-3@m">  
+                          <%= text_field_tag :type_of_tax, (@supplier.tax.name if @supplier.tax.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Terms of Payment</div>
+                        <div class="uk-width-2-3@m">  
+                          <div class="uk-flex"> 
+                            <%= text_field_tag :top_day, @supplier.top_day, :class=> "uk-input uk-form-small uk-width-1-4", :disabled=> true %>
+                          
+                            <%= text_field_tag :term_of_payment, (@supplier.term_of_payment.name if @supplier.term_of_payment.present?), :class=> "uk-input uk-form-small uk-width-3-4", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Business Desc.</div>
+                        <div class="uk-width-2-3@m">
+                          <%= text_field_tag :business_description, @supplier.business_description, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">PIC</div>
+                        <div class="uk-width-1-3@m">
+                          <%= text_field_tag :pic, @supplier.pic, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Telephone</div>
+                        <div class="uk-width-1-3@m">
+                          <%= text_field_tag :telephone, @supplier.telephone, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">E-mail</div>
+                        <div class="uk-width-2-3@m">
+                          <%= text_field_tag :email, @supplier.email, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">remarks</div>
+                        <div class="uk-width-1-2@m">
+                          <%= text_field_tag :remarks, @supplier.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Address</div>
+                        <div class="uk-width-2-3@m">
+                          <%= text_area_tag :address, @supplier.address, :class=> "uk-textarea uk-form-width-large uk-form-small", :disabled=> true, :rows=> 5 %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1@m">
+                      <div class="uk-overflow-auto" id="bank_item">
+                        <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+                          <tr>
+                            <th>No.</th>
+                            <th>Nama Rekening</th>
+                            <th>Nama Bank</th>
+                            <th>No. Rekening</th>
+                            <th>Tipe Penerima</th>
+                            <th title="Alamat email bagian finance">Alamat Email</th>
+                            <th>Jenis Penduduk</th>
+                            <th>Negara</th>
+                            <th>Curr</th>
+                          </tr>
+                          <% c=0 %>
+
+                          <% @supplier.supplier_banks.each do |bank| %>
+                            <tr>
+                              <td class="counter uk-text-right"><%= c+=1%></td>
+                              <td><%= bank.account_holder %></td>
+                              <td><%= bank.dom_bank.bank_name if bank.dom_bank.present? %></td>
+                              <td><%= bank.account_number %></td>
+                              <td><%= bank.receiver_type %></td>
+                              <td><%= bank.email %></td>
+                              <td><%= bank.residence_type %></td>
+                              <td><%= bank.country_code.name if bank.country_code.present? %></td>
+                              <td><%= bank.currency.name if bank.currency.present? %></td>
+                            </tr>
+                          <% end if @supplier.supplier_banks.present? %>
+
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', suppliers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_supplier_path(@supplier), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

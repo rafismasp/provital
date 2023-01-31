@@ -1,0 +1,243 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_product' %>  
+  <table class="uk-table uk-table-small uk-table-hover uk-table-bordered uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>Product</th>
+      <th>Outstanding PO</th>
+      <th>Quantity available</th>
+      <th>Notes</th>
+    </tr>
+    <% c=0 %>
+    <% if @sales_order_items.present? %>
+      <% @sales_order_items.each do |item| %>
+        <% sales_order_str = item.sales_order.service_type_str.to_i == 1 ? 'Yes' : 'No' %>
+        <% @product_batch_number.where(:product_id=> item.product_id).each do |bn| %>
+          <%# if sales_order_str == 'Yes' %>
+            <%# qty_available = bn.product_batch_number.outstanding_picking_slip.to_f - bn.product_batch_number.outstanding_sterilization_out.to_f %>
+          <%# else %>
+            <% qty_available = bn.product_batch_number.outstanding_picking_slip %>
+          <%# end %>
+
+          <% disabled_status = qty_available > 0 ? nil : 'disabled' %>
+          <tr style="background: <%= disabled_status.present? ? '#ebebeb' : nil %>">
+            <td align=right width=22px class='counter'><%= c+=1 %></td>
+            <td>
+              <article class="uk-comment">
+                <header class="uk-comment-header">
+                  <div class="uk-grid-medium uk-flex-middle" uk-grid>
+                    <div class="uk-width-auto">
+                      <input class="uk-checkbox uk-align-center select_product_batch_number_id" type="checkbox" product_batch_number_id="<%= bn.product_batch_number_id %>" <%= disabled_status %> >
+                    </div>
+                    <div class="uk-width-expand">
+                      <h4 class="uk-comment-title uk-margin-remove"><%= item.product.name %></h4>
+                      <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                        <li><%= item.product.part_id %></li>
+                        <li><%= bn.product_batch_number.number %></li>
+                      </ul>
+                    </div>
+                  </div>
+                </header>
+              </article>
+
+            </td>
+            <td class="uk-text-right"><%= number_with_precision(item.outstanding, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td class="uk-text-right">
+              <%= number_with_precision(qty_available, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td><%= "Belum dibuat SFS (Sterilization Out) = #{bn.product_batch_number.outstanding_sterilization_out.to_f} " if sales_order_str == 'Yes' %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    <% else %>
+      Tidak ada SO
+    <% end %>
+  </table>
+<% when 'load_product_batch_number' %> 
+  <table class="uk-table uk-table-small uk-table-hover uk-table-bordered uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>Product Code</th>
+      <th>Product Name</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Outstanding PO</th>
+      <th>Quantity available</th>
+      <th>Quantity dispatch</th>
+      <th>Remarks</th>
+      <th>Status</th>
+    </tr>
+    <% c=0 %>
+    <% if @sales_order_items.present? %>
+      <% @sales_order_items.each do |item| %>
+        <% @product_batch_number.where(:product_id=> item.product_id).each do |bn| %>
+          <% picking_slip_item = @picking_slip_items.find_by(:product_batch_number_id=> bn.product_batch_number_id) %>
+          <% if picking_slip_item.present? %>
+
+            <% periode = picking_slip_item.picking_slip.date.to_date.strftime("%Y%m") %>
+
+            <%= hidden_field_tag 'picking_slip_item[][id]', picking_slip_item.id %>
+            <%= hidden_field_tag 'picking_slip_item[][product_id]', item.product_id %>
+            <%= hidden_field_tag 'picking_slip_item[][sales_order_item_id]', item.id %>
+            <%= hidden_field_tag 'picking_slip_item[][product_batch_number_id]', bn.product_batch_number_id, {:class=> "product_batch_number_id"} %>
+            <% part = picking_slip_item.product %>
+            <% stock_bn = (part.present? ? part.current_stock_batch_number(current_user.company_profile_id, picking_slip_item.product_batch_number_id, periode) : nil) %>
+
+            <% max_quantity = (picking_slip_item.sales_order_item.outstanding.to_f < stock_bn.to_f ? picking_slip_item.sales_order_item.outstanding : stock_bn) %>
+            <tr id="product_batch_number_id<%= bn.product_batch_number_id %>">
+              <td align=right width=22px class='counter'><%= c+=1 %></td>
+              <td>
+                <%= text_field_tag 'part_id', picking_slip_item.product.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_name', picking_slip_item.product.name, {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'product_batch_number', picking_slip_item.product_batch_number.number, {:class=>"product_batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name',picking_slip_item.product.unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+              <td style="width: 100px;" class="uk-text-right"><%= number_with_precision(item.outstanding, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-right"><%= number_with_precision(stock_bn, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td>
+                <%= number_field_tag 'picking_slip_item[][quantity]', picking_slip_item.quantity, {:placeholder=> 'quantity', :class=>"quantity#{picking_slip_item.sales_order_item_id} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "check_outstanding_po(this, '#{picking_slip_item.sales_order_item_id}', '#{picking_slip_item.sales_order_item.outstanding}');", :max=> max_quantity} %>
+              </td>
+              <td>
+                <%= text_field_tag 'picking_slip_item[][remarks]',picking_slip_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "picking_slip_item[][status]", options_for_select(['active','deleted'],
+                  picking_slip_item.status) , { :class=>'uk-input uk-form-small'} %>
+              </td>
+            </tr>
+          <% else %>
+            <tr id="product_batch_number_id<%= bn.product_batch_number_id %>">
+              <td align=right width=22px class='counter'><%= c+=1 %></td>
+              <td><%= item.product.part_id %></td>
+              <td>
+                <%= hidden_field_tag "new_record_item[][product_id]", item.product_id, {:id=> "product_id_#{c}"} %>
+                <%= hidden_field_tag "new_record_item[][sales_order_item_id]", item.id, {:id=> "sales_order_item_id_#{c}"} %>
+                <%= hidden_field_tag "new_record_item[][product_batch_number_id]", bn.product_batch_number_id, {:class=> "product_batch_number_id", :id=> "product_batch_number_id_#{c}"} %>
+                <%= item.product.name %>
+                  
+              </td>
+              <td><%= bn.product_batch_number.number %></td>
+              <td style="width: 50px;" class="uk-text-center"><%= item.product.unit_name %></td>
+              <td style="width: 100px;" class="uk-text-right"><%= number_with_precision(item.outstanding, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td style="width: 100px;" class="uk-text-right"><%= number_with_precision(bn.end_stock, precision: 0, delimiter: ".", separator: ",") %></td>
+
+              <td style="width: 100px;" title="Stock untuk Batch Number adalah: <%= number_with_precision(bn.end_stock, precision: 0, delimiter: ".", separator: ",") %>">
+                <%= number_field_tag 'new_record_item[][quantity]', nil, {:id=> "quantity_#{c}", :min=> 0, :max=> (item.outstanding.to_f < bn.end_stock.to_f ? item.outstanding : bn.end_stock), :placeholder=> 'quantity', :class=>"quantity#{item.id} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "check_outstanding_po(this, '#{item.id}', '#{item.outstanding}');"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'new_record_item[][remarks]',nil, {:id=> "remarks_#{c}", :placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      Tidak ada SO
+    <% end %>
+  </table>
+<% when 'change_customer' %>
+  <%= select_tag "picking_slip[sales_order_id]", options_for_select(@sales_orders.map { |e| ["#{e.po_number} - #{e.month_delivery}", e.id] }), :class=>"uk-select uk-form-width-large uk-form-small", :prompt=>"--select--", :onchange=> "$('#button_add_item').attr('sales_order_id', $(this).val());", :onchange=> "change_sales_order_id(this, '"+params[:controller].to_s+"');"%>
+<% when 'add_item' %>
+  <tr id="trid<%= params[:c] %>" valign=top><td align=right width=22px class='counter'><%= params[:c] %></td>
+    <td>
+      <%= select_tag "new_record_item[][product_id]", options_for_select(@products.collect { |e| [e.name, e.id, 
+        {:'part_id'=> e.part_id, :'unit_name' => (e.unit.name if e.unit.present?), :'part_model'=> e.part_model }]}) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-width-medium uk-form-small',
+        :onchange=> "change_product_id(this, '"+params[:controller].to_s+"', '"+params[:c].to_s+"');"} if @products.present? %>  </td>
+    
+    <td>
+      <%= text_field_tag 'part_id',nil, {:class=>"part_id#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'part_model',nil, {:class=>"part_model#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'unit_name',nil, {:class=>"unit_name#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+    </td>
+
+    <td>
+      <%= number_field_tag 'new_record_item[][quantity]',nil, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+    </td>
+    <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+  </tr>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Batch Number</th>
+          <th>Product Code</th>
+          <th>Product Number</th>
+          <th>Quantity available</th>
+          <th>Quantity dispatch</th>
+          <th>Remarks Item</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @picking_slips.each do |item| %>
+          <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td><%= item.picking_slip.status %></td>
+            <td><%= item.picking_slip.number %></td>
+            <td><%= item.product_batch_number.number if item.product_batch_number.present? %></td>
+            <td><%= item.product.part_id %></td>
+            <td><%= item.product.name %></td>
+            <td class="uk-text-right">
+              <%= number_with_precision(item.product.current_stock(current_user.company_profile_id, item.picking_slip.date.strftime("%Y%m")), precision: 0, delimiter: ".", separator: ",") %>
+            </td>
+            <td class="uk-text-right">
+              <%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+            </td>
+            <td><%= item.remarks %></td>
+            <td><%= link_to 'Show', item.picking_slip %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Customer</th>
+          <th>Document Number</th>
+          <th>Date</th>
+          <th>PO Number</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @picking_slips.each do |picking_slip| %>
+          <tr uk-tooltip="title: <%= row_tooltip(picking_slip) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= picking_slip.status %></td>
+            <td><%= picking_slip.customer.name if picking_slip.customer.present? %></td>
+            <td><%= picking_slip.number %></td>
+            <td><%= picking_slip.date %></td>
+            <td><%= picking_slip.sales_order.po_number if picking_slip.sales_order.present? %></td>
+            <td><%= link_to 'Show', picking_slip %></td>
+            <td><%= link_to 'Edit', edit_picking_slip_path(picking_slip) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

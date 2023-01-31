@@ -1,0 +1,76 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+
+<% when 'add_item' %>
+
+<% when 'change_department' %>
+
+<% when 'select_payment_method' %>
+  <% case form_type %>
+  <% when 'bank_name_form' %>
+    <% if params[:payment_method] == "cash" %>
+      <%= text_field_tag "cash_submission[bank_name]", "-", class: "uk-input uk-form-small", :readonly=> true %>
+    <% else %>
+      <%= select_tag "cash_submission[bank_name]", options_for_select(@bank_lists), { :include_blank => ('-- Select Bank --'), :required=>true, :class=> "uk-select uk-form-width-large uk-form-small", :id=>"cash_submission_bank_name"}   %>
+    <% end %>
+  <% else %>
+    <% if params[:payment_method] == "cash" %>
+      <%= text_field_tag "cash_submission[bank_number]", "-", class: "uk-input uk-form-small", :readonly=> true %>
+    <% else %>
+      <%= text_field_tag "cash_submission[bank_number]", nil , class: "uk-input uk-form-small" %>
+    <% end %>
+  
+  <% end %>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>
+            <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;" onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+            <%= link_to approve_cash_submission_path(0, :status=> 'approve3'), method: :put, :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+              <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+            <% end %>  
+          </th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Department</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @cash_submissions.each do |cash_submission| %>
+          <tr uk-tooltip="title: <%= row_tooltip(cash_submission) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td align="left" style="vertical-align: middle;">
+              <% case cash_submission.status %>
+              <% when "approved2","canceled3" %>
+                <input type='checkbox' onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= cash_submission.id %>" trid="<%=@c%>">
+              <% else %>
+              -
+              <% end %>
+            </td>
+            <td><%= cash_submission.status %></td>
+            <td><%= cash_submission.number %></td>
+            <td><%= cash_submission.date %></td>
+            <td><%= cash_submission.department.name %></td>
+            <td><%= cash_submission.description %></td>
+            <td><%= number_with_precision(cash_submission.amount, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= link_to 'View', cash_submission, {:class=> "uk-button uk-button-secondary uk-button-small"} %></td>
+            <td><%= link_to 'Selesai', new_cash_settlement_path(:cash_submission_id=> cash_submission.id), {:class=> "uk-button uk-button-secondary uk-button-small"} if cash_submission.status_bon == 'open' and cash_submission.status == 'approved3' %></td>
+          </tr>
+        <% end if @cash_submissions.present?%>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

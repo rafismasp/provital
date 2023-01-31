@@ -1,0 +1,2 @@
+module EmployeeInternshipContractsHelper
+end

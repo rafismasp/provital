@@ -1,0 +1,181 @@
+
+<%= form_with(model: virtual_receiving, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if virtual_receiving.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(virtual_receiving.errors.count, "error") %> prohibited this virtual_receiving from being saved:</h2>
+
+      <ul>
+      <% virtual_receiving.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :virtual_receiving_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :date, id: :virtual_receiving_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">        
+        <div class="uk-grid">
+          <div class="uk-width-1-3@m">Remarks</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :remarks, id: :virtual_receiving_remarks, :class=> "uk-input uk-form-width-large uk-form-small"%>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PO Suppliers</div>
+            <div class="uk-width-1-3@m purchase_order_supplier_detail">
+              <%= form.select :purchase_order_supplier_id, options_for_select(@purchase_order_suppliers.map{|c| ["#{c.number} - #{c.kind}", c.id ]}, form.object.purchase_order_supplier_id), {:prompt => " -- select -- "}, {class: "purchase_order_supplier_id uk-select uk-form-width-large uk-form-small"} if @purchase_order_suppliers.present? %>
+            </div>
+            <div class="uk-width-1-3@m">
+              <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "change_purchase_order_supplier_id(this, '"+params[:controller].to_s+"');" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small" >
+          <div class="uk-grid">
+            <div class="uk-width-1-2@m"></div>
+            <div class="uk-width-1-4@m">Create PRF?</div>
+            <div class="uk-width-1-4@m">
+              <% if form.object.purchase_request_id.present? %>
+                <%= text_field_tag "prf_create_status", "Yes", :class=> "uk-input uk-form-width-large uk-form-small" %>
+              <% else %>
+                <%= form.select :prf_create_status, options_for_select([['Yes','y'],['No','n']], form.object.prf_create_status), {:prompt => " -- select -- "}, {class: "purchase_order_supplier_id uk-select uk-form-width-large uk-form-small"} %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-6@m">Department</div>
+      <div class="uk-width-1-6@m">
+        <% case form_kind %>
+        <% when 'edit' %>
+          <%= select_tag "department", options_for_select(@department.map{|c| [c.name, c.id, {:'q'=> params[:q]} ]}, form.object.department_id), {:prompt => " -- select -- ", class: "uk-select uk-form-width-large uk-form-small", :disabled=> true} %>
+        <% else %>
+          <%= form.select :department_id, options_for_select(@department.map{|c| [c.name, c.id, {:'q'=> params[:q]} ]}, form.object.department_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small",
+              :onchange=> "change_department(this, '"+params[:controller].to_s+"');", :required=> true} if @department.present? %>
+        <% end %>
+      </div>
+      <div class="uk-width-1-6@m">Section</div>
+      <div class="uk-width-1-6@m select_section">   
+        <% case form_kind %>
+        <% when 'edit' %> 
+          <%= select_tag "section", options_for_select(@sections.map{|c| [c.name, c.id]}, form.object.employee_section_id), {:prompt => " -- select -- ", class: "uk-select uk-form-width-large uk-form-small", :disabled=> true} %>
+        <% else %>
+          <%= form.collection_select :employee_section_id, @sections,:id,:name, {:selected=> (form.object.employee_section_id.present? ? form.object.employee_section_id : current_user.employee_section_id) }, include_blank: true, class: "uk-select uk-form-width-large uk-form-small", :required=> true %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @virtual_receiving_items.each do |virtual_receiving_item| %>
+            <%= hidden_field_tag 'virtual_receiving_item[][id]', virtual_receiving_item.id %>
+            <% po_item = virtual_receiving_item.purchase_order_supplier_item %>
+            <% part = nil %>
+            <% if virtual_receiving_item.general.present? %>
+              <% part = virtual_receiving_item.general %>
+            <% elsif virtual_receiving_item.product.present? %>
+              <% part = virtual_receiving_item.product %>
+            <% elsif virtual_receiving_item.material.present? %>
+              <% part = virtual_receiving_item.material %>
+            <% elsif virtual_receiving_item.consumable.present? %>
+              <% part = virtual_receiving_item.consumable %>
+            <% elsif virtual_receiving_item.equipment.present? %>
+              <% part = virtual_receiving_item.equipment %>
+            <% end %>
+            <% unit_name = (part.present? ? (part.unit.present? ? part.unit.name : nil) : nil) %>
+
+              <tr>
+                <td class="counter uk-text-right"><%= c+=1%></td>
+                <td>
+                  <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+
+                </td>
+               <td>
+                  <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+                </td>
+               
+                <td>
+                  <%= number_field_tag 'virtual_receiving_item[][quantity]', virtual_receiving_item.quantity, {:max=> po_item.outstanding, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'virtual_receiving_item[][remarks]',virtual_receiving_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+                </td>
+                <td>
+                  <%= select_tag "virtual_receiving_item[][status]", options_for_select(['active','deleted'],
+                    virtual_receiving_item.status) , { :class=>'uk-select uk-form-small'} %>
+                </td>
+              </tr>
+          <% end if @virtual_receiving_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', virtual_receivings_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

@@ -1,0 +1,110 @@
+
+<%= form_with(model: department_hierarchy, local: true, class: "uk-form-horizontal") do |form| %>
+  <% if department_hierarchy.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(department_hierarchy.errors.count, "error") %> prohibited this department_hierarchy from being saved:</h2>
+
+      <ul>
+      <% department_hierarchy.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Department</div>
+            <div class="uk-width-1-3@m">
+              <%= form.select :department_id, options_for_select(@departments.map{|c| [c.name, c.id]}, (params[:job]=="edit" ? form.object.department_id : nil)), {:include_blank=>'-- Select --'}, {:class=> "uk-select uk-form-width-large uk-form-small", :required=>true} %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Approved 1 By</div>
+            <div class="uk-width-1-3@m">
+              <%= hidden_field_tag "department_hierarchy[approved1_by]", (form.object.approved1_by.present? ? form.object.approved1_by : ""), :class=>"approved1 uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', field_name: "account_id", :account=>'approved1', field_value: (form.object.approved1.present? ? "#{form.object.approved1.first_name} #{form.object.approved1.last_name}" : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+            </div>
+            <div class="uk-width-1-6@m">Cancel 1 By</div>
+            <div class="uk-width-1-3@m">
+              <%= hidden_field_tag "department_hierarchy[cancel1_by]", (form.object.cancel1_by.present? ? form.object.cancel1_by : ""), :class=>"canceled1 uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', field_name: "account_id", :account=>'canceled1', field_value: (form.object.canceled1.present? ? "#{form.object.canceled1.first_name} #{form.object.canceled1.last_name}" : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Approved 2 By</div>
+            <div class="uk-width-1-3@m">
+              <%= hidden_field_tag "department_hierarchy[approved2_by]", (form.object.approved2_by.present? ? form.object.approved2_by : ""), :class=>"approved2 uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', field_name: "account_id", :account=>'approved2', field_value: (form.object.approved2.present? ? "#{form.object.approved2.first_name} #{form.object.approved2.last_name}" : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+            </div>
+            <div class="uk-width-1-6@m">Cancel 2 By</div>
+            <div class="uk-width-1-3@m">
+              <%= hidden_field_tag "department_hierarchy[cancel2_by]", (form.object.cancel2_by.present? ? form.object.cancel2_by : ""), :class=>"canceled2 uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', field_name: "account_id", :account=>'canceled2', field_value: (form.object.canceled2.present? ? "#{form.object.canceled2.first_name} #{form.object.canceled2.last_name}" : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Approved 3 By</div>
+            <div class="uk-width-1-3@m">
+              <%= hidden_field_tag "department_hierarchy[approved3_by]", (form.object.approved3_by.present? ? form.object.approved3_by : ""), :class=>"approved3 uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', field_name: "account_id", :account=>'approved3', field_value: (form.object.approved3.present? ? "#{form.object.approved3.first_name} #{form.object.approved3.last_name}" : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+            </div>
+            <div class="uk-width-1-6@m">Cancel 3 By</div>
+            <div class="uk-width-1-3@m">
+              <%= hidden_field_tag "department_hierarchy[cancel3_by]", (form.object.cancel3_by.present? ? form.object.cancel3_by : ""), :class=>"canceled3 uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', field_name: "account_id", :account=>'canceled3', field_value: (form.object.canceled3.present? ? "#{form.object.canceled3.first_name} #{form.object.canceled3.last_name}" : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Void By</div>
+            <div class="uk-width-1-3@m">
+              <%= hidden_field_tag "department_hierarchy[void_by]", (form.object.void_by.present? ? form.object.void_by : ""), :class=>"voided uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', field_name: "account_id", :account=>'voided', field_value: (form.object.voided.present? ? "#{form.object.voided.first_name} #{form.object.voided.last_name}" : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', department_hierarchies_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

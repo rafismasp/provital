@@ -1,0 +1,225 @@
+
+<%= form_with(model: material_check_sheet, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if material_check_sheet.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(material_check_sheet.errors.count, "error") %> prohibited this material_check_sheet from being saved:</h2>
+
+      <ul>
+      <% material_check_sheet.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-2-3@m">
+
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">Doc. Number</div>
+            <div class="uk-width-1-5@m">
+              <%= form.text_field :number, id: :material_check_sheet_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-5@m">Doc. Date</div>
+            <div class="uk-width-1-5@m">
+              <%= form.date_field :date, id: :material_check_sheet_date, :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">*Batch No Material</div>
+            <div class="uk-width-1-5@m">
+              <%= form.hidden_field :material_batch_number_id, id: :material_check_sheet_material_batch_number_id, :class=> "material_batch_number_id#{1}" %>
+              <%= render 'layouts/form_item', c: 1, field_name: "material_batch_number_id_for_material_check_sheets", field_value: "" %>
+            </div>
+            <div class="uk-width-1-5@m">Supplier Name</div>
+            <div class="uk-width-2-5@m">
+              <%= text_field_tag "supplier_name", nil, :class=>"supplier_name#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">No.GRN</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "grn_number", nil, :class=>"grn_number#{1} uk-input uk-form-small", :disabled=> true %>
+              <%= form.hidden_field :supplier_id, id: :material_check_sheet_supplier_id, :class=> "supplier_id#{1}" %>
+              <%= form.hidden_field :material_id, id: :material_check_sheet_material_id, :class=> "material_id#{1}" %>
+              <%= form.hidden_field :material_receiving_id, id: :material_check_sheet_material_receiving_id, :class=> "material_receiving_id#{1}" %>
+              <%= form.hidden_field :material_receiving_item_id, id: :material_check_sheet_material_receiving_item_id, :class=> "material_receiving_item_id#{1}" %>
+            </div>
+            <div class="uk-width-1-5@m">Tgl.GRN</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "grn_date", nil, :class=>"grn_date#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">No.PO</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "po_number", nil, :class=>"po_number#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+            <div class="uk-width-1-5@m">Tgl.PO</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "po_date", nil, :class=>"po_date#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+        <hr>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-2-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">Material Code</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "part_id", nil, :class=>"part_id#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+            <div class="uk-width-1-5@m">Material Name</div>
+            <div class="uk-width-2-5@m">
+              <%= text_field_tag "part_name", nil, :class=>"part_name#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">Quantity</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "quantity", nil, :class=>"quantity#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+            <div class="uk-width-1-5@m">Unit</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "unit_name", nil, :class=>"unit_name#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">Supplier BN</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "supplier_bn", nil, :class=>"supplier_bn#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+            <div class="uk-width-1-5@m">Exp Date</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "exp_date", nil, :class=>"exp_date#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">Packaging Condition</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag "packaging_condition", nil, :class=>"packaging_condition#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+            <div class="uk-width-1-5@m">GRN Item Remarks</div>
+            <div class="uk-width-2-5@m">
+              <%= text_field_tag "grn_item_remarks", nil, :class=>"grn_item_remarks#{1} uk-input uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+        <h3 class="uk-heading-line"><span>Quantity of samples</span></h3>
+        
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m"> 
+              <div class="uk-flex">
+                Sampling Size AQL
+                <a class="uk-button uk-button-default uk-button-small" href="#modal-sections" uk-toggle>Info</a>
+              </div>
+            </div>
+            <div class="uk-width-1-5@m">   
+              <div class="uk-flex">
+                <%= number_field_tag "sampling_size_theory", nil, :class=>"sampling_size_theory#{1} uk-input uk-form-small uk-text-right", :disabled=> true %>
+                <%= text_field_tag "unit_name", nil, :class=>"unit_name#{1} uk-input uk-form-small", :disabled=> true %>
+              </div>
+            </div>
+            <div class="uk-width-1-5@m">*Sampling Size Actual</div>
+            <div class="uk-width-2-5@m">   
+              <div class="uk-flex">
+                <%= form.number_field :quantity, id: :material_check_sheet_quantity, :class=> "sampling_size_actual#{1} uk-input uk-form-small uk-text-right", :required=> true, :min=> 0 %>
+                <%= form.select :unit_id, options_for_select(@units.map{|c| [c.name, c.id ]}, form.object.unit_id), {:prompt => " -- select -- "}, {class: "unit_id#{1} uk-select uk-form-small", :required=> true } if @units.present? %>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m"> Result of inspection/sample verification</div>
+            <div class="uk-width-1-4@m">   
+              <%= form.select :inspection_status, options_for_select(['Passed','Not Passed'], form.object.inspection_status), {:prompt => " -- select -- "}, {class: "inspection_status uk-select uk-form-small", :required=> true } %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m"> QC Conclusion</div>
+            <div class="uk-width-1-4@m">   
+              <%= form.select :qc_conclusion, options_for_select(['Released','Rejected'], form.object.qc_conclusion), {:prompt => " -- select -- "}, {class: "qc_conclusion uk-select uk-form-small", :required=> true } %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Remarks</div>
+            <div class="uk-width-3-4@m">
+              <%= form.text_area :remarks, id: :material_check_sheet_remarks, :class=> "uk-input uk-form-small" %>
+            </div>
+          </div>
+        </div>
+        <hr>
+      </div>
+    </div>
+  </div>
+  <p uk-margin>
+    <%= link_to 'Back', material_check_sheets_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+
+  <div id="modal-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-title">Acceptable Quality Level</h2>
+      </div>
+      <div class="uk-modal-body">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">  
+          <thead>
+            <tr>
+              <td>Range</td><td>Value</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-aql row-aql-2"><td>2..8</td><td>2</td></tr>
+            <tr class="row-aql row-aql-3"><td>9..15</td><td>3</td></tr>
+            <tr class="row-aql row-aql-5"><td>16..25</td><td>5</td></tr>
+            <tr class="row-aql row-aql-8"><td>26..50</td><td>8</td></tr>
+            <tr class="row-aql row-aql-13"><td>51..90</td><td>13</td></tr>
+            <tr class="row-aql row-aql-20"><td>91..150</td><td>20</td></tr>
+            <tr class="row-aql row-aql-32"><td>151..280</td><td>32</td></tr>
+            <tr class="row-aql row-aql-50"><td>281..500</td><td>50</td></tr>
+            <tr class="row-aql row-aql-80"><td>501..1200</td><td>80</td></tr>
+            <tr class="row-aql row-aql-125"><td>1201..3200</td><td>125</td></tr>
+            <tr class="row-aql row-aql-200"><td>3201..10000</td><td>200</td></tr>
+            <tr class="row-aql row-aql-315"><td>10001..35000</td><td>315</td></tr>
+            <tr class="row-aql row-aql-500"><td>35001..150000</td><td>500</td></tr>
+            <tr class="row-aql row-aql-800"><td>150001..500000</td><td>800</td></tr>
+            <tr class="row-aql row-aql-1250"><td>500001..9999999</td><td>1250</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+<% end %>

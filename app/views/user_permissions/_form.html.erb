@@ -1,0 +1,206 @@
+
+  <%= form_with(model: user_permission, local: true, class: 'uk-form-horizontal') do |form| %>
+    <% if user_permission.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(user_permission.errors.count, "error") %> prohibited this user_permission from being saved:</h2>
+
+        <ul>
+        <% user_permission.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="uk-margin-small">
+      <% if @users.present? %>
+        <%= form.collection_select :user_id, @users,:id,:email, {}, include_blank: true, class: "uk-input uk-form-width-large uk-form-small" %>
+      <% else %>
+        Tidak ada user baru
+      <% end %>
+    </div>
+
+    <ul class="uk-list uk-list-striped " uk-accordion> 
+      <% counter = 1 %>
+      <% PermissionBase.where(:parent_id=> nil).each do |pb| %>
+        <li class="">
+          <a class="uk-accordion-title" href="#">
+            <%= pb.name %>
+          </a>
+          <div class="uk-accordion-content uk-margin-remove">
+            
+            <div class="uk-margin-remove" uk-grid>
+              <div class="uk-width-1-4 uk-padding-small">View Parent 
+                <%= hidden_field_tag "permission_parent[][permission_base_id]", pb.id %> 
+                <%= hidden_field_tag "permission_parent[][name]",  pb.name %> 
+                <% permission_parent = @user_permissions.find_by(:permission_base_id=> pb.id) if @user_permissions.present? %>
+                <%= check_box_tag "permission_parent[][access_view]",1, (permission_parent.present? and permission_parent.access_view == 1 ? true : false),{:class=>'uk-checkbox'} %>
+              </div>
+            </div>
+            
+            <ul uk-accordion> 
+              <li>
+                <a>
+                  <div class="uk-accordion-content uk-margin-remove">
+                    <div class="uk-margin-remove" uk-grid>
+                      <div class="uk-width-1-5 uk-padding-small uk-button-secondary">Name</div>
+                      <div class="uk-width-4-5 uk-padding-small uk-button-secondary">
+                        <div class="uk-margin-remove" uk-grid>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'export', '<%= pb.id %>')">Export</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'view', '<%= pb.id %>')">View</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'create', '<%= pb.id %>')">Create</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'edit', '<%= pb.id %>')">Update</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'approve1', '<%= pb.id %>')">Approve1</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'cancel_approve1', '<%= pb.id %>')">Cancel Approve1</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'approve2', '<%= pb.id %>')">Approve2</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'cancel_approve2', '<%= pb.id %>')">Cancel Approve2</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'approve3', '<%= pb.id %>')">Approve3</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'cancel_approve3', '<%= pb.id %>')">Cancel Approve3</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'unlock_print', '<%= pb.id %>')">Unlock Print</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'void', '<%= pb.id %>')">Void</div>
+                          <div class="uk-width-auto uk-padding-small" style="width: 70px;" onclick="checkbox_column_permission(this, 'cancel_void', '<%= pb.id %>')">C.Void</div>
+                        </div>
+                      </div>
+                    </div>
+                    <% PermissionBase.where(:parent_id=> pb.id, :status=> 'active').each do |pb_child1| %>
+                      <% permission_child1 = @user_permissions.find_by(:permission_base_id=> pb_child1.id) if @user_permissions.present? %>
+
+                      <div class="uk-margin-remove" uk-grid>
+                        <% child2 = PermissionBase.where(:parent_id=> pb_child1.id, :status=> 'active') %>
+                        <div class="uk-width-1-5 uk-padding-small">
+                          <%= hidden_field_tag "permission_child1[][permission_base_id]", pb_child1.id %> 
+                          <%= text_field_tag "permission_child1[][name]",  pb_child1.name, {:class=>"uk-input uk-form-width-medium uk-form-small", :readonly=> true, :onclick=> "checkbox_row_permission(this, '"+counter.to_s+"')"}  %> 
+                        </div>
+                        <div class="uk-width-4-5  uk-padding-small">
+                          <div class="uk-margin-remove" uk-grid>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Export">
+                              <%= check_box_tag "permission_child1[][access_export]",1, (permission_child1.present? and permission_child1.access_export == 1 ? true : false),{:class=>"columns_export_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="View">
+                              <%= check_box_tag "permission_child1[][access_view]",1, (permission_child1.present? and permission_child1.access_view == 1 ? true : false),{:class=>"columns_view_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Create">
+                              <%= check_box_tag "permission_child1[][access_create]",1, (permission_child1.present? and permission_child1.access_create == 1 ? true : false),{:class=>"columns_create_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Edit">
+                              <%= check_box_tag "permission_child1[][access_edit]",1, (permission_child1.present? and permission_child1.access_edit == 1 ? true : false),{:class=>"columns_edit_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Approve1">
+                              <%= check_box_tag "permission_child1[][access_approve1]",1, (permission_child1.present? and permission_child1.access_approve1 == 1 ? true : false),{:class=>"columns_approve1_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Approve1">
+                              <%= check_box_tag "permission_child1[][access_cancel_approve1]",1, (permission_child1.present? and permission_child1.access_cancel_approve1 == 1 ? true : false),{:class=>"columns_cancel_approve1_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Approve2">
+                              <%= check_box_tag "permission_child1[][access_approve2]",1, (permission_child1.present? and permission_child1.access_approve2 == 1 ? true : false),{:class=>"columns_approve2_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Approve2">
+                              <%= check_box_tag "permission_child1[][access_cancel_approve2]",1, (permission_child1.present? and permission_child1.access_cancel_approve2 == 1 ? true : false),{:class=>"columns_cancel_approve2_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Approve3">
+                              <%= check_box_tag "permission_child1[][access_approve3]",1, (permission_child1.present? and permission_child1.access_approve3 == 1 ? true : false),{:class=>"columns_approve3_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Approve3">
+                              <%= check_box_tag "permission_child1[][access_cancel_approve3]", 1,
+                                (permission_child1.present? and permission_child1.access_cancel_approve3 == 1 ? true : false), {:class=>"columns_cancel_approve3_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Unlock Print">
+                              <%= check_box_tag "permission_child1[][access_unlock_print]", 1,
+                                (permission_child1.present? and permission_child1.access_unlock_print == 1 ? true : false), {:class=>"columns_unlock_print_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Void">
+                              <%= check_box_tag "permission_child1[][access_void]", 1,
+                                (permission_child1.present? and permission_child1.access_void == 1 ? true : false), {:class=>"columns_void_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                            <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Void">
+                              <%= check_box_tag "permission_child1[][access_cancel_void]", 1,
+                                (permission_child1.present? and permission_child1.access_cancel_void == 1 ? true : false), {:class=>"columns_cancel_void_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                            </div>
+                          </div>
+                        </div>
+                      </div> <% counter += 1%>
+                      <% child2.each do |pb_child2| %>
+                        <% permission_child2 = @user_permissions.find_by(:permission_base_id=> pb_child2.id) if @user_permissions.present? %>
+                        
+                        <div class="uk-margin-remove" uk-grid>
+
+                          <div class="uk-width-1-5 uk-padding-small">
+                            <div class="uk-margin-remove" uk-grid>
+                              <div class="uk-width-1-5 uk-padding-small"></div>
+                              
+                              <div class="uk-width-4-5 uk-padding-small">
+                                <%= hidden_field_tag "permission_child2[][permission_base_id]", pb_child2.id %> 
+                                <%= text_field_tag "permission_child2[][name]",  pb_child2.name, {:class=>"uk-input uk-form-width-large uk-form-small", :readonly=> true, :onclick=> "checkbox_row_permission(this, '"+counter.to_s+"')"}  %>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="uk-width-4-5 uk-padding-small">
+                            <div class="uk-margin-remove" uk-grid>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Export">
+                                <%= check_box_tag "permission_child2[][access_export]",1, (permission_child2.present? and permission_child2.access_export == 1 ? true : false),{:class=>"columns_export_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="View">
+                                <%= check_box_tag "permission_child2[][access_view]",1, (permission_child2.present? and permission_child2.access_view == 1 ? true : false),{:class=>"columns_view_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Create">
+                                <%= check_box_tag "permission_child2[][access_create]",1, (permission_child2.present? and permission_child2.access_create == 1 ? true : false),{:class=>"columns_create_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Edit">
+                                <%= check_box_tag "permission_child2[][access_edit]",1, (permission_child2.present? and permission_child2.access_edit == 1 ? true : false),{:class=>"columns_edit_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Approve1">
+                                <%= check_box_tag "permission_child2[][access_approve1]",1, (permission_child2.present? and permission_child2.access_approve1 == 1 ? true : false),{:class=>"columns_approve1_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Approve1">
+                                <%= check_box_tag "permission_child2[][access_cancel_approve1]",1, (permission_child2.present? and permission_child2.access_cancel_approve1 == 1 ? true : false),{:class=>"columns_cancel_approve1_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Approve2">
+                                <%= check_box_tag "permission_child2[][access_approve2]",1, (permission_child2.present? and permission_child2.access_approve2 == 1 ? true : false),{:class=>"columns_approve2_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Approve2">
+                                <%= check_box_tag "permission_child2[][access_cancel_approve2]",1, (permission_child2.present? and permission_child2.access_cancel_approve2 == 1 ? true : false),{:class=>"columns_cancel_approve2_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Approve3">
+                                <%= check_box_tag "permission_child2[][access_approve3]",1, (permission_child2.present? and permission_child2.access_approve3 == 1 ? true : false),{:class=>"columns_approve3_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Approve3">
+                                <%= check_box_tag "permission_child2[][access_cancel_approve3]", 1,
+                                  (permission_child2.present? and permission_child2.access_cancel_approve3 == 1 ? true : false), {:class=>"columns_cancel_approve3_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Unlock Print">
+                                <%= check_box_tag "permission_child2[][access_unlock_print]", 1,
+                                  (permission_child2.present? and permission_child2.access_unlock_print == 1 ? true : false), {:class=>"columns_unlock_print_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Void">
+                                <%= check_box_tag "permission_child2[][access_void]", 1,
+                                  (permission_child2.present? and permission_child2.access_void == 1 ? true : false), {:class=>"columns_void_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                              <div class="uk-width-auto uk-padding-small" style="width: 70px;" title="Cancel Void">
+                                <%= check_box_tag "permission_child2[][access_cancel_void]", 1,
+                                  (permission_child2.present? and permission_child2.access_cancel_void == 1 ? true : false), {:class=>"columns_cancel_void_#{pb.id} uk-checkbox uk-align-center rows_"+counter.to_s} %>
+                              </div>
+                            </div>
+                          </div>
+                        </div><% counter += 1%>
+                      <% end if child2.present? %>
+                    <% end %>
+
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+      <% end %>
+    </ul>
+
+    <hr>
+    <p uk-margin>
+      <%= link_to 'Back', user_permissions_path, class: "uk-button uk-button-secondary uk-button-small" %>
+      <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+    </p>
+
+  <% end %>

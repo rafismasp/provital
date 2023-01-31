@@ -1,0 +1,469 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', purchase_requests_path(:q=> @purchase_request.request_kind), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-6@m">Number</div>
+                    <div class="uk-width-1-3@m">       
+                      <%= text_field_tag :number, @purchase_request.number, :class=> "uk-input uk-form-small", :disabled=> true %>
+                    </div>
+                    <div class="uk-width-1-6@m">Date</div>
+                    <div class="uk-width-1-3@m">      
+                      <%= text_field_tag :date, @purchase_request.date, :class=> "uk-input uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-6@m">Kind</div>
+                    <div class="uk-width-1-3@m">       
+                      <%= text_field_tag :request_kind, @purchase_request.request_kind, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                    <div class="uk-width-1-6@m">Department</div>
+                    <div class="uk-width-1-3@m">       
+                      <%= text_field_tag :department, (@purchase_request.department.name if @purchase_request.department.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-6@m">Remarks</div>
+                    <div class="uk-width-5-6@m">       
+                      <%= text_field_tag :remarks, @purchase_request.remarks, :class=> "uk-input uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-6@m">Basic Request</div>
+                    <div class="uk-width-1-3@m">       
+                      <%= text_field_tag :basic_request, @purchase_request.basic_request, :class=> "uk-input uk-form-small", :disabled=> true %>
+                    </div>
+                    <div class="uk-width-1-6@m">Section</div>
+                    <div class="uk-width-1-3@m">       
+                      <%= text_field_tag :employee_section, (@purchase_request.employee_section.name if @purchase_request.employee_section.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m uk-overflow-auto">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+                    
+                    <% if @purchase_request.present? and @purchase_request.automatic_calculation.to_i == 1 %>
+                      <tr>
+                        <th>#</th>
+                        <th>Material</th>
+                        <th>Total Kebutuhan SPP</th>
+                        <th>PDM</th>
+                        <th>Qty PDM</th>
+                        <th>Qty PPB</th>
+                        <th>Qty Pembulatan</th>
+                        <th>Total</th>
+                        <th title="Minimum Order Quantity">MOQ</th>
+                        <th>Unit</th>
+                        <th>Detail</th>
+                        <th>SPP</th>
+                        <th>Action</th>
+                      </tr>
+                      <% c=0 %>
+                      <% @purchase_request_items.each do |purchase_request_item| %>
+                        <% if purchase_request_item.product.present? %>
+                          <% part = purchase_request_item.product %>
+                        <% elsif purchase_request_item.material.present? %>
+                          <% part = purchase_request_item.material %>
+                        <% elsif purchase_request_item.consumable.present? %>
+                          <% part = purchase_request_item.consumable %>
+                        <% elsif purchase_request_item.equipment.present? %>
+                          <% part = purchase_request_item.equipment %>
+                        <% elsif purchase_request_item.general.present? %>
+                          <% part = purchase_request_item.general %>
+                        <% end %>
+                        <tr>
+                          <td class="counter"><%= c+=1%></td>
+                          <td class="uk-width-medium">
+                            <%= (part.name if part.present?) %><p>
+                            <%= (part.part_id if part.present?) %>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= number_with_precision(purchase_request_item.summary_production_order, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td>
+                            <table class="uk-table uk-table-bordered">
+                              <tr>
+                                <td>PDM</td><td>Os PDM</td>
+                              </tr>
+                              <% @prf_use_pdm.where(:material_id=> purchase_request_item.material_id).each do |pdm_item| %>
+                                <tr title="<%= pdm_item.pdm_item.remarks %>">
+                                  <td><%= "#{pdm_item.pdm_item.pdm.number}" %></td>
+                                  <td class="uk-text-right">
+                                    <%= number_with_precision(pdm_item.quantity, precision: 2, delimiter: ".", separator: ",") %>
+                                  </td>
+                                </tr>
+                              <% end if @prf_use_pdm.where(:material_id=> purchase_request_item.material_id).present? %>
+                            </table>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= number_with_precision(purchase_request_item.pdm_quantity, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= number_with_precision(purchase_request_item.quantity, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= number_with_precision(purchase_request_item.moq_quantity, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= number_with_precision(purchase_request_item.quantity.to_f+purchase_request_item.moq_quantity.to_f, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= number_with_precision((purchase_request_item.material.present? ? purchase_request_item.material.minimum_order_quantity : 0), precision: 0, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-text-center">
+                            <%= (part.unit_name if part.present?) %>
+                          </td>
+                          <td>
+                            <%= "expected date: #{purchase_request_item.expected_date};<p>".html_safe if purchase_request_item.expected_date.present? %>
+                            <%= "specification: #{purchase_request_item.specification};<p>".html_safe if purchase_request_item.specification.present? %>
+                            <%= "justification of purchase: #{purchase_request_item.justification_of_purchase};<p>".html_safe if purchase_request_item.justification_of_purchase.present? %>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= @spp_use_prf.where(:purchase_request_item_id=> purchase_request_item.id).map { |e| e.production_order_item.production_order.number }.uniq.join(", ") %>
+                          </td>
+                          <td>
+                            <div class="uk-padding-small">
+                              <a class="uk-button uk-button-default uk-button-small" href="#modal-sections<%= purchase_request_item.id %>" uk-toggle>PO</a>
+                            </div>
+                            <div class="uk-padding-small">
+                              <a class="uk-button uk-button-default uk-button-small" href="#spp-lists<%= purchase_request_item.id %>" uk-toggle>SPP</a>
+                            </div>
+                            <div class="uk-padding-small">
+                              <a class="uk-button uk-button-default uk-button-small" href="#prf-list_by_parts<%= purchase_request_item.id %>" uk-toggle>PRF</a>
+                            </div>
+                          </td>
+
+                        </tr>
+                      <% end if @purchase_request_items.present? %>
+                    <% else %>
+                      <tr>
+                        <th>#</th>
+                        <th>Part Name</th>
+                        <th>Part Code</th>
+                        <th>Unit</th>
+                        <th>Quantity</th>
+                        <th title="yang belum dibuatkan PO">Outstanding</th>
+                        <th>Expected Date</th>
+                        <th>Specification</th>
+                        <th title="Justification of Purchase">JOF</th>
+                        <th>SPP</th>
+                        <th>Action</th>
+                      </tr>
+                      <% c=0 %>
+                      <% @purchase_request_items.each do |purchase_request_item| %>
+                        <% if purchase_request_item.product.present? %>
+                          <% part = purchase_request_item.product %>
+                        <% elsif purchase_request_item.material.present? %>
+                          <% part = purchase_request_item.material %>
+                        <% elsif purchase_request_item.consumable.present? %>
+                          <% part = purchase_request_item.consumable %>
+                        <% elsif purchase_request_item.equipment.present? %>
+                          <% part = purchase_request_item.equipment %>
+                        <% elsif purchase_request_item.general.present? %>
+                          <% part = purchase_request_item.general %>
+                        <% end %>
+                        <tr>
+                          <td class="counter"><%= c+=1%></td>
+                          <td class="uk-width-medium">
+                            <%= (part.name if part.present?)  %>
+                          </td>
+                          <td class="uk-width-medium">
+                            <%= "#{(part.part_id if part.present?)}"  %>
+                          </td>
+                          <td class="uk-width-small">
+                            <%= (part.unit.name if part.present? and part.unit.present?) %>
+                          </td>
+                          <td class="uk-width-small">
+                            <%= number_with_precision(purchase_request_item.quantity, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-width-small">
+                            <%= number_with_precision(purchase_request_item.outstanding, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-width-small">
+                            <%= purchase_request_item.expected_date %>
+                          </td>
+                          <td class="uk-width-medium">
+                            <%=purchase_request_item.specification %>
+                          </td>
+                          <td class="uk-width-medium">
+                            <%= purchase_request_item.justification_of_purchase %>
+                          </td>
+                          <td class="uk-text-right">
+                            <%= @spp_use_prf.where(:purchase_request_item_id=> purchase_request_item.id).map { |e| e.production_order_item.production_order.number }.uniq.join(", ") %>
+                          </td>
+                          <td>
+                            <div class="uk-padding-small">
+                              <a class="uk-button uk-button-default uk-button-small" href="#modal-sections<%= purchase_request_item.id %>" uk-toggle>PO</a>
+                            </div>
+                            <div class="uk-padding-small">
+                              <a class="uk-button uk-button-default uk-button-small" href="#spp-lists<%= purchase_request_item.id %>" uk-toggle>SPP</a>
+                            </div>
+                            <div class="uk-padding-small">
+                              <a class="uk-button uk-button-default uk-button-small" href="#prf-list_by_parts<%= purchase_request_item.id %>" uk-toggle>PRF</a>
+                            </div>
+                          </td>
+                        </tr>
+                      <% end if @purchase_request_items.present? %>
+                    <% end %>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @purchase_request.status == 'new' or @purchase_request.status == 'canceled1' %>
+                        <%= link_to approve_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @purchase_request.status == 'approved1' or @purchase_request.status == 'canceled2' %>
+                        <%= link_to approve_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @purchase_request.status == 'approved2' or @purchase_request.status == 'canceled3' %>   
+                        <%= link_to approve_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% elsif @purchase_request.status == 'void' %>
+                        Status: Void 
+                      <% else %>
+                        <%= link_to approve_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @purchase_request.status %>
+                      <% when 'void' %>
+                        <%= link_to 'Back', purchase_requests_path(:q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% when 'approved3' %>
+                        <%= link_to print_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', purchase_requests_path(:q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', purchase_requests_path(:q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+
+                        <%= link_to approve_purchase_request_path(@purchase_request, :q=> @purchase_request.request_kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'void'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be void. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Void</button>
+                        <% end if @purchase_request.status != 'void' %>  
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <% @purchase_request_items.each do |purchase_request_item| %>
+              <% last_pos = purchase_request_item.last_po(5) %>
+              <div id="modal-sections<%= purchase_request_item.id %>" class="uk-modal-container" uk-modal>
+                <div class="uk-modal-dialog">
+                  <button class="uk-modal-close-default" type="button" uk-close></button>
+                  <div class="uk-modal-header">
+                    <h4 class="uk-modal-title">Last 5 PO Suppliers</h4>
+                  </div>
+                  <div class="uk-modal-body">
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-1@m uk-overflow-auto">
+                          <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+                            <tr>
+                              <th>No.</th>
+                              <th>PO Status</th>
+                              <th>PO Number</th>
+                              <th>PO Date</th>
+                              <th>Quantity</th>
+                              <th>Unit Price</th>
+                              <th>Subtotal</th>
+                            </tr>
+                            <% grandtotal = c = 0 %>
+                            <% last_pos.each do |last_po|%>
+                              <% subtotal = (last_po[:quantity].to_f* last_po[:unit_price] ) %>
+                              <% grandtotal += subtotal %>
+                              <tr>
+                                <td><%= c += 1 %></td>
+                                <td><%= last_po[:po_status] %></td>
+                                <td>
+                                  <%= link_to "#{last_po[:po_number]}", "/purchase_order_suppliers/#{last_po[:po_id]}?q=#{last_po[:po_kind]}", target: :_blank %>
+                                </td>
+                                <td><%= last_po[:po_date] %></td>
+                                <td>
+                                  <%= number_with_precision(last_po[:quantity].to_f, precision: 2, delimiter: ".", separator: ",") %>
+                                </td>
+                                <td>
+                                  <%= number_with_precision(last_po[:unit_price].to_f, precision: 2, delimiter: ".", separator: ",") %>
+                                </td>
+                                <td>
+                                  <%= number_with_precision(subtotal.to_f, precision: 2, delimiter: ".", separator: ",") %>
+                                </td>
+                              </tr>
+                            <% end %>
+                            <tr>
+                              <td colspan="6" class="uk-text-right"><b>Total</b></td>
+                              <td>
+                                <b><%= number_with_precision(grandtotal.to_f, precision: 2, delimiter: ".", separator: ",") %></b>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-modal-footer uk-text-right">
+                    <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+                  </div>
+                </div>
+              </div>
+
+              <% last_prf = purchase_request_item.last_prf(10) %>
+              <div id="prf-list_by_parts<%= purchase_request_item.id %>" uk-modal>
+                <div class="uk-modal-dialog">
+                  <button class="uk-modal-close-default" type="button" uk-close></button>
+                  <div class="uk-modal-header">
+                    <h4 class="uk-modal-title">Last 10 PRF</h4>
+                  </div>
+                  <div class="uk-modal-body">
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-1@m uk-overflow-auto">
+                          <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+                            <tr>
+                              <th>No.</th>
+                              <th>PRF Status</th>
+                              <th>Basic Request</th>
+                              <th>PRF Number</th>
+                              <th>PRF Date</th>
+                              <th>Quantity</th>
+                            </tr>
+                            <% grandtotal = c = 0 %>
+                            <% last_prf.each do |item|%>
+                              <tr>
+                                <td><%= c += 1 %></td>
+                                <td><%= item[:prf_status] %></td>
+                                <td><%= item[:basic_request] %></td>
+                                <td>
+                                  <%= link_to "#{item[:prf_number]}", "/purchase_requests/#{item[:prf_id]}?q=#{item[:prf_kind]}", target: :_blank %>
+                                </td>
+                                <td><%= item[:prf_date] %></td>
+                                <td>
+                                  <%= number_with_precision(item[:quantity].to_f, precision: 2, delimiter: ".", separator: ",") %>
+                                </td>
+                              </tr>
+                            <% end %>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-modal-footer uk-text-right">
+                    <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+                  </div>
+                </div>
+              </div>
+            <% end if @purchase_request_items.present? %>
+
+
+            <% @purchase_request_items.each do |purchase_request_item| %>
+              <div id="spp-lists<%= purchase_request_item.id %>" class="uk-modal-container" uk-modal>
+                <div class="uk-modal-dialog">
+                  <button class="uk-modal-close-default" type="button" uk-close></button>
+                  <div class="uk-modal-header">
+                    <h4 class="uk-modal-title">SPP</h4>
+                  </div>
+                  <div class="uk-modal-body">
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-1@m uk-overflow-auto">
+                          <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+                            <tr>
+                              <th>No.</th>
+                              <th>SO Number</th>
+                              <th>SPP Number</th>
+                              <th>SPP Date</th>
+                              <th>Part Name</th>
+                              <th>Part ID</th>
+                              <th>Part Type</th>
+                              <th>Quantity</th>
+                              <th>Remark Item</th>
+                            </tr><% c=0 %>
+                            <% @spp_use_prf.where(:purchase_request_item_id=> purchase_request_item.id).each do |item| %>
+                              <% production_order = item.production_order_item.production_order %>
+                              <tr>
+                                <td><%= c+=1 %></td>
+                                <td class="uk-width-auto">
+                                  <%= link_to production_order.sales_order.number, sales_order_path(:id=> production_order.sales_order.id), target: :_blank %>
+                                </td>
+                                <td class="uk-width-auto">
+                                  <%= link_to production_order.number, production_order_path(:id=> production_order.id), target: :_blank %>
+                                </td>
+                                <td><%= production_order.date %></td>
+                                <td><%= item.production_order_item.product.name %></td>
+                                <td><%= item.production_order_item.product.part_id %></td>
+                                <td><%= item.production_order_item.product.product_type.name %></td>
+                                <td><%= item.production_order_item.quantity %></td>
+                                <td><%= item.production_order_item.remarks %></td>
+                              </tr>
+                            <% end %>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-modal-footer uk-text-right">
+                    <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+                  </div>
+                </div>
+              </div>
+            <% end if @purchase_request_items.present? %>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

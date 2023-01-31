@@ -1,0 +1,297 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_supplier" %>
+	<% case field %>
+  <% when 'tax_rate_id' %>
+    <%= select_tag "invoice_supplier[tax_rate_id]", options_for_select(@tax_rates.map{|c| ["Rp. #{number_with_precision(c.currency_value, precision: 0, delimiter: ".", separator: ",")}", c.id ]}) , { :class=> "uk-select uk-form-width-medium uk-form-small"} if @tax_rates.present? %>
+	<% when 'tax_id' %>
+    <%= hidden_field_tag "invoice_supplier[tax_id]", params[:select_tax_id], :class=>"tax_id uk-input uk-form-width-medium uk-form-small" %>
+    <%= render 'layouts/form_item', c: nil, field_name: "tax_id", field_value: params[:select_tax_id], kind: params[:q] %>
+    <%#= select_tag "invoice_supplier[tax_id]", options_for_select(@taxes.map{|c| [c.name, c.id ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+	<% when 'currency_id' %>
+    <%= select_tag "invoice_supplier[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "invoice_supplier[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+  <% when 'modal_material_receiving' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_material_receivings">  <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>GRN Number</td>
+        <td>GRN Date</td>
+        <td>PO Number</td>
+      </tr>
+      <% c = 0 %>
+      <% if @material_receivings.present? %>
+        <% @material_receivings.each do |grn| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><input class="uk-checkbox select_material_receiving_id" type="checkbox" material_receiving_id="<%= grn.id %>" receiving_date="<%= grn.date %>" tax_id="<%= grn.purchase_order_supplier.tax_id %>"></td>
+            <td><%= grn.number %></td>
+            <td><%= grn.date %></td>
+            <td><%= grn.purchase_order_supplier.number if grn.purchase_order_supplier.present? %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Not Found</td>
+        </tr>
+      <% end %>
+    </table>
+  <% when 'modal_product_receiving' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_product_receivings">  <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>PRN Number</td>
+        <td>PRN Date</td>
+        <td>PO Number</td>
+      </tr>
+      <% c = 0 %>
+      <% if @product_receivings.present? %>
+        <% @product_receivings.each do |prn| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><input class="uk-checkbox select_product_receiving_id" type="checkbox" product_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+            <td><%= prn.number %></td>
+            <td><%= prn.date %></td>
+            <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Not Found</td>
+        </tr>
+      <% end %>
+    </table>
+  <% when 'modal_general_receiving' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_general_receivings">  <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>Doc Number</td>
+        <td>Doc Date</td>
+        <td>PO Number</td>
+      </tr>
+      <% c = 0 %>
+      <% if @general_receivings.present? %>
+        <% @general_receivings.each do |prn| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><input class="uk-checkbox select_general_receiving_id" type="checkbox" general_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+            <td><%= prn.number %></td>
+            <td><%= prn.date %></td>
+            <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Not Found</td>
+        </tr>
+      <% end %>
+    </table>
+  <% when 'modal_consumable_receiving' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_consumable_receivings">  <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>Doc Number</td>
+        <td>Doc Date</td>
+        <td>PO Number</td>
+      </tr>
+      <% c = 0 %>
+      <% if @consumable_receivings.present? %>
+        <% @consumable_receivings.each do |prn| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><input class="uk-checkbox select_consumable_receiving_id" type="checkbox" consumable_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+            <td><%= prn.number %></td>
+            <td><%= prn.date %></td>
+            <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Not Found</td>
+        </tr>
+      <% end %>
+    </table>
+  <% when 'modal_equipment_receiving' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_equipment_receivings">  <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>Doc Number</td>
+        <td>Doc Date</td>
+        <td>PO Number</td>
+      </tr>
+      <% c = 0 %>
+      <% if @equipment_receivings.present? %>
+        <% @equipment_receivings.each do |prn| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><input class="uk-checkbox select_equipment_receiving_id" type="checkbox" equipment_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+            <td><%= prn.number %></td>
+            <td><%= prn.date %></td>
+            <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Not Found</td>
+        </tr>
+      <% end %>
+    </table>
+	<% end %>
+<% when 'load_equipment_receiving','load_consumable_receiving','load_material_receiving','load_product_receiving','load_general_receiving' %>  
+  <% case params[:partial] %>
+  <% when 'load_material_receiving' %>
+    <% kind       = 'material' %>
+    <% load_items = @material_receiving_items %>
+  <% when 'load_product_receiving' %>
+    <% kind       = 'product' %>
+    <% load_items = @product_receiving_items %>
+  <% when 'load_general_receiving' %>
+    <% kind       = 'general' %>
+    <% load_items = @general_receiving_items %>
+  <% when 'load_consumable_receiving' %>
+    <% kind       = 'consumable' %>
+    <% load_items = @consumable_receiving_items %>
+  <% when 'load_equipment_receiving' %>
+    <% kind       = 'equipment' %>
+    <% load_items = @equipment_receiving_items %>
+  <% end %>
+  <table class="uk-table uk-table-small uk-table-striped uk-table-hover uk-table-divider" id="item">
+    <tr>
+      <th>#</th>
+      <th>Doc Number</th>
+      <th>Doc Date</th>
+      <th>PO Number</th>
+      <th>General Code</th>
+      <th>General Name</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Total</th>
+    </tr>
+    <% c=0 %>
+    <% if load_items.present? %>
+      <% load_items.each do |item| %>
+        <% case kind %>
+        <% when 'material' %>
+          <% header = item.material_receiving %>
+          <% part   = item.material %>
+          <% batch  = @material_batch_number.where(:material_receiving_item_id=> item.id).map { |e| e.number }.join(", ") %>
+        <% when 'product' %>
+          <% header = item.product_receiving %>
+          <% part   = item.product %>
+          <% batch  = @product_batch_number.where(:product_receiving_item_id=> item.id).map { |e| e.number }.join(", ") %>
+        <% when 'general' %>
+          <% header = item.general_receiving %>
+          <% part   = item.general %>
+          <% batch  = @general_batch_number.where(:general_receiving_item_id=> item.id).map { |e| e.number }.join(", ") %>
+        <% when 'consumable' %>
+          <% header = item.consumable_receiving %>
+          <% part   = item.consumable %>
+          <% batch  = @consumable_batch_number.where(:consumable_receiving_item_id=> item.id).map { |e| e.number }.join(", ") %>
+        <% when 'equipment' %>
+          <% header = item.equipment_receiving %>
+          <% part   = item.equipment %>
+          <% batch  = @equipment_batch_number.where(:equipment_receiving_item_id=> item.id).map { |e| e.number }.join(", ") %>
+        <% end %>
+
+        <% po_item  = item.purchase_order_supplier_item %>
+        <% po_price = po_item.unit_price %>
+        <tr>
+          <td class="counter">
+            <%= c+=1%>
+            <%= hidden_field_tag 'new_record_item[][material_receiving_id]', (kind == 'material' ? header.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][material_receiving_item_id]', (kind == 'material' ? item.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][material_id]', (kind == 'material' ? part.id : nil) %>
+
+            <%= hidden_field_tag 'new_record_item[][product_receiving_id]', (kind == 'product' ? header.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][product_receiving_item_id]', (kind == 'product' ? item.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][product_id]', (kind == 'product' ? part.id : nil) %>
+
+            <%= hidden_field_tag 'new_record_item[][general_receiving_id]', (kind == 'general' ? header.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][general_receiving_item_id]', (kind == 'general' ? item.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][general_id]', (kind == 'general' ? part.id : nil) %>
+
+            <%= hidden_field_tag 'new_record_item[][consumable_receiving_id]', (kind == 'consumable' ? header.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][consumable_receiving_item_id]', (kind == 'consumable' ? item.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][consumable_id]', (kind == 'consumable' ? part.id : nil) %>
+
+            <%= hidden_field_tag 'new_record_item[][equipment_receiving_id]', (kind == 'equipment' ? header.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][equipment_receiving_item_id]', (kind == 'equipment' ? item.id : nil) %>
+            <%= hidden_field_tag 'new_record_item[][equipment_id]', (kind == 'equipment' ? part.id : nil) %>
+
+            <%= hidden_field_tag 'new_record_item[][purchase_order_supplier_id]', header.purchase_order_supplier_id %>
+            <%= hidden_field_tag 'new_record_item[][purchase_order_supplier_item_id]', item.purchase_order_supplier_item_id %>
+            <%= hidden_field_tag 'new_record_item[][quantity]', item.quantity, {:class=> "hidden_quantity#{c}"} %>
+            <%= hidden_field_tag 'new_record_item[][total]', (item.quantity * po_price), {:class=> "hidden_total#{c} subtotal_item"} %>
+            <%= hidden_field_tag 'new_record_item[][status]', 'active' %>
+          </td>
+          <td><%= header.number %></td>
+          <td class="rcv_dates" seq="<%= c %>" ppn_percent="<%= po_item.purchase_order_supplier.tax.value if po_item.purchase_order_supplier.present? and po_item.purchase_order_supplier.tax.present?%>"><%= header.date %></td>
+          <td><%= header.purchase_order_supplier.number if header.purchase_order_supplier.present? %></td>
+          <td><%= (part.part_id if part.present?) %></td>
+          <td><%= (part.name if part.present?) %></td>
+          <td>
+            <%= batch %>
+          </td>
+          <td><%= (part.unit.name if part.present? and part.unit.present?)%></td>
+          <td class="uk-text-right">
+            <%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+          </td>
+          <td class="uk-width-small">
+            <%= number_field_tag 'new_record_item[][unit_price]', po_price, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "change_unit_price(this, '"+params[:controller].to_s+"', '"+c.to_s+"');"} %>
+          </td>
+          <td class="uk-text-right total<%= c %>">
+            <%= number_with_precision(item.quantity * po_price, precision: 0, delimiter: ".", separator: ",") %>
+          </td>
+          <td align='center' width=30px>
+            <%#= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr>
+        <td colspan="10">Tidak ada Data!</td>
+      </tr>
+    <% end %>
+  </table>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Supplier</th>
+          <th>Currency</th>
+          <th colspan="2">TOP</th>
+          <th>Grand Total</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @invoice_suppliers.each do |invoice_supplier| %>
+          <tr uk-tooltip="title: <%= row_tooltip(invoice_supplier) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= invoice_supplier.status %></td>
+            <td><%= invoice_supplier.number %></td>
+            <td><%= invoice_supplier.date %></td>
+            <td><%= invoice_supplier.supplier.name if invoice_supplier.supplier.present? %></td>
+            <td><%= invoice_supplier.currency.name if invoice_supplier.currency.present? %></td>
+            <td><%= invoice_supplier.top_day %></td>
+            <td><%= invoice_supplier.term_of_payment.name if invoice_supplier.term_of_payment.present? %></td>
+            <td><%= invoice_supplier.currency.symbol if invoice_supplier.currency.present? %> 
+              <%= number_with_precision(invoice_supplier.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td><%= link_to 'Show', invoice_supplier %></td>
+            <td><%= link_to 'Edit', edit_invoice_supplier_path(invoice_supplier)%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

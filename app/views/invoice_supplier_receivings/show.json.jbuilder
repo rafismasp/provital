@@ -1,0 +1,1 @@
+json.partial! "invoice_supplier_receivings/invoice_supplier_receiving", invoice_supplier_receiving: @invoice_supplier_receiving

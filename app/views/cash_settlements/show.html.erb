@@ -1,0 +1,252 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', cash_settlements_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <!-- Left -->
+                <div class="uk-width-1-3@m">
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Number</div>
+                    <div class="uk-width-2-3@m">
+                      
+                      <%= text_field_tag :number, @cash_settlement.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Date</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :date, @cash_settlement.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Department</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :department_id, @cash_settlement.department.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Submission Number</div>
+                    <div class="uk-width-2-3@m cash_submission_form">
+                      <%= select_tag "cash_settlement[cash_submission_id]", options_for_select(@cash_submissions.map { |e| ["#{e.number} - #{e.description}",e.id,{:amount=>e.amount}]}, @cash_settlement.cash_submission_id), {:prompt=>"-- Select --", class: "uk-select uk-form-small", :onchange=>"change_cash_submission(this, '"+params[:controller].to_s+"')", :disabled=> true} %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Voucher Number</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :voucher_number, @cash_settlement.voucher_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Description</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_area_tag :description, @cash_settlement.description, rows: 4, :class=> "uk-textarea uk-form-width-large uk-form-small", :style=>"line-height: normal !important;", :disabled=>true %>
+                    </div>
+                  </div>
+
+                </div>
+                <!-- End Left -->
+
+                <!-- Right -->
+                <div class="uk-width-1-3@m">
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Kasbon Total</div>
+                    <div class="uk-width-2-3@m" style="display: flex;">
+                      <input type="text" name="currency_name" value="<%= @cash_settlement.currency.name %>" disabled style="width:60px" class="currency_name uk-input uk-form-width-large uk-form-small">
+                      <%= text_field_tag :settlement_total, number_with_precision(@cash_settlement.settlement_total, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Expenditure Total</div>
+                    <div class="uk-width-2-3@m" style="display: flex;">
+                      <input type="text" name="currency_name" value="<%= @cash_settlement.currency.name %>" disabled style="width:60px" class="currency_name uk-input uk-form-width-large uk-form-small">
+                      <%= text_field_tag :expenditure_total, number_with_precision(@cash_settlement.expenditure_total, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Advantages</div>
+                    <div class="uk-width-2-3@m" style="display: flex;">
+                      <input type="text" name="currency_name" value="<%= @cash_settlement.currency.name %>" disabled style="width:60px" class="currency_name uk-input uk-form-width-large uk-form-small">
+                      <%= text_field_tag :advantage, number_with_precision(@cash_settlement.advantage, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Receiver</div>
+                    <div class="uk-width-2-3@m">
+                      <%= select_tag "bank_transfer_id", options_for_select(@bank_transfers.map { |e| ["#{e.code} - #{e.description}",e.id]}, @cash_settlement.bank_transfer_id), {:prompt=>"-- Select --", class: "uk-select uk-form-small", :required=>true, :disabled=> true} %>
+                      <%#= form.collection_select :bank_transfer_id, @bank_transfers, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-small" %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Transfer Date</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :date_return, @cash_settlement.date_return, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Attachment</div>
+                    <div class="uk-width-2-3@m">
+                      <table class="uk-table uk-table-striped">
+                        <thead>
+                          <tr>
+                            <th>File Upload</th>
+                          </tr>
+                        </thead>   
+                        <tbody>
+                          <% @record_files.each do |record_file| %>
+                            <%= hidden_field_tag 'record_file[][id]', record_file.id %>
+                            <% case record_file.ext.downcase %>
+                            <% when '.png','.jpg','.jpeg','.jfif','.svg','.webp' %>
+                              <tr>
+                                <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 200px"/></a></td>
+                              </tr>
+                            <% else %>
+                              <tr>
+                                <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a></td>
+                              </tr>
+                            <% end %>
+                          <% end if @record_files.present? %>
+                        </tbody> 
+                      </table>  
+                    </div>
+                  </div>
+                </div>
+                <!-- End Right -->
+              </div>
+            </div>
+
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+                    <thead> 
+                      <tr>
+                        <th class="uk-text-middle">No</th>  
+                        <th class="uk-text-middle">Delete</th>  
+                        <th class="uk-text-middle uk-text-center">Payment Type</th>
+                        <th class="uk-text-middle uk-text-center">COA Name</th>
+                        <th class="uk-text-middle uk-text-center">Payment Name</th>
+                        <th class="uk-text-middle uk-text-center">Description</th>
+                        <th class="uk-text-middle uk-text-center">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody class="tbody_item">
+                    <% case params[:action] %>
+                    <% when 'show' %>
+                      <% c=0 %>
+                      <% show = [] %>
+                      <% @cash_settlement_items.each do |item| %>
+                        <tr trid='<%= item.id %>'>
+                          <%= hidden_field_tag 'record_item[][id]', item.id %>
+                          <td><%= c+=1 %></td>
+                          <% if show.include?(item.bon_count) == false %>
+                            <td rowspan="<%= item.bon_length %>">
+                              <% item.image.each do |record_file| %>
+                                <% if record_file["bon_count"] == item.bon_count %>
+                                  <%= hidden_field_tag 'record_file[][id]', record_file["id"] %>
+                                  <% case record_file["ext"].downcase %>
+                                  <% when '.png','.jpg','.jpeg','.jfif','.svg','.webp' %>
+                                    <a target="_blank" href="/<%= record_file["path"].gsub("public/", "") %>"><img src="/<%= record_file["path"].gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 200px"/></a>
+                                  <% else %>
+                                    <a target="_blank" href="/<%= record_file["path"].gsub("public/", "") %>">View</a>
+                                  <% end %>
+                                <% end %>
+                              <% end if item.image.present? %>
+                              <% show << item.bon_count %>
+                            </td>
+                          <% end %>
+                          <td><%= text_field_tag 'record_item[][payment_type]', item.payment_type, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                          <td><%= text_field_tag 'record_item[][coa_name]', item.coa_name, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                          <td><%= text_field_tag 'record_item[][payment_name]', item.payment_name, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                          <td><%= text_field_tag 'record_item[][description]', item.description, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                          <td><%= text_field_tag 'record_item[][amount]', number_with_precision(item.amount, precision: 2, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                        </tr>
+                      <% end %>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- APPROVE -->
+
+
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @cash_settlement.status == 'new' or @cash_settlement.status == 'canceled1' %>
+                        <%= link_to approve_cash_settlement_path(@cash_settlement, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @cash_settlement.status == 'approved1' or @cash_settlement.status == 'canceled2' %>
+                        <%= link_to approve_cash_settlement_path(@cash_settlement, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_cash_settlement_path(@cash_settlement, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @cash_settlement.status == 'approved2' or @cash_settlement.status == 'canceled3' %>   
+                        <%= link_to approve_cash_settlement_path(@cash_settlement, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_cash_settlement_path(@cash_settlement, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_cash_settlement_path(@cash_settlement, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @cash_settlement.status %>
+                      <% when 'approved3' %>
+                        <%#= link_to print_cash_settlement_path(@cash_settlement), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <!-- <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button> -->
+                        <%# end %>
+                        <%= link_to 'Back', cash_settlements_path, class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', cash_settlements_path, class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_cash_settlement_path(@cash_settlement), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

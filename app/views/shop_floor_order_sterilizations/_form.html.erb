@@ -1,0 +1,154 @@
+
+<%= form_with(model: shop_floor_order_sterilization, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if shop_floor_order_sterilization.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(shop_floor_order_sterilization.errors.count, "error") %> prohibited this shop_floor_order_sterilization from being saved:</h2>
+
+      <ul>
+      <% shop_floor_order_sterilization.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">No.</div>
+            <div class="uk-width-1-3@m" title="Order Number Sterilization">
+              <%= form.text_field :number, id: :shop_floor_order_sterilization_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-6@m">Date</div>
+            <div class="uk-width-1-3@m">
+              <%= form.date_field :date, id: :shop_floor_order_sterilization_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">Remarks</div>
+          <div class="uk-width-4-5@m">
+          <%= form.text_field :remarks, id: :shop_floor_order_sterilization_remarks, :class=> "uk-input uk-form-width-large uk-form-small"%>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m" title="Sterilization Batch Number">SBN</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :sterilization_batch_number, id: :shop_floor_order_sterilization_sterilization_batch_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-6@m">Kind</div>
+            <div class="uk-width-1-3@m">
+              <%= form.select :kind, options_for_select(['internal','external'], form.object.kind), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_kind_sfos(this, '"+params[:controller].to_s+"');"} %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        
+        <% select_kind = (params[:select_kind].present? ? params[:select_kind] : form.object.kind) %>
+
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :id=> "add_item_sfo", :select_kind=> select_kind, :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Order Number</th>
+            <th>Batch Number</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+
+          <% @shop_floor_order_sterilization_items.each do |shop_floor_order_sterilization_item| %>
+            <%= hidden_field_tag 'shop_floor_order_sterilization_item[][id]', shop_floor_order_sterilization_item.id %>
+            <% part = nil %>
+            <% if shop_floor_order_sterilization_item.product.present? %>
+              <% part = shop_floor_order_sterilization_item.product %>
+            <% end %>
+            <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+
+            <tr>
+              <td class="counter uk-text-right"><%= c+=1%></td>
+              <td>
+                <% batch_number = shop_floor_order_sterilization_item.product_batch_number %>
+                <% if batch_number.present? %>
+                  <% if batch_number.shop_floor_order_item.present? %>
+                    <%= batch_number.shop_floor_order_item.shop_floor_order.number %>
+                  <% else %>
+                    <% if batch_number.sterilization_product_receiving_item.present? %>
+                      <%= batch_number.sterilization_product_receiving_item.sterilization_product_receiving.number %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </td>
+              <td>
+                <%= hidden_field_tag "shop_floor_order_sterilization_item[][product_batch_number_id]", shop_floor_order_sterilization_item.product_batch_number_id, :class=>"product_batch_number_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                <%= render 'layouts/form_item', c: c, field_name: "product_batch_number_id", field_value: shop_floor_order_sterilization_item.product_batch_number.number %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_id', part.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= hidden_field_tag 'shop_floor_order_sterilization_item[][product_id]', shop_floor_order_sterilization_item.product_id, {:class=>"product_id#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+                <%= text_field_tag 'part_name', part.name, {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+             
+              <td>
+                <%= number_field_tag 'shop_floor_order_sterilization_item[][quantity]', shop_floor_order_sterilization_item.quantity, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'shop_floor_order_sterilization_item[][remarks]',shop_floor_order_sterilization_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "shop_floor_order_sterilization_item[][status]", options_for_select(['active','deleted'],
+                  shop_floor_order_sterilization_item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @shop_floor_order_sterilization_items.present? %>
+
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', shop_floor_order_sterilizations_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

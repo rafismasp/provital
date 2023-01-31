@@ -1,0 +1,38 @@
+<%= javascript_include_tag 'datatables/jquery-3.5.1' %>
+<%= javascript_include_tag 'datatables/jquery.dataTables.min' %>
+<%= javascript_include_tag 'datatables/dataTables.buttons.min' %>
+<%= javascript_include_tag 'datatables/jszip.min' %>
+<%= javascript_include_tag 'datatables/pdfmake.min' %>
+<%= javascript_include_tag 'datatables/vfs_fonts' %>
+<%= javascript_include_tag 'datatables/buttons.html5.min' %>
+<%= javascript_include_tag 'datatables/buttons.print.min' %>
+
+<%= stylesheet_link_tag 'datatables/jquery.dataTables.min', media: 'all' %>
+<%= stylesheet_link_tag 'datatables/buttons.dataTables.min', media: 'all' %>
+
+<script type="text/javascript">
+  $('#index-list').DataTable( {
+    dom: "Bfrtip",
+    buttons: [
+        'copy', 'csv', 
+        {
+          extend: 'excel',
+          header:true,
+          customize: function ( xlsx ) {
+            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+            //Bold Header Row
+            // $('row[r=3] c', sheet).attr( 's', '2' );
+            //Make You Input Cells Bold Too
+            // $('c[r=A1]', sheet).attr( 's', '2' );
+            // $('c[r=A2]', sheet).attr( 's', '2' );
+          }, 
+        },
+        {
+          extend: 'pdf',
+          pageSize: 'A2',
+          orientation: 'landscape'
+        },
+    ]
+  } );
+
+</script>  

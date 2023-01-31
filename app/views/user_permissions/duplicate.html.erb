@@ -1,0 +1,135 @@
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Duplicate <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', user_permissions_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="uk-card-body">
+          <%= form_for :duplicate, url: "/user_permissions/save_duplicate" do |form| %>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">From User (Name)</div>
+                <div class="uk-width-3-4@m">
+                <%= hidden_field_tag :from_user_id%>
+                  <%= form.text_field :from_user, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Duplicate To (Name)</div>
+                <div class="uk-width-3-4@m">
+                  <%= hidden_field_tag :to_user_id %>
+                  <%= form.text_field :to_user, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', user_permissions_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          <% end  %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    record = <%= raw  @users.map {|k| { key:  k.id, value: "#{k.username}", field0: k.username, field1: k.first_name+' '+k.last_name,  field2: (k.department.present? ? k.department.hrd_contract_abbreviation : '') } }.to_json %>;
+
+    var field0 = "Username",
+        width0 = "width: 70px;",
+        field1 = "Name",
+        width1 = "width: 200px;";
+        field2 = "Dept",
+        width2 = "width: auto;";
+
+    $( "#duplicate_from_user" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(record, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1+' - '+ui.item.field2);
+        $("#from_user_id").val(ui.item.key);
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append(`<li class='ui-autocomplete-category' aria-label='header'>
+                        <div class='listACR1 listHeader' style='`+width0+`'>`+field0+`</div>
+                        <div class='listACR2 listHeader' style='`+width1+`'>`+field1+`</div>
+                        <div class='listACR3 listHeader' style='`+width2+`'>`+field2+`</div>
+                      </li>`);
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append(`<div class='listACR1' style='`+width0+`'>` + item.field0 + `</div>
+                     <div class='listACR2' style='`+width1+`'>` + item.field1 + `</div>
+                     <div class='listACR2' style='`+width2+`'>` + item.field2 + `</div>`)
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+
+    $( "#duplicate_to_user" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(record, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1+' - '+ui.item.field2);
+        $("#to_user_id").val(ui.item.key);
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append(`<li class='ui-autocomplete-category' aria-label='header'>
+                        <div class='listACR1 listHeader' style='`+width0+`'>`+field0+`</div>
+                        <div class='listACR2 listHeader' style='`+width1+`'>`+field1+`</div>
+                        <div class='listACR3 listHeader' style='`+width2+`'>`+field2+`</div>
+                      </li>`);
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append(`<div class='listACR1' style='`+width0+`'>` + item.field0 + `</div>
+                     <div class='listACR2' style='`+width1+`'>` + item.field1 + `</div>
+                     <div class='listACR2' style='`+width2+`'>` + item.field2 + `</div>`)
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+  });
+</script>

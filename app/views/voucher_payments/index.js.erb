@@ -1,0 +1,32 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_item' %>
+	$('.tbody_item').append("<%= escape_javascript(render 'partial') %>");
+
+<% when 'change_bpk' %>
+	$('#select_bpk_lists').html("<%= escape_javascript(render 'partial', {field:'modal_bpk_list'}) %>");
+	$('.button-bpk-modal').html("<a class='uk-button uk-button-primary uk-button-small' href='#bpk_list-sections' uk-toggle>Select BPK</a>");
+
+<% when 'load_bpk_list'%>
+	// alert($('#new_record_item__nominal').val());
+	$('.tbody_item').html("<%= escape_javascript(render 'partial') %>");
+	// var grand_total = 0;
+	// $('.nominal_td').each(function(i, obj) {
+	// 	// alert($(obj).val());
+	// 	grand_total += parseFloat($(obj).val());
+	// });
+  
+  //  $("#grand_total").val(grand_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+  //  $("#voucher_payment_grand_total").val(grand_total); //save
+	// // alert($("#voucher_payment_grand_total").val());
+  // $(".grandtotal_td").html(grand_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+	$(".btn_check_price").click();
+
+	// UIkit.modal('.add_item').hide();
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

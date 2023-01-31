@@ -1,0 +1,322 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', invoice_suppliers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Suppliers</div>
+                      <div class="uk-width-3-4@m">  
+                        <%= text_field_tag :supplier_name, @invoice_supplier.supplier.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Inv.Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :inv_number, @invoice_supplier.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">SJ.Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :sj_number, @invoice_supplier.sj_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">FP.Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :fp_number, @invoice_supplier.fp_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Remarks</div>
+                      <div class="uk-width-3-4@m">
+                        <%= text_field_tag :remarks, @invoice_supplier.remarks, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Currency</div>
+                      <div class="uk-width-1-4@m select_currencies">
+                        <%= text_field_tag :currency, @invoice_supplier.currency.name, :class=> "uk-select uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Inv.Date</div>
+                      <div class="uk-width-2-3@m">
+                        <%= date_field_tag :inv_date, @invoice_supplier.date, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Tax</div>
+                      <div class="uk-width-1-2@m select_taxes">
+                        <%= text_field_tag :tax, @invoice_supplier.tax.name, :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">T.O.P</div>
+                      <div class="uk-width-3-4@m">
+                        <div class="uk-flex">
+                          <%= text_field_tag :top_day, @invoice_supplier.top_day, :class=> "uk-input uk-form-small uk-width-1-4", :disabled=> true %>
+                          <div class="select_term_of_payments uk-width-3-4">
+                            <%= text_field_tag :top, @invoice_supplier.term_of_payment.name, :class=> "uk-select uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Tax Rates</div>
+                      <div class="uk-width-1-2@m select_tax_rates">
+                        <%= text_field_tag "tax_rates", "Rp. #{number_with_precision(@invoice_supplier.tax_rate.currency_value, precision: 0, delimiter: ".", separator: ",")}", class: "uk-input uk-form-width-medium uk-form-small" , :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Sub Total</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :subtotal, number_with_precision(@invoice_supplier.subtotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">PPN Total</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :ppntotal, number_with_precision(@invoice_supplier.ppntotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">PPH Total</div>
+                      <div class="uk-width-2-3@m">
+                        <div class="uk-flex">
+                          <%= text_field_tag :pphpercent, (@invoice_supplier.pphtotal.to_f/@invoice_supplier.subtotal.to_f)*100, :class=> "uk-input uk-form-small uk-text-right", :disabled=> true %>
+                          <%= text_field_tag :pphtotal, number_with_precision(@invoice_supplier.pphtotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Down Payment</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :dptotal, number_with_precision(@invoice_supplier.dptotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Grand Total</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :grandtotal, number_with_precision(@invoice_supplier.grandtotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="uk-grid uk-margin-small">
+              <div class="uk-width-1-3@m">Attachment</div>
+              <div class="uk-width-2-3@m">
+                <table class="uk-table uk-table-striped">
+                  <thead>
+                    <tr>
+                      <th>File Upload</th>
+                    </tr>
+                  </thead>   
+                  <tbody>
+
+                    <tr>
+                      <td>
+                        <% @record_files.each do |record_file| %>
+                          <% case record_file.ext.downcase %>
+                          <% when '.pdf' %>
+                            <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a>
+                          <% else %>
+                            <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 100px"/></a>
+                          <% end %>
+                        <% end if @record_files.present? %>
+                      </td>
+                    </tr>
+                  </tbody> 
+                </table>  
+              </div>
+            </div>
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  
+                  <table class="uk-table uk-table-small uk-table-striped uk-table-hover uk-table-divider" id="item">
+                    <tr>
+                      <th>#</th>
+                      <th>GRN Number</th>
+                      <th>GRN Date</th>
+                      <th>PO Number</th>
+                      <th>Material Code</th>
+                      <th>Material Name</th>
+                      <th>Batch Number</th>
+                      <th>Unit</th>
+                      <th>Quantity</th>
+                      <th>Unit Price</th>
+                      <th>Total</th>
+                    </tr>
+                    <% c=0 %>
+                    <% if @invoice_supplier_items.present? %>
+                      <% @invoice_supplier_items.each do |item| %>
+                        <% part = nil %>
+                        <% doc_receiving = nil %>
+                        <% doc_receiving_item = nil %>
+                        <% batch_number = nil %>
+                        <% if item.material_receiving.present? %>
+                          <% doc_receiving = item.material_receiving %>
+                          <% doc_receiving_item = item.material_receiving_item %>
+                          <% batch_number = @material_batch_number.where(:material_receiving_item_id=> item.material_receiving_item_id).map { |e| e.number }.join(", ") if @material_batch_number.present? %>
+                          <% part = item.material %>
+                        <% elsif item.product_receiving.present? %>
+                          <% doc_receiving = item.product_receiving %>
+                          <% doc_receiving_item = item.product_receiving_item %>
+                          <% batch_number = @product_batch_number.where(:product_receiving_item_id=> item.product_receiving_item_id).map { |e| e.number }.join(", ") if @product_batch_number.present? %>
+                          <% part = item.product %>
+                        <% elsif item.general_receiving.present? %>
+                          <% doc_receiving = item.general_receiving %>
+                          <% doc_receiving_item = item.general_receiving_item %>
+                          <% batch_number = @general_batch_number.where(:general_receiving_item_id=> item.general_receiving_item_id).map { |e| e.number }.join(", ") if @general_batch_number.present? %>
+                          <% part = item.general %>
+                        <% elsif item.consumable_receiving.present? %>
+                          <% doc_receiving = item.consumable_receiving %>
+                          <% doc_receiving_item = item.consumable_receiving_item %>
+                          <% batch_number = @consumable_batch_number.where(:consumable_receiving_item_id=> item.consumable_receiving_item_id).map { |e| e.number }.join(", ") if @consumable_batch_number.present? %>
+                          <% part = item.consumable %>
+                        <% elsif item.equipment_receiving.present? %>
+                          <% doc_receiving = item.equipment_receiving %>
+                          <% doc_receiving_item = item.equipment_receiving_item %>
+                          <% batch_number = @equipment_batch_number.where(:equipment_receiving_item_id=> item.equipment_receiving_item_id).map { |e| e.number }.join(", ") if @equipment_batch_number.present? %>
+                          <% part = item.equipment %>
+                        <% end %>
+                        <tr>
+                          <td class="counter">
+                            <%= c+=1%>
+                          </td>
+                          <td><%= doc_receiving.number if doc_receiving.present? %></td>
+                          <td><%= doc_receiving.date if doc_receiving.present? %></td>
+                          <td><%= doc_receiving.purchase_order_supplier.number if doc_receiving.present? and doc_receiving.purchase_order_supplier.present? %></td>
+                          <td><%= (part.part_id if part.present?) %></td>
+                          <td><%= (part.name if part.present?) %></td>
+                          <td><%= batch_number %></td>
+                          <td><%= (part.unit.name if part.present? and part.unit.present?)%></td>
+                          <td class="uk-text-right">
+                            <%= number_with_precision(item.quantity, precision: 2, delimiter: ".", separator: ",") %>
+                          </td>
+                          <td class="uk-width-small">
+                            <%= item.unit_price %>
+                          </td>
+                          <td class="uk-text-right total<%= c %>">
+                            <%= number_with_precision(item.quantity * item.purchase_order_supplier_item.unit_price, precision: 0, delimiter: ".", separator: ",") %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    <% else %>
+                      <tr>
+                        <td colspan="10">Tidak ada Data!</td>
+                      </tr>
+                    <% end %>
+                  </table>
+                </div>
+              </div>
+            </div>
+  
+            <hr>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @invoice_supplier.status == 'new' or @invoice_supplier.status == 'canceled1' %>
+                        <%= link_to approve_invoice_supplier_path(@invoice_supplier, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @invoice_supplier.status == 'approved1' or @invoice_supplier.status == 'canceled2' %>
+                        <%= link_to approve_invoice_supplier_path(@invoice_supplier, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_invoice_supplier_path(@invoice_supplier, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @invoice_supplier.status == 'approved2' or @invoice_supplier.status == 'canceled3' %>   
+                        <%= link_to approve_invoice_supplier_path(@invoice_supplier, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_invoice_supplier_path(@invoice_supplier, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_invoice_supplier_path(@invoice_supplier, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+
+                      <% if @invoice_supplier.status != 'approved3' %>
+                        <%= link_to 'Delete', @invoice_supplier, method: :delete, data: { confirm: 'Are you sure?' }, :class=> "uk-button uk-button-danger uk-button-small" %>
+                      <% end %>
+
+                      <%= form_tooltip(@invoice_supplier) %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <%= link_to 'Back', invoice_suppliers_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <%= link_to 'Edit', edit_invoice_supplier_path(@invoice_supplier), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

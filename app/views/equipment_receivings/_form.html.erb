@@ -1,0 +1,188 @@
+
+<%= form_with(model: equipment_receiving, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if equipment_receiving.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(equipment_receiving.errors.count, "error") %> prohibited this equipment_receiving from being saved:</h2>
+
+      <ul>
+      <% equipment_receiving.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Supplier</div>
+            <div class="uk-width-2-3@m">
+
+              <%= hidden_field_tag "equipment_receiving[supplier_id]", (form.object.supplier.present? ? form.object.supplier_id : ""), :class=>"supplier_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "supplier_id", field_value: (form.object.supplier.present? ? form.object.supplier.name : ""), kind: params[:q] %>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :equipment_receiving_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :date, id: :equipment_receiving_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">        
+        <div class="uk-grid">
+          <div class="uk-width-1-3@m">Remarks</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :remarks, id: :equipment_receiving_remarks, :class=> "uk-input uk-form-width-large uk-form-small"%>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">SJ. Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :sj_number, id: :equipment_receiving_sj_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">SJ. Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :sj_date, id: :equipment_receiving_sj_date, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PO Suppliers</div>
+            <% if form.object.purchase_order_supplier.present? and @material_receiving_items.present? %>
+              <div class="uk-width-1-3@m purchase_order_supplier_detail">
+                <%= text_field_tag "po_supplier", form.object.purchase_order_supplier.number, {class: "uk-select uk-form-width-large uk-form-small", :disabled=> true} %>
+              </div>
+            <% else %>
+              <div class="uk-width-1-3@m purchase_order_supplier_detail">
+                <%= form.select :purchase_order_supplier_id, options_for_select(@purchase_order_suppliers.map{|c| [c.number, c.id ]}, form.object.purchase_order_supplier_id), {:prompt => " -- select -- "}, {class: "purchase_order_supplier_id uk-select uk-form-width-large uk-form-small"} if @purchase_order_suppliers.present? %>
+              </div>
+              <div class="uk-width-1-3@m">
+                <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                        :onclick=> "change_purchase_order_supplier_id(this, '"+params[:controller].to_s+"');" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>General Name</th>
+            <th>General Code</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Batch number</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @equipment_receiving_items.each do |equipment_receiving_item| %>
+            <%= hidden_field_tag 'equipment_receiving_item[][id]', equipment_receiving_item.id %>
+            <% part = nil %>
+            <% if equipment_receiving_item.equipment.present? %>
+              <% part = equipment_receiving_item.equipment %>
+            <% end %>
+            <% unit_name = (part.present? ? (part.unit.present? ? part.unit.name : nil) : nil) %>
+
+              <tr>
+                <td class="counter uk-text-right"><%= c+=1%></td>
+                <td>
+
+                  <%= hidden_field_tag "equipment_receiving_item[][equipment_id]", equipment_receiving_item.equipment_id, :class=>"equipment_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                  <%= render 'layouts/form_item', c: c, field_name: "equipment_id", field_value: (equipment_receiving_item.equipment.present? ? equipment_receiving_item.equipment.name : nil) %>
+
+                </td>
+               <td>
+                  <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+                </td>
+               
+                <td>
+                  <%= number_field_tag 'equipment_receiving_item[][quantity]', equipment_receiving_item.quantity, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'batch_number', @equipment_batch_number.where(:equipment_receiving_item_id=> equipment_receiving_item.id).map { |e| e.number }, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'equipment_receiving_item[][remarks]',equipment_receiving_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+                </td>
+                <td>
+                  <%= select_tag "equipment_receiving_item[][status]", options_for_select(['active','deleted'],
+                    equipment_receiving_item.status) , { :class=>'uk-select uk-form-small'} %>
+                </td>
+              </tr>
+          <% end if @equipment_receiving_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', equipment_receivings_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

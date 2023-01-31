@@ -1,0 +1,133 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_employee' %>
+  <% case field %>
+  <% when 'nik' %>
+    <%= text_field_tag "employee_nik", (params[:employee_nik]), :class=>"uk-input uk-form-width-medium uk-form-small", :readonly=>true %>
+  <% when 'tb_item' %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">          
+      <tr>
+        <th class="uk-text-middle">No</th>  
+        <th class="uk-text-middle uk-text-center">Jenis Izin</th>
+        <th colspan="2" class="uk-text-middle uk-text-center">Periode</th>
+        <th class="uk-text-center">Jumlah Hari</th>
+      </tr>
+      <%c=1 %>
+      <% ct = izin = sakit = ci = 0 %>
+      <% @absences.each do |item| %>
+        <% libur = 0 %>
+
+        <% if libur == 0 %>
+          <tr title="Keterangan: <%= item.description %>">
+            <td><%=c%>.</td>
+            <td><%=item.employee_absence_type.name if item.employee_absence_type_id.present?%></td>
+            <td><%=item.begin_date%></td>
+            <td><%=item.end_date%></td>
+            <td align="right">
+              <%= (item.end_date - item.begin_date).to_i+1 %>
+            </td>
+          </tr><% c+=1%><% ct += ((item.end_date - item.begin_date).to_i+1) %>
+        <% end %>
+      <% end if @absences.present? %>
+      <% @special_absences.each do |item| %>
+        <% libur = 0 %>
+
+        <% if libur == 0 %>
+          <tr title="Keterangan: <%= item.description %>">
+            <td><%=c%>.</td>
+            <td><%=item.employee_absence_type.name if item.employee_absence_type_id.present?%></td>
+            <td><%=item.begin_date%></td>
+            <td><%=item.end_date%></td>
+            <td align="right"><%= (item.end_date - item.begin_date).to_i+1 %></td>
+          </tr><% c+=1%>
+
+          <% case item.employee_absence_type.code %>
+          <% when 'ITM' %>
+            <% izin += (item.end_date - item.begin_date).to_i+1 %>
+          <% when 'IS' %>
+            <% sakit += (item.end_date - item.begin_date).to_i+1 %>
+          <% else %>
+            <% ci += (item.end_date - item.begin_date).to_i+1 %>
+          <% end %>
+        <% end %>
+      <% end if @special_absences.present? %>
+    </table>
+
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">          
+      <tr>
+        <th class="uk-text-middle">Cuti Terpakai</th>  
+        <th class="uk-text-middle uk-text-center">Sisa Cuti</th>
+        <th class="uk-text-middle uk-text-center">Izin</th>
+        <th class="uk-text-center">Sakit</th>
+        <th class="uk-text-center">Cuti Istimewa</th>
+      </tr>
+      <tr>
+        <td align="center" id="leave_total"><%= ct %></td>
+        <td align="center" id ="leave_os" value="<%= @os_leave%>"><%= @os_leave %></td>
+        <td align="center" id="permit_total"><%= izin %></td>
+        <td align="center"><%= sakit %></td>
+        <td align="center"><%= ci %></td>
+      </tr>
+    </table>
+  <% end %>
+<% when 'get_total_day' %>
+  <%= text_field_tag "days", "#{params[:tday]} Hari", :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true %>
+  <%= hidden_field_tag "employee_absence[day]", (params[:tday]), {:readonly=>true, :class=>"form-control input-sm"} %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+    <thead class="bg-primary">
+      <tr>
+        <th>No</th>
+        <th>Status</th>
+        <th>NIK</th>
+        <th>Nama</th>
+        <th>Department</th>
+        <th>Kode</th>
+        <th>Jenis Ijin</th>
+        <th>Keterangan</th>
+        <th>Jumlah Hari</th>
+        <th>Tanggal Mulai</th>
+        <th>Tanggal Akhir</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @employee_absences.each do |employee_absence| %>
+        <tr uk-tooltip="title: <%= row_tooltip(employee_absence) %>; pos: top-left">
+          <td><%= c+=1 %></td>
+          <td>
+            <% case employee_absence.status %>
+            <% when 'deleted' %>
+              <%= image_tag "void.png", size: "15x15" %>
+            <% when 'approved3' %>
+              <%= image_tag "approve.png", size: "15x15" %>
+              <%= image_tag "approve.png", size: "15x15" %>
+              <%= image_tag "approve.png", size: "15x15" %>
+            <% when 'canceled3','approved2' %>
+              <%= image_tag "approve.png", size: "15x15" %>
+              <%= image_tag "approve.png", size: "15x15" %>
+            <% when 'canceled2','approved1' %>
+              <%= image_tag "approve.png", size: "15x15" %>
+            <%else%>
+              <%= image_tag "new.png", size: "15x15" %>
+            <%end%>
+          </td>
+          <td><%= employee_absence.employee.nik %></td>
+          <td><%= employee_absence.employee.name %></td>
+          <td><%= employee_absence.employee.department.name %></td>
+          <td><%= employee_absence.employee_absence_type.code %></td>
+          <td><%= employee_absence.employee_absence_type.name %></td>
+          <td><%= employee_absence.description %></td>
+          <td><%= employee_absence.day %></td>
+          <td><%= employee_absence.begin_date %></td>
+          <td><%= employee_absence.end_date %></td>
+
+          <td><%= link_to 'Show', employee_absence, :job=>'show' %></td>
+          <td><%= link_to 'Edit', edit_employee_absence_path(employee_absence, :job=>'edit') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

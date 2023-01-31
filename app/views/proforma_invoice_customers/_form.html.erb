@@ -1,0 +1,276 @@
+<%= form_with(model: proforma_invoice_customer, local: true, class: "uk-form-horizontal", :multipart => true) do |form| %>
+
+  <% if proforma_invoice_customer.errors.any? %>
+    <% alert = "<h4> #{pluralize(proforma_invoice_customer.errors.count, 'error')} prohibited this proforma_invoice_customer from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% proforma_invoice_customer.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end if proforma_invoice_customer.present? %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <!-- Left -->
+      <div class="uk-width-1-3@m">
+        <!-- add cs -->
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Customer</div>
+          <div class="uk-width-2-3@m">
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= hidden_field_tag "proforma_invoice_customer[customer_id]", (form.object.customer.present? ? form.object.customer_id : ""), :class=>"cs_id uk-input uk-form-small"  %>
+              <%= text_field_tag "customer_name", (form.object.customer.present? ? form.object.customer.name : ""), :class=>"cs_id uk-input uk-form-small", :disabled=> true %>
+            <% else %>
+              <%= hidden_field_tag "proforma_invoice_customer[customer_id]", (form.object.customer.present? ? form.object.customer_id : ""), :class=>"cs_id uk-input uk-form-small", :required=> true %>
+              <%= render 'layouts/form_item', field_name: "cs_id", field_value: (form.object.customer.present? ? form.object.customer.name : "") %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Proforma Invoice Number</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :number, id: :proforma_invoice_customer_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically", :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">TOP</div>
+          <div class="uk-width-2-3@m select_term_of_payments">
+            <%= form.text_field :top_day, id: :proforma_invoice_customer_top_day, :class=> "uk-input uk-form-small select_top_day", :style=> "width: 50px;", :readonly=> true %>
+            <%= form.select :term_of_payment_id, options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, form.object.term_of_payment_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small select_term_of_payments"} if @term_of_payments.present? %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Down Payment</div>
+          <div class="uk-width-2-3@m">
+            <%= form.number_field :down_payment, id: :proforma_invoice_customer_down_payment, :class=> "uk-input uk-form-width-small uk-form-small dp", :required=> true, step: :any, :onchange=> "load_pi_list(this, '"+params[:controller].to_s+"');" %> %
+          </div> 
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">PO Number</div>
+          <div class="uk-width-2-3@m">
+            <div class="uk-grid">
+              <div class="uk-width-1-2@m button-pi-modal">
+                <a class='uk-button uk-button-default uk-button-small' href='#pi_list-sections' uk-toggle>--- Pilih ---</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- End Left -->
+
+      <!-- Right -->
+      <div class="uk-width-1-3@m">
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Proforma Invoice Date</div>
+          <div class="uk-width-2-3@m">
+            <%= form.date_field :date, id: :proforma_invoice_customer_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-medium uk-form-small" %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Due Date</div>
+          <div class="uk-width-2-3@m">
+            <%= form.date_field :due_date, id: :proforma_invoice_customer_due_date, :value=> (form.object.due_date.present? ? form.object.due_date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-medium uk-form-small" %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Remarks</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_area :remarks, id: :proforma_invoice_customer_remarks, rows: 5, :class=> "uk-textarea uk-form-width-large uk-form-small", :style=>"line-height: normal !important;" %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Type of Tax</div>
+          <div class="uk-width-2-3@m select_taxes">
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= hidden_field_tag "proforma_invoice_customer[tax_id]", (form.object.tax.present? ? form.object.tax_id : ""), :class=>"tax_id uk-input uk-form-small"  %>
+              <%= select_tag "select_tax_id", options_for_select(@taxes.map{|c| [c.name, c.id, {:'tax'=>c.value.to_f} ]}, form.object.tax_id) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small", :disabled =>true} if @taxes.present? %>
+            <% else %>
+              <%= form.select :tax_id, options_for_select(@taxes.map{|c| [c.name, c.id ,{:'tax'=>c.value.to_f}]}, form.object.tax_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small tax_id", :readonly=> true} if @taxes.present? %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <!-- End Right -->
+    </div>
+  </div>
+
+  <!-- Tbl item -->
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1 uk-overflow-auto">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">                 
+          <thead>
+            <tr>
+              <th class="uk-text-middle uk-text-center">#</th>
+              <th class="uk-text-middle uk-text-center">PO Number</th>
+              <th class="uk-text-middle uk-text-center">Product Code</th>
+              <th class="uk-text-middle uk-text-center">Product Name</th>
+              <th class="uk-text-middle uk-text-center">Type</th>
+              <th class="uk-text-middle uk-text-center">Unit</th>
+              <th class="uk-text-middle uk-text-center">Qty</th>
+              <th class="uk-text-middle uk-text-center">Discount</th>
+              <th class="uk-text-middle uk-text-center">Unit Price</th>
+              <th class="uk-text-middle uk-text-center">Amount</th>
+              <th class="uk-text-middle uk-text-center">Amount Discount</th>
+            </tr>
+          </thead>
+          <tbody class="tbody_item">            
+            <% c=0 %>
+              <% if @proforma_invoice_customer_items.present? %>
+                <% @proforma_invoice_customer_items.each do |rr| %>
+                  <tr id="trid<%= c+1 %>" trid='<%= c+1 %>' row_id="<%= c+1 %>" valign=top>
+                    <td class="counter">
+                      <%= c+=1%>
+                      <%#= hidden_field_tag 'record_item[][id]', rr.id %>
+                      <%= hidden_field_tag 'record_item[][deleted]', 1 %>
+                      <%= hidden_field_tag "record_item[][sales_order_id]", (rr.sales_order_id if rr.class.table_name == "sales_order_items")%>
+                      <%= hidden_field_tag "record_item[][sales_order_item_id]", (rr.id if rr.class.table_name == "sales_order_items")%>
+                    </td>
+                    <td><%= (rr.sales_order.po_number if rr.sales_order_item_id) %></td>
+                    <td><%= (rr.sales_order_item.product.part_id if rr.sales_order_item_id) %></td>
+                    <td><%= (rr.sales_order_item.product.name if rr.sales_order_item_id) %></td>
+                    <td><%= (rr.sales_order_item.product.type_name if rr.sales_order_item_id) %></td>
+                    <td><%= (rr.sales_order_item.product.unit_name if rr.sales_order_item_id) %></td>
+                    <td><%= number_with_precision(rr.sales_order_item.present? ? rr.sales_order_item.quantity : 0, precision: 2, delimiter: ".", separator: ",") %></td>
+                    <td><%= number_with_precision(rr.sales_order_item.present? ? rr.sales_order_item.discount : 0, precision: 2, delimiter: ".", separator: ",") %></td>
+                    <td><%= number_with_precision(rr.sales_order_item.present? ? rr.sales_order_item.unit_price : 0, precision: 2, delimiter: ".", separator: ",") %></td>
+                    <td>
+                      <% amount = (rr.try(:sales_order_item_id) ? rr.sales_order_item.quantity : nil) * (rr.try(:sales_order_item_id) ? rr.sales_order_item.unit_price : nil) %>
+                      <%= text_field_tag 'record_item[][amount]', number_with_precision(rr.amount, precision: 2, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-width-auto uk-form-small uk-text-right amount_td", :readonly=>true} %>
+                    </td>
+                    <td>
+                      <% amountdisc = (rr.try(:sales_order_item_id) ? rr.sales_order_item.discount : nil) * (rr.amount) %>
+                      <%= text_field_tag 'record_item[][amountdisc]', number_with_precision(rr.amountdisc, precision: 2, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-width-auto uk-form-small uk-text-right amount_td", :readonly=>true} %>
+                    </td>
+                  </tr>
+                <% end if @proforma_invoice_customer_items.present? %>
+              <% end %>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- tbl total -->
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid uk-flex uk-flex-center@m uk-flex-right@l">
+      <div class="uk-width-1-4@m">
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Total</div>
+            <div class="uk-width-2-3@m" title="Total = sum amount">
+              <%= text_field_tag "total",(form.object.present? ? number_with_precision(form.object.total, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>true, :step=>'any' %>
+              <%= form.hidden_field "total", id: :proforma_invoice_customer_total, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>false, :step=>'any' %>
+            </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Down Payment</div>
+            <div class="uk-width-2-3@m" title="Down payment = total * % dp">
+              <%= text_field_tag "down_payment_total",(form.object.present? ? number_with_precision(form.object.down_payment_total, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>true, :step=>'any' %>
+              <%= form.hidden_field "down_payment_total", id: :proforma_invoice_customer_down_payment_total, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>false, :step=>'any' %>
+            </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Discount</div>
+            <div class="uk-width-2-3@m" title="Discount = sum amount discount * % dp,/ Discount(dp0) = sum amount discount">
+              <%= text_field_tag "discount_total",(form.object.present? ? number_with_precision(form.object.discount_total, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>true, :step=>'any' %>
+              <%= form.hidden_field "discount_total", id: :proforma_invoice_customer_discount_total, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>false, :step=>'any' %>
+            </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">PPN</div>
+            <div class="uk-width-2-3@m" title="PPN = down payment total - discount total * value tax%,/ PPN(dp0) = total - discount total * value tax%">
+              <%= text_field_tag "ppn_total",(form.object.present? ? number_with_precision(form.object.ppn_total, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>true, :step=>'any' %>
+              <%= form.hidden_field "ppn_total", id: :proforma_invoice_customer_ppn_total, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>false, :step=>'any' %>
+            </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Grand Total</div>
+            <div class="uk-width-2-3@m" title="Grand total = down payment total - discount total + ppn,/ Grand total(dp0) = total - discount total + ppn">
+              <%= text_field_tag "grand_total",(form.object.present? ? number_with_precision(form.object.grand_total, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>true, :step=>'any' %>
+              <%= form.hidden_field "grand_total", id: :proforma_invoice_customer_grand_total, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :required=>false, :step=>'any' %>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pi_list-sections" class="uk-modal-container" uk-modal>
+    <div class="uk-modal-dialog" uk-overflow-auto>
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">List PO Number</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_pi_lists">
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>SO Number</td>
+            <td>PO Number</td>
+            <td colspan="2">TOP</td>
+            <td>Tax</td>
+          </tr>
+          <% case form_kind %>
+          <% when 'edit' %>
+            <% c = 0 %>
+            <% @sales_orders.each do |rr| %>
+              <tr>
+                <td><%= c+=1 %></td>
+                <td>
+                  <% case rr.class.table_name %>
+                  <% when 'sales_orders' %>
+                    <% value_check = params[:stuff1].include? rr.id %>
+                  <% end %>
+                  <%= check_box_tag 'cb_po', rr.number, value_check, :class=> 'uk-checkbox select_pi_list', :table_name => rr.class.table_name, :val=> rr.id, :c=> c, :top_day => rr.top_day, :tax_id => rr.tax_id, :term_of_payment_id=> rr.term_of_payment_id, :id=> rr.id, :cclick=> nil%>
+                </td>
+                <td><%= rr.number %></td>
+                <td><%= rr.po_number %></td>
+                <td><%= rr.top_day %></td>
+                <td><%= rr.term_of_payment.name if rr.term_of_payment.present? %></td>
+                <td><%= rr.tax.name %></td>
+              </tr>
+            <% end if @sales_orders.present? %>
+          <% else %>
+            <tr>
+              <td colspan="10">Please select Customer</td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_pi_list(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', proforma_invoice_customers_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

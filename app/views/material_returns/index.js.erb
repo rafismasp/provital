@@ -1,0 +1,23 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_material_outgoing' %>
+	$('#item').html("<%= escape_javascript(render 'partial') %>");
+	$('.sfo_quantity').val("<%= @sfo_quantity %>");
+<% when 'change_product_return_quantity' %>
+	$('.counter').each(function(i, obj) {
+		var count = i+1;
+		var qty_base = parseFloat($(".quantity"+count).attr("qty_base"));
+
+		var qty_set = (qty_base * parseFloat("<%= params[:product_return_quantity] %>") );
+
+		$(".quantity"+count).val(qty_set);
+		$(".quantity"+count).attr("max", qty_set);
+	});
+
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

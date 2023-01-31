@@ -1,0 +1,112 @@
+
+<%= form_with(model: pdm, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if pdm.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(pdm.errors.count, "error") %> prohibited this pdm from being saved:</h2>
+
+      <ul>
+      <% pdm.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-2-3@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Number</div>
+          <div class="uk-width-1-4@m">
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= text_field_tag "number", form.object.number, {:class=> "uk-input uk-form-small", :disabled=> true} %>
+            <% else %>
+              <%= form.text_field :number, id: :pdm_number, :class=> "uk-input uk-form-small", :readonly=> true, :placeholder=> "Auto Number" %>
+            <% end %>
+          </div>
+          <div class="uk-width-1-5@m">Date</div>
+          <div class="uk-width-1-4@m">
+            <%= form.date_field :date, id: :pdm_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-small" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :id=> "add_item", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1 uk-overflow-auto">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">                 
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Material Name</th>
+              <th>Material Code</th>
+              <th>Unit</th>
+              <th>Quantity</th>
+              <th>Remarks</th>
+              <% if pdm.automatic_calculation.to_i != 1 %>
+                <th>Hapus</th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>            
+            <% c=0 %>
+            <% if @pdm_items.present? %>
+              <% @pdm_items.each do |pdm_item| %>
+                <% part = pdm_item.material %>
+                <tr>
+                  <td class="counter">
+                    <%= c+=1%>
+                    <%= hidden_field_tag 'record_item[][id]', pdm_item.id %>
+                  </td>
+                  <td class="uk-width-small">
+                    <%= (part.part_id if part.present?) %>
+                  </td>
+                  <td class="uk-width-medium">
+                    <%= (part.name if part.present?) %>
+                  </td>
+                  <td class="uk-width-small uk-text-center">
+                    <%= (part.unit_name if part.present?) %>
+                  </td>
+                  <td class="uk-text-right">
+                    <% if pdm.automatic_calculation.to_i == 1 %>
+                      <%= number_with_precision(pdm_item.quantity, precision: 2, delimiter: ".", separator: ",") %>
+                    <% else %>
+                      <%= number_field_tag 'record_item[][quantity]', pdm_item.quantity, {:min=> (pdm_item.quantity.to_f-pdm_item.outstanding.to_f), :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+                    <% end %>
+                  </td>
+                  <td class="uk-width-large">
+                    <%= text_field_tag 'record_item[][remarks]', pdm_item.remarks, {:class=>"uk-input uk-form-small"} %>
+                  </td>
+                  <% if pdm.automatic_calculation.to_i != 1 %>
+                    <td>
+                      <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], pdm_item.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', pdms_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

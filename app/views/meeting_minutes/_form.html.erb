@@ -1,0 +1,129 @@
+
+  <%= form_with(model: meeting_minute, local: true, class: "uk-form-horizontal") do |form| %>
+    <% if meeting_minute.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(meeting_minute.errors.count, "error") %> prohibited this meeting_minute from being saved:</h2>
+
+        <ul>
+        <% meeting_minute.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <div class="uk-margin-small">
+      <div class="uk-inline">
+        <span class="uk-form-icon" uk-icon="icon: user"></span>
+        <%= form.text_field :subject, id: :meeting_minute_subject, :class=> "uk-input uk-form-width-large uk-form-small", :placeholder=>"Subject", :required=> true %>
+      </div>
+      <div class="uk-inline">
+        <span class="uk-form-icon" uk-icon="icon: calendar"></span>
+        <%= form.date_field :date, id: :meeting_minute_date, :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true %>
+      </div>
+      <div class="uk-inline">
+        <span class="uk-form-icon" uk-icon="icon: location"></span>
+        <%= form.text_field :venue, id: :meeting_minute_date, :class=> "uk-input uk-form-width-medium uk-form-small", :placeholder=>"venue" %>
+      </div>
+      <div class="uk-inline">
+        <span class="uk-form-icon" uk-icon="icon: file-text"></span>
+        <%= form.text_field :note, id: :meeting_minute_note, :class=> "uk-input uk-form-width-medium uk-form-small", :placeholder=>"note" %>
+      </div>
+    </div>
+    <div class="uk-margin-small">
+      <label class="uk-form-label uk-width-small" for="form-horizontal-text">
+        <%= link_to 'Add Attendence', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_attendence(this, '"+params[:controller].to_s+"')" %>
+      </label>
+    </div>
+    <div class="uk-margin-small uk-width-1-3">
+      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider attendence_list">
+        <tr>
+          <th>#</th>
+          <th class="uk-table-expand">User</th>
+          <th class="uk-width-small visible-md visible-lg">Action</th>
+        </tr>
+        <% @c2=1 %>
+
+        <% @meeting_minute_attendences.each do |attendence| %>
+          <tr>
+            <td align="right" class="counter"><%=@c2%></td>
+            <td>
+              <%= attendence.user.email if attendence.user.present? %>
+            </td>
+            <td class="visible-md visible-lg">
+              <% if attendence.status == "approved" %>
+                <span class="uk-padding-small label uk-alert-success"><%= attendence.status %></span>
+              <% else %>
+                <%= hidden_field_tag "attendence[][id]", attendence.id %> 
+                <% if attendence.user.present? and current_user.id == attendence.user.id %>
+                  <%= select_tag "attendence[][status]", options_for_select(['approved','canceled','deleted'], attendence.status) , {:class=>'uk-select'} %>  
+                <% else %>
+                  <%= select_tag "attendence[][status]", options_for_select(['active','deleted'], attendence.status) , {:class=>'uk-select'} %>  
+                <% end %>
+              <% end %>
+            </td>
+          <% @c2+=1%>
+        <% end if @meeting_minute_attendences.present?%>
+      </table>
+    </div>
+
+    <div class="uk-margin-small">
+      <%= link_to 'Add Points', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_meeting_minute_item(this, '"+params[:controller].to_s+"')" %>
+    </div>
+    <div class="uk-margin-small">
+      <label class="uk-form-label uk-width-small" for="form-horizontal-text">Meeting Points: </label>
+      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider meeting_minute_item_list">
+        <tr>
+          <th>#</th>
+          <th>Description</th>
+          <th>Action</th>
+          <th>Due Date</th>
+          <th colspan="2">PIC</th>
+          <th>JOB Status</th>
+          <th>Remove</th>
+        </tr>
+        <% c=0 %>
+        <% @meeting_minute_items.each do |meeting_minute_item| %>
+          <!-- 20180417 - Pak Johny request tidak bisa edit meeting minute -->
+          <tr>
+            <%= hidden_field_tag "meeting_minute_item[][id]", meeting_minute_item.id %> 
+            <td class="counter"><%= c+=1%></td>
+            <td style="white-space:pre-line"><%= meeting_minute_item.description.html_safe %></td>
+            <td style="white-space:pre-line;"><%= meeting_minute_item.action.html_safe %></td>
+            <td><%= meeting_minute_item.due_date %></td>
+            <td colspan="2">
+              <%="#{meeting_minute_item.account_pic1.email} <p>".html_safe if meeting_minute_item.account_pic1.present? %>
+              <%="#{meeting_minute_item.account_pic2.email} <p>".html_safe if meeting_minute_item.account_pic2.present? %>
+              <%="#{meeting_minute_item.account_pic3.email} <p>".html_safe if meeting_minute_item.account_pic3.present? %>
+              <%="#{meeting_minute_item.account_pic4.email} <p>".html_safe if meeting_minute_item.account_pic4.present? %>
+              <%="#{meeting_minute_item.account_pic5.email} <p>".html_safe if meeting_minute_item.account_pic5.present? %>
+            </td>
+            <td>
+              <% (1..5).each do |i| %>
+                <% if meeting_minute_item["pic#{i}"].present? %>
+                  <a title="<%= meeting_minute_item.job_note(i) %>">
+                    <% case meeting_minute_item.job_status(i) %>
+                    <% when 'done' %>
+                      <span class="uk-margin-small-right" uk-icon="check"></span>
+                    <% when 'failed', 'canceled' %>
+                      <span class="uk-margin-small-right" uk-icon="close"></span>
+                    <% else %>
+                      -
+                    <% end %>
+                    <%= meeting_minute_item.job_status(i) %>
+                  </a>
+                  <p>
+                <% end %>
+              <% end %>
+            </td>
+            <td></td>
+          </tr>
+        <% end if @meeting_minute_items.present? %> 
+      </table>
+    </div> 
+
+    <hr>
+    <p uk-margin>
+      <%= link_to 'Back', meeting_minutes_path, class: "uk-button uk-button-secondary uk-button-small" %>
+      <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+    </p>
+  <% end %>

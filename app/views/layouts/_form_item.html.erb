@@ -1,0 +1,1592 @@
+<% case field_name %>
+<% when "dom_bank_id", "country_code_id" %>
+  <% list_name = field_name.gsub("_id", "")  %> 
+  <%= text_field_tag "#{list_name}_name", field_value, list: "#{list_name}", :class=>"uk-input uk-form-small", seq: c %>
+  <datalist id="<%= list_name %>">
+    <% case field_name %>
+    <% when "dom_bank_id" %>
+      <% @dom_banks.each do |e| %>
+        <option data-value="<%= e.id %>" name="<%= e.bank_name %>"><%= e.bank_name %></option>
+      <% end %>
+    <% when "country_code_id" %>
+      <% @country_codes.each do |e| %>
+        <option data-value="<%= e.id %>" name="<%= e.name %>"><%= e.name %></option>
+      <% end %>
+    <% end %>
+  </datalist>
+  <script type="text/javascript">                
+    $(document).off('change', "input[list='<%= list_name %>']");
+    $(document).on('change', "input[list='<%= list_name %>']", function(evt){
+      var seq = $(this).attr('seq');
+      var list = $(this).attr('list');
+      var options = $('#' + list + ' option');
+      var hidden = $('#'+list+ '-hidden');
+      for(var i = 0; i < options.length; i++) {
+        var option = options[i];
+
+        if(option.innerText === $(this).val()) {
+          $(this).val(option.getAttribute('name'));
+          $(".<%= field_name %>"+seq).val(option.getAttribute('data-value'));
+          break;
+        } else {
+          hidden.val(null);
+        }
+      }
+     evt.stopImmediatePropagation();
+    });
+  </script>
+<% when "material_outgoing_id" %>
+  <%= text_field_tag 'material_outgoing_number', field_value, list: 'material_outgoing',:class=>"uk-input uk-form-small", seq: c, :autocomplete=> 'off' %>
+  <datalist id="material_outgoing">
+    <% @material_outgoings.each do |e| %>
+      <option data-value="<%= e.id %>" 
+        number="<%= e.number %>" date="<%= e.date %>" 
+        shop_floor_order_id="<%= e.shop_floor_order_id %>" 
+        sfo_number="<%= e.shop_floor_order.number if e.shop_floor_order.present? %>" 
+        sfo_date="<%= e.shop_floor_order.date if e.shop_floor_order.present? %>" 
+        product_batch_number_id="<%= e.product_batch_number_id %>" 
+        batch_number="<%= e.product_batch_number.number if e.product_batch_number.present? %>" 
+        product_name="<%= e.product_batch_number.product.name if e.product_batch_number.present? %>"><%= "#{e.number} - #{e.date}" %></option>
+    <% end if @material_outgoings.present? %>
+  </datalist>
+  <script type="text/javascript">                
+    $(document).off('change','input[list]');
+    $(document).on('change','input[list]', function(evt){
+      var seq = $(this).attr('seq');
+      var list = $(this).attr('list');
+      var options = $('#' + list + ' option');
+      var hidden = $('#'+list+ '-hidden');
+      for(var i = 0; i < options.length; i++) {
+        var option = options[i];
+
+        if(option.innerText === $(this).val()) {
+          $(this).val(option.getAttribute('number'));
+          $("#mi_date").val(option.getAttribute('date'));
+          $("#sfo_number").val(option.getAttribute('sfo_number'));
+          $("#sfo_date").val(option.getAttribute('sfo_date'));
+
+          $(".shop_floor_order_id").val(option.getAttribute('shop_floor_order_id'));          
+          $(".batch_id").val(option.getAttribute('product_batch_number_id'));
+          $(".material_outgoing_id").val(option.getAttribute('data-value'));
+
+          $("#batch_number").val(option.getAttribute('batch_number'));
+          $("#product_name").val(option.getAttribute('product_name'));
+
+          $(".material_outgoing_id"+seq).val(option.getAttribute('data-value'));
+          $.ajax({
+            url: "/<%= controller_name %>",
+            type: "Get",
+            data: {
+              partial: "change_material_outgoing", material_outgoing_id: option.getAttribute('data-value'),
+              product_batch_number_id: option.getAttribute('product_batch_number_id'),
+              c: seq, job: "<%= job_name %>"
+            },
+            dataType: "script",
+            success: function (data){
+            }
+          });
+          break;
+        } else {
+          hidden.val(null);
+        }
+      }
+     evt.stopImmediatePropagation();
+    });
+  </script>
+<% when "material_return_id" %>
+  <%= text_field_tag 'material_return_number', field_value, list: 'material_return',:class=>"uk-input uk-form-small", seq: c, :autocomplete=> 'off' %>
+  <datalist id="material_return">
+    <% @material_returns.each do |e| %>
+      <option data-value="<%= e.id %>" 
+        number="<%= e.number %>" date="<%= e.date %>" 
+        shop_floor_order_id="<%= e.shop_floor_order_id %>" 
+        material_outgoing_id="<%= e.material_outgoing_id %>" 
+        mi_number="<%= e.material_outgoing.number if e.material_outgoing.present? %>" 
+        mi_date="<%= e.material_outgoing.date if e.material_outgoing.present? %>" 
+        sfo_number="<%= e.shop_floor_order.number if e.shop_floor_order.present? %>" 
+        sfo_date="<%= e.shop_floor_order.date if e.shop_floor_order.present? %>" 
+        product_batch_number_id="<%= e.product_batch_number_id %>" 
+        batch_number="<%= e.product_batch_number.number if e.product_batch_number.present? %>" 
+        product_name="<%= e.product_batch_number.product.name if e.product_batch_number.present? %>"><%= "#{e.number} - #{e.date}" %></option>
+    <% end if @material_returns.present? %>
+  </datalist>
+  <script type="text/javascript">                
+    $(document).off('change','input[list]');
+    $(document).on('change','input[list]', function(evt){
+      var seq = $(this).attr('seq');
+      var list = $(this).attr('list');
+      var options = $('#' + list + ' option');
+      var hidden = $('#'+list+ '-hidden');
+      for(var i = 0; i < options.length; i++) {
+        var option = options[i];
+
+        if(option.innerText === $(this).val()) {
+          $(this).val(option.getAttribute('number'));
+          $("#rm_date").val(option.getAttribute('date'));
+          $("#sfo_number").val(option.getAttribute('sfo_number'));
+          $("#sfo_date").val(option.getAttribute('sfo_date'));
+          $("#mi_number").val(option.getAttribute('mi_number'));
+          $("#mi_date").val(option.getAttribute('mi_date'));
+
+          $(".shop_floor_order_id").val(option.getAttribute('shop_floor_order_id'));          
+          $(".batch_id").val(option.getAttribute('product_batch_number_id'));
+          $(".material_return_id").val(option.getAttribute('data-value'));
+          $(".material_outgoing_id").val(option.getAttribute('material_outgoing_id'));  
+
+          $("#batch_number").val(option.getAttribute('batch_number'));
+          $("#product_name").val(option.getAttribute('product_name'));
+
+          $(".material_return_id"+seq).val(option.getAttribute('data-value'));
+          $.ajax({
+            url: "/<%= controller_name %>",
+            type: "Get",
+            data: {
+              partial: "change_material_return", material_return_id: option.getAttribute('data-value'),
+              product_batch_number_id: option.getAttribute('product_batch_number_id'),
+              c: seq, job: "<%= job_name %>"
+            },
+            dataType: "script",
+            success: function (data){
+            }
+          });
+          break;
+        } else {
+          hidden.val(null);
+        }
+      }
+     evt.stopImmediatePropagation();
+    });
+  </script>
+<% when "sales_order_id" %>
+  <%= text_field_tag 'sales_order_number', field_value, list: 'sales_order',:class=>"uk-input uk-form-small", seq: c %>
+  <datalist id="sales_order">
+    <% @sales_orders.each do |e| %>
+      <option data-value="<%= e.id %>" so_number="<%= e.number %>" po_number="<%= e.po_number %>"><%= e.number+" - "+e.po_number+" - "+e.status %></option>
+    <% end %>
+  </datalist>
+  <script type="text/javascript">                
+    $(document).off('change','input[list]');
+    $(document).on('change','input[list]', function(evt){
+      var seq = $(this).attr('seq');
+      var list = $(this).attr('list');
+      var options = $('#' + list + ' option');
+      var hidden = $('#'+list+ '-hidden');
+      for(var i = 0; i < options.length; i++) {
+        var option = options[i];
+
+        if(option.innerText === $(this).val()) {
+          $(this).val(option.getAttribute('po_number'));
+          $(".sales_order_id"+seq).val(option.getAttribute('data-value'));
+          $.ajax({
+            url: "/<%= controller_name %>",
+            type: "Get",
+            data: {
+              partial: "change_sales_order", sales_order_id: option.getAttribute('data-value'),
+              c: seq, job: "<%= job_name %>"
+            },
+            dataType: "script",
+            success: function (data){
+            }
+          });
+          break;
+        } else {
+          hidden.val(null);
+        }
+      }
+     evt.stopImmediatePropagation();
+    });
+  </script>
+<% when "customer_id" %>
+  <%= text_field_tag "select_customer", field_value, :class=>"uk-select uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    $(function() {
+      var record = <%= raw  @customers.map {|k| { key:  k.id, value: "#{k.number} - #{k.name}", field0: k.number, field1: k.name, term_of_payment_id: k.term_of_payment_id, top_day: k.top_day, currency_id: k.currency_id, tax_id: k.tax_id } }.to_json %>;
+    
+      $( "#select_customer" ).autocomplete({
+        minLength: 0,
+        source: record,
+        focus: function( event, ui ) {
+          $( "#select_customer" ).val(ui.item.field1);
+            return false;
+        },
+        select: function( event, ui ) {
+          $( "#select_customer" ).val(ui.item.field1);
+          $(".customer_id").val(ui.item.key);
+
+          <% if controller_name == "payment_customers" %>
+            $.ajax({
+              url: "/<%= controller_name %>",
+              type: "Get",
+              data: {
+                partial: "change_customer",
+                customer_id: ui.item.key,
+                select_term_of_payment_id: ui.item.term_of_payment_id,
+                select_top_day: ui.item.top_day,
+                select_currency_id: ui.item.currency_id,
+                select_tax_id: ui.item.tax_id,
+                kind: $('#invoice_kind').val()
+              },
+              dataType: "script",
+              success: function (data){
+              }
+            });
+          <% else %>
+            $.ajax({
+              url: "/<%= controller_name %>",
+              type: "Get",
+              data: {
+                partial: "change_customer",
+                customer_id: ui.item.key,
+                select_term_of_payment_id: ui.item.term_of_payment_id,
+                select_top_day: ui.item.top_day,
+                select_currency_id: ui.item.currency_id,
+                select_tax_id: ui.item.tax_id
+              },
+              dataType: "script",
+              success: function (data){
+              }
+            });
+          <% end %>
+          return false;
+        }, 
+        change: function(event, ui) {
+        }
+      })
+      
+      .data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+        return $( "<li style='width:500px;'>" )
+        .append( "<div>" + item.field0 + " - " + item.field1 + "</div>" )
+        .appendTo( ul );
+      };
+    });
+  </script>
+<% when "supplier_id" %>
+  <%= text_field_tag "select_supplier", field_value, :class=>"uk-select uk-form-small", :prompt=>"--select--", :kind=> kind%>
+  
+  <script>
+    $(function() {
+      <% if @suppliers.blank? %>
+        $( "#select_supplier" ).val("Tidak ada Supplier")
+      <% else %>
+        var record = <%= raw  @suppliers.map {|k| { key:  k.id, value: "#{k.number} - #{k.name}", field0: k.number, field1: k.name, tax_id: k.tax_id, tax_name: "#{k.tax.present? ? k.tax.name : nil}", currency_id: k.currency_id, top_day: k.top_day, term_of_payment_id: k.term_of_payment_id } }.to_json %>;
+      
+        $( "#select_supplier" ).autocomplete({
+          minLength: 0,
+          source: record,
+          focus: function( event, ui ) {
+            $( "#select_supplier" ).val(ui.item.field1);
+              return false;
+          },
+          select: function( event, ui ) {
+            $( "#select_supplier" ).val(ui.item.field1);
+            $(".supplier_id").val(ui.item.key);         
+            $.ajax({
+              url: "/<%= controller_name %>",
+              type: "Get",
+              data: {
+                partial: "change_supplier",
+                supplier_id: ui.item.key,
+                select_tax_id: ui.item.tax_id,
+                select_currency_id: ui.item.currency_id,
+                select_top_day: ui.item.top_day,
+                select_term_of_payment_id: ui.item.term_of_payment_id,
+                q: $("#select_supplier").attr("kind")
+              },
+              dataType: "script",
+              success: function (data){
+              }
+            });
+            return false;
+          },
+          change: function( event, ui) { 
+          }
+        })
+        
+        .data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+          return $( "<li style='width:500px;'>" )
+          .append( "<div>" + item.field0 + " - " + item.field1 + "</div>" )
+          .appendTo( ul );
+        };
+      <% end %>
+    });
+  </script>
+<% when "tax_id" %>
+  <%= select_tag "select_tax", options_for_select(@taxes.map{|c| [c.name, c.id, {:'ppn_percent'=> c.value} ]}, field_value) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+  <script>
+    $(document).off('change','#select_tax');
+    $(document).on('change','#select_tax', function(){
+      var supplier_id = "<%= params[:supplier_id] %>";
+      var select_currency_id = "<%= params[:select_currency_id] %>";
+      var select_top_day = "<%= params[:select_top_day] %>";
+      var select_term_of_payment_id = "<%= params[:select_term_of_payment_id] %>";
+
+
+      <% if params[:id].present? %>
+        <%# case controller_name %>
+        <%# when 'invoice_suppliers' %>
+          supplier_id = $("#<%= controller_name.singularize %>_supplier_id").val();
+          select_currency_id = $("#<%= controller_name.singularize %>_currency_id").val();
+          select_top_day = $("#<%= controller_name.singularize %>_top_day").val();
+          select_term_of_payment_id = $("#<%= controller_name.singularize %>_term_of_payment_id").val();
+        <%# end %>
+      <% end %>
+
+       $.ajax({
+          url: "/<%= controller_name %>",
+          type: "Get",
+          data: {
+            partial: "change_supplier",
+            supplier_id: supplier_id,
+            select_tax_id: $(this).val(),
+            select_currency_id: select_currency_id,
+            select_top_day: select_top_day,
+            select_term_of_payment_id: select_term_of_payment_id,
+            q: $("#select_supplier").attr("kind"),
+            ppn_percent: $(this).attr("ppn_percent")
+          },
+          dataType: "script",
+          success: function (data){
+          }
+        });
+    });
+  </script>
+<% when "inventory_product_batch_number_id" %>
+  <%= text_field_tag "select_product_batch_number#{c}", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    <% if @inventory_product_batch_number.present? %>
+      record = <%= raw  @inventory_product_batch_number.map {|k| { key:  k.product_batch_number_id, value: "#{k.product_batch_number.number} - #{k.product.part_id} - #{k.product.name}", field0: k.product_batch_number.number, field1: k.product.part_id, field2: k.product.name, field3: k.product.unit_name, field4: k.product_id, end_stock: k.end_stock } }.to_json %>;
+      var field0 = "Batch Number",
+          width0 = "width: 100px;",
+          field1 = "Material Code",
+          width1 = "width: 100px;",
+          field2 = "Material Name",
+          width2 = "width: 300px;";
+
+      $( "#select_product_batch_number<%= c %>" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $(".product_batch_number_id<%= c %>").val(ui.item.key);
+          $(".part_id<%= c %>").val(ui.item.field1);
+          $(".part_name<%= c %>").val(ui.item.field2);
+          $(".unit_name<%= c %>").val(ui.item.field3);
+          $(".product_id<%= c %>").val(ui.item.field4);
+          $(".current_stock<%= c %>").val(ui.item.end_stock);
+          $(".quantity<%= c %>").attr('max', ui.item.end_stock);
+          $(".quantity<%= c %>").attr('title', 'Stock untuk Batch Number adalah: '+ui.item.end_stock);
+
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    <% else %>
+      $( "#select_product_batch_number<%= c %>" ).attr("placeholder", "No Data");
+    <% end %>
+  </script>
+<% when "product_batch_number_id" %>
+  <%= text_field_tag "select_product_batch_number#{c}", field_value, :class=>"uk-input uk-form-width-small uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    <% if @product_batch_number.present? %>
+      record = <%= raw  @product_batch_number.map {|k| { key:  k.id, value: "#{k.number} - #{k.product.part_id} - #{k.product.name}", field0: k.number, field1: k.product.part_id, field2: k.product.name, field3: k.product.unit_name, field4: k.product_id, field5: (k.product.product_type.present? ? k.product.product_type.name : "-"), outstanding_direct_labor: k.outstanding_direct_labor } }.to_json %>;
+      var field0 = "Batch Number",
+          width0 = "width: 100px;",
+          field1 = "Product Code",
+          width1 = "width: 100px;",
+          field2 = "Product Name",
+          width2 = "width: 300px;";
+
+      $( "#select_product_batch_number<%= c %>" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+
+          <% if controller_name == 'direct_labors' %>
+            var count = 0;
+            var check_duplicate = false;
+            $(".product_batch_number_id").each(function() {
+              if ($(this).val() == ui.item.key) {
+                check_duplicate = true;
+              }
+              return true
+            });
+
+            if (check_duplicate == false) {
+              $(this).val(ui.item.field0);
+              $(".product_batch_number_id<%= c %>").val(ui.item.key);
+              $(".part_id<%= c %>").val(ui.item.field1);
+              $(".part_name<%= c %>").val(ui.item.field2);
+              $(".unit_name<%= c %>").val(ui.item.field3);
+              $(".product_id<%= c %>").val(ui.item.field4);
+              $(".part_type<%= c %>").val(ui.item.field5);
+              $.ajax({
+                url: "/<%= controller_name %>",
+                type: "Get",
+                data: {
+                  partial: "change_product_batch_number",
+                  product_id: ui.item.field4,
+                  c: "<%= c %>"
+                },
+                dataType: "script",
+                success: function (data){
+                }
+              });  
+            } else {              
+              UIkit.notification.closeAll();
+              UIkit.notification({
+                message: 'Duplicate Product Batch Number', status: 'warning', pos: 'top-center', timeout: 10000
+              });
+            }
+          <% else %>
+            $(this).val(ui.item.field0);
+            $(".product_batch_number_id<%= c %>").val(ui.item.key);
+            $(".part_id<%= c %>").val(ui.item.field1);
+            $(".part_name<%= c %>").val(ui.item.field2);
+            $(".unit_name<%= c %>").val(ui.item.field3);
+            $(".product_id<%= c %>").val(ui.item.field4);
+            $(".part_type<%= c %>").val(ui.item.field5);
+          <% end %>
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) { 
+          <% case controller_name %>  
+          <% when "finish_good_receivings","shop_floor_order_sterilizations","semi_finish_good_receivings","semi_finish_good_outgoings", "monitoring_kanbans" %>
+            $.ajax({
+              url: "/<%= controller_name %>",
+              type: "Get",
+              data: {
+                partial: "change_product_batch_number",
+                product_batch_number_id: ui.item.key,
+                c: "<%= c %>"
+              },
+              dataType: "script",
+              success: function (data){
+              }
+            });   
+          <% end %>      
+        }
+      });
+    <% else %>
+      $( "#select_product_batch_number<%= c %>" ).attr("placeholder", "No Data");
+    <% end %>
+  </script>
+<% when "inventory_material_batch_number_id" %>
+  <%= text_field_tag "select_material_batch_number#{c}", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    <% if @inventory_material_batch_number.present? %>
+      record = <%= raw  @inventory_material_batch_number.map {|k| { key:  k.material_batch_number_id, value: "#{k.material_batch_number.number} - #{k.material.part_id} - #{k.material.name}", field0: k.material_batch_number.number, field1: k.material.part_id, field2: k.material.name, field3: k.material.unit.name, field4: k.material_id, end_stock: k.end_stock } }.to_json %>;
+      var field0 = "Batch Number",
+          width0 = "width: 100px;",
+          field1 = "Material Code",
+          width1 = "width: 100px;",
+          field2 = "Material Name",
+          width2 = "width: 300px;";
+
+      $( "#select_material_batch_number<%= c %>" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $(".material_batch_number_id<%= c %>").val(ui.item.key);
+          $(".part_id<%= c %>").val(ui.item.field1);
+          $(".part_name<%= c %>").val(ui.item.field2);
+          $(".unit_name<%= c %>").val(ui.item.field3);
+          $(".material_id<%= c %>").val(ui.item.field4);
+          $(".current_stock<%= c %>").val(ui.item.end_stock);
+          $(".quantity<%= c %>").attr('max', ui.item.end_stock);
+          $(".quantity<%= c %>").attr('title', 'Stock untuk Batch Number adalah: '+ui.item.end_stock);
+
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    <% else %>
+      $( "#select_material_batch_number<%= c %>" ).attr("placeholder", "No Data");
+    <% end %>
+  </script>
+<% when "material_batch_number_id" %>
+  <%= text_field_tag "select_material_batch_number#{c}", field_value, :class=>"uk-input uk-form-width-small uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    <% if @material_batch_number.present? %>
+      record = <%= raw  @material_batch_number.map {|k| { key:  k.id, value: "#{k.number} - #{k.material.part_id} - #{k.material.name}", field0: k.number, field1: k.material.part_id, field2: k.material.name, field3: k.material.unit_name, field4: k.material_id } }.to_json %>;
+      var field0 = "Batch Number",
+          width0 = "width: 100px;",
+          field1 = "Material Code",
+          width1 = "width: 100px;",
+          field2 = "Material Name",
+          width2 = "width: 300px;";
+
+      $( "#select_material_batch_number<%= c %>" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $(".material_batch_number_id<%= c %>").val(ui.item.key);
+          $(".part_id<%= c %>").val(ui.item.field1);
+          $(".part_name<%= c %>").val(ui.item.field2);
+          $(".unit_name<%= c %>").val(ui.item.field3);
+          $(".material_id<%= c %>").val(ui.item.field4);
+
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    <% else %>
+      $( "#select_material_batch_number<%= c %>" ).attr("placeholder", "No Data");
+    <% end %>
+  </script>
+<% when "material_batch_number_id_for_material_check_sheets" %>
+  <%= text_field_tag "select_material_batch_number#{c}", field_value, :class=>"uk-input uk-form-small", :prompt=>"--select--", :required=> true %>
+  
+  <script>
+    <% if @material_batch_number.present? %>
+      record = <%= raw  @material_batch_number.select {|k| k if k.summary_material_check_sheet_outstanding > 0 }.map {|k| { key:  k.id, value: "#{k.number} - #{k.material.part_id} - #{k.material.name} - #{k.material_receiving_item.material_receiving.number}", field0: k.number, field1: k.material.part_id, field2: k.material.name, field4: k.material.unit_name, field4a: k.material.unit_id, field3: k.material_receiving_item.material_receiving.number, field3a: k.material_receiving_item.material_receiving_id, field3b: k.material_receiving_item_id, field5: k.material_id, field6: k.material_receiving_item.material_receiving.date, field7: "#{k.material_receiving_item.material_receiving.supplier.name if k.material_receiving_item.material_receiving.supplier.present?}", field7a: "#{k.material_receiving_item.material_receiving.supplier_id if k.material_receiving_item.material_receiving.supplier.present?}", field8: "#{k.material_receiving_item.material_receiving.purchase_order_supplier.number if k.material_receiving_item.material_receiving.purchase_order_supplier.present?}", field9: "#{k.material_receiving_item.material_receiving.purchase_order_supplier.date if k.material_receiving_item.material_receiving.purchase_order_supplier.present?}", field10: k.summary_material_check_sheet_outstanding, field11: k.material_receiving_item.supplier_batch_number, field12: k.material_receiving_item.supplier_expired_date, field13: k.material_receiving_item.packaging_condition, field14: k.material_receiving_item.remarks, field15: aql_value(k.summary_material_check_sheet_outstanding) } }.to_json %>;
+      var field0 = "Batch Number",
+          width0 = "width: 100px;",
+          field1 = "Material Code",
+          width1 = "width: 100px;",
+          field2 = "Material Name",
+          width2 = "width: 300px;",
+          field3 = "GRN Number",
+          width3 = "width: 300px;";
+
+      $( "#select_material_batch_number<%= c %>" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $(".material_batch_number_id<%= c %>").val(ui.item.key);
+          $(".part_id<%= c %>").val(ui.item.field1);
+          $(".part_name<%= c %>").val(ui.item.field2);
+          $(".grn_number<%= c %>").val(ui.item.field3);
+          $(".material_receiving_id<%= c %>").val(ui.item.field3a);
+          $(".material_receiving_item_id<%= c %>").val(ui.item.field3b);
+          $(".grn_date<%= c %>").val(ui.item.field6);
+          $(".unit_name<%= c %>").val(ui.item.field4);
+          $(".unit_id<%= c %>").val(ui.item.field4a);
+          $(".material_id<%= c %>").val(ui.item.field5);
+          $(".supplier_id<%= c %>").val(ui.item.field7a);
+          $(".supplier_name<%= c %>").val(ui.item.field7);
+          $(".po_number<%= c %>").val(ui.item.field8);
+          $(".po_date<%= c %>").val(ui.item.field9);
+          $(".quantity<%= c %>").val(ui.item.field10);
+          $(".sampling_size_actual<%= c %>").attr("max", ui.item.field10);
+          $(".supplier_bn<%= c %>").val(ui.item.field11);
+          $(".exp_date<%= c %>").val(ui.item.field12);
+          $(".packaging_condition<%= c %>").val(ui.item.field13);
+          $(".grn_item_remarks<%= c %>").val(ui.item.field14);
+          $(".sampling_size_theory<%= c %>").val(ui.item.field15);
+          $(".row-aql").removeClass("uk-active");
+          $(".row-aql-"+ui.item.field15).addClass("uk-active");
+
+
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:900px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div><div class='listACR4 listHeader' style='"+width3+"'>"+field3+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR3' style='"+width2+"'>" + item.field2 + "</div><div class='listACR3' style='"+width3+"'>" + item.field3+ "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    <% else %>
+      $( "#select_material_batch_number<%= c %>" ).attr("placeholder", "No Data");
+    <% end %>
+  </script>
+<% when "product_wip" %>
+  <%= text_field_tag "product_wip#{c}_name", field_value, list: "product_wip#{c}",:class=>"uk-input uk-form-small", seq: c %>
+  <datalist id="product_wip<%= c %>">
+    <% @wip_products.each do |e| %>
+      <option data-value="<%= e.id %>" part_id="<%= e.part_id %>" type_name="<%= e.type_name %>"><%= e.name+" - "+e.part_id+" - "+e.type_name %></option>
+    <% end %>
+  </datalist>
+  <script type="text/javascript">                
+    $(document).off('change','input[list]');
+    $(document).on('change','input[list]', function(evt){
+      var seq = $(this).attr('seq');
+      var list = $(this).attr('list');
+      var options = $('#' + list + ' option');
+      var hidden = $('#'+list+ '-hidden');
+      for(var i = 0; i < options.length; i++) {
+        var option = options[i];
+
+        if(option.innerText === $(this).val()) {
+          hidden.val(option.getAttribute('data-value'));
+          $(".wip_part_id"+seq).val(option.getAttribute('part_id'));
+          $(".wip_type_name"+seq).val(option.getAttribute('type_name'));
+          break;
+        } else {
+          hidden.val(null);
+        }
+      }
+     evt.stopImmediatePropagation();
+    });
+  </script>
+<% when "product_id" %>
+  <%= text_field_tag "select_product#{c}", field_value, :class=>"uk-input uk-form-width-auto uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    <% if @products.present? %>
+      record = <%= raw  @products.map {|k| { key:  k.id, value: "#{k.part_id} - #{k.name} - #{k.type_name}", field0: k.part_id, field1: k.name, field2: k.unit_name, field3: k.type_name, field4: k.max_batch } }.to_json %>;
+      var field0 = "Product Code",
+          width0 = "width: 100px;",
+          field1 = "Product Name",
+          width1 = "width: 300px;",
+          field2 = "Type Name",
+          width2 = "width: 100px;";
+
+      $("#select_product<%= c %>").focus(function(){
+        $(this).animate({          
+          width: '250px'
+        },"slow");        
+      });
+      $("#select_product<%= c %>").focusout(function(){
+        $(this).animate({          
+          width: '200px'
+        },"slow");        
+      });
+
+      $( "#select_product<%= c %>" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {   
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field1);
+          $(".product_id<%= c %>").val(ui.item.key);
+          $(".part_id<%= c %>").val(ui.item.field0);
+          $(".unit_name<%= c %>").val(ui.item.field2);
+          $(".type_name<%= c %>").val(ui.item.field3);
+          $(".max_batch<%= c %>").val(ui.item.field4);
+          
+          <% if controller_name == 'picking_slips' %>
+            if ($("#picking_slip_sales_order_id").find(':selected').val() == null || $("#picking_slip_sales_order_id").find(':selected').val() == '') {
+              UIkit.notification.closeAll();
+              UIkit.notification({
+                message: 'Please select PO', status: 'warning', pos: 'top-center', timeout: 10000
+              });
+              $("#picking_slip_sales_order_id").focus();
+            } else {
+              $.ajax({
+                url: "/<%= controller_name %>",
+                type: "Get",
+                data: {
+                  partial: "change_product",
+                  sales_order_id: $("#picking_slip_sales_order_id").find(':selected').val(),
+                  product_id: ui.item.key,
+                  date: $("#picking_slip_date").val()
+                },
+                dataType: "script",
+                success: function (data){
+                  UIkit.notification.closeAll();
+                  UIkit.notification({
+                    message: 'Load Batch Number Success', status: 'success', pos: 'top-center', timeout: 10000
+                  });
+                },
+                error: function (data){
+                  UIkit.notification.closeAll();
+                  UIkit.notification({
+                    message: 'Load Batch Number Failed', status: 'warning', pos: 'top-center', timeout: 10000
+                  });
+                }
+              });
+            } 
+            
+          <% end %>     
+
+          return false;
+        },
+        create: function ( event, ui ) {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field3 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {   
+        }
+      });
+    <% end %>
+  </script>
+<% when "material_id" %>
+  <%= text_field_tag "select_material#{c}", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    record = <%= raw  @materials.map {|k| { key:  k.id, value: "#{k.part_id} - #{k.name}", field0: k.part_id, field1: k.name, field2: k.unit_name, } }.to_json %>;
+    var field0 = "Material Code",
+        width0 = "width: 100px;",
+        field1 = "Material Name",
+        width1 = "width: 300px;",
+        field2 = "Unit Name",
+        width2 = "width: 100px;";
+
+    $( "#select_material<%= c %>" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(record, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1);
+        $(".material_id<%= c %>").val(ui.item.key);
+        $(".part_id<%= c %>").val(ui.item.field0);
+        $(".unit_name<%= c %>").val(ui.item.field2);
+        $(this).parent().parent().removeClass('uk-animation-shake');
+
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {    
+        if ( "<%= controller_name %>" == "purchase_requests") {
+
+          var contents = {},
+              duplicates = false,
+              tdContent = 0;
+          $(".part_id_collect").each(function() {
+            tdContent = $(this).val();
+            if (contents[tdContent]) {
+                duplicates = true;
+                return false;
+            }
+            contents[tdContent] = true;
+          }); 
+
+          if (duplicates) {
+            $(this).val(null);
+            $(".material_id<%= c %>").val(null);
+            $(".part_id<%= c %>").val(null);
+            $(".unit_name<%= c %>").val(null);
+            
+            $(this).parent().parent().addClass('uk-animation-shake');
+
+            UIkit.notification.closeAll();
+            UIkit.notification({
+              message: 'Duplicate selected', status: 'warning', pos: 'bottom-center', timeout: 10000
+            });
+          } else {
+            $.ajax({
+              url: "/<%= controller_name %>",
+              type: "Get",
+              data: {
+                partial: "pdm_item_detail",
+                c: "<%= c %>",
+                production_order_item_id: "<%= params[:production_order_item_id] %>",
+                request_kind: "<%= params[:request_kind] %>",
+                material_id: ui.item.key,
+                q: "<%= params[:q] %>"
+              },
+              dataType: "script",
+              success: function (data){
+              }
+            });
+
+          }
+
+        }
+      }
+    });
+  </script>
+<% when "consumable_id" %>
+  <%= text_field_tag "select_consumable#{c}", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    record = <%= raw  @consumables.map {|k| { key:  k.id, value: "#{k.part_id} - #{k.name}", field0: k.part_id, field1: k.name, field2: k.unit.name, } }.to_json %>;
+    var field0 = "Consumable Code",
+        width0 = "width: 100px;",
+        field1 = "Consumable Name",
+        width1 = "width: 300px;",
+        field2 = "Unit Name",
+        width2 = "width: 100px;";
+
+    $( "#select_consumable<%= c %>" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(record, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1);
+        $(".consumable_id<%= c %>").val(ui.item.key);
+        $(".part_id<%= c %>").val(ui.item.field0);
+        $(".unit_name<%= c %>").val(ui.item.field2);
+
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+  </script>
+<% when "equipment_id" %>
+  <%= text_field_tag "select_equipment#{c}", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    record = <%= raw  @equipments.map {|k| { key:  k.id, value: "#{k.part_id} - #{k.name}", field0: k.part_id, field1: k.name, field2: k.unit.name, } }.to_json %>;
+    var field0 = "Equipment Code",
+        width0 = "width: 100px;",
+        field1 = "Equipment Name",
+        width1 = "width: 300px;",
+        field2 = "Unit Name",
+        width2 = "width: 100px;";
+
+    $( "#select_equipment<%= c %>" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(record, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1);
+        $(".equipment_id<%= c %>").val(ui.item.key);
+        $(".part_id<%= c %>").val(ui.item.field0);
+        $(".unit_name<%= c %>").val(ui.item.field2);
+
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+  </script>
+<% when "general_id" %>
+  <%= text_field_tag "select_general#{c}", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    record = <%= raw  @generals.map {|k| { key:  k.id, value: "#{k.part_id} - #{k.name}", field0: k.part_id, field1: k.name, field2: k.unit.name, } }.to_json %>;
+    var field0 = "General Code",
+        width0 = "width: 100px;",
+        field1 = "General Name",
+        width1 = "width: 300px;",
+        field2 = "Unit Name",
+        width2 = "width: 100px;";
+
+    $( "#select_general<%= c %>" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(record, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1);
+        $(".general_id<%= c %>").val(ui.item.key);
+        $(".part_id<%= c %>").val(ui.item.field0);
+        $(".unit_name<%= c %>").val(ui.item.field2);
+
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+  </script>
+<% when "employee_id" %>
+  <% case controller_name %>
+  <% when 'employee_schedules','employee_overtimes','employee_presences','working_hour_summaries' %>
+    <%= text_field_tag "select_employee", field_value, :class=>"uk-button uk-button-default uk-text-left ", :prompt=>"--select--", :required=>true%>
+  <% else %>
+    <%= text_field_tag "select_employee", field_value, :class=>"uk-input uk-form-small", :prompt=>"--select--", :required=>true%>
+  <% end %>
+  
+  <script>
+    $(function() {
+      var record = <%= raw  @employees.map {|k| { key:  k.id, value: "#{k.name}", field0: k.nik, field1: k.name, field2: k.department_id, field3: (k.department.name if k.department_id.present?), field4: k.work_schedule } }.to_json %>;
+    
+      $( "#select_employee" ).autocomplete({
+        minLength: 0,
+        source: record,
+        focus: function( event, ui ) {
+          $( "#select_employee" ).val(ui.item.field1);
+            return false;
+        },
+        select: function( event, ui ) {
+          $( "#select_employee" ).val(ui.item.field1);
+          $(".employee_id").val(ui.item.key);
+          $.ajax({
+            url: "/<%= controller_name %>",
+            type: "Get",
+            data: {
+              partial: "change_employee",
+              employee_id: ui.item.key,
+              employee_nik: ui.item.field0,
+              employee_name: ui.item.field1,
+              department_id: ui.item.field2,
+              department_name: ui.item.field3,
+              work_schedule: ui.item.field4,
+              view_kind: $("#select_view_kind").val(),
+              period: $("#periode_yyyy").val()+$("#periode_mm").val(),
+              job: "<%= params[:job]%>"
+            },
+            dataType: "script",
+            success: function (data){
+            }
+          });
+          return false;
+        }, 
+        change: function(event, ui) {
+        }
+      })
+      
+      .data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+        return $( "<li style='width:500px;'>" )
+        .append( "<div>" + item.field0 + " - " + item.field1 + "</div>" )
+        .appendTo( ul );
+      };
+    });
+  </script>
+<% when "employee_item_id" %>
+  <%= text_field_tag "select_employee_#{c}", field_value, :class=>"uk-input uk-form-small", :prompt=>"--select--", :required=>true%> 
+  <script>
+    $(function() {
+      var record = <%= raw  @employees.map {|k| { key:  k.id, value: "#{k.name}", field0: k.name, field1: k.nik, field2: (k.department.name if k.department.present?)} }.to_json %>;
+    
+      $( "#select_employee_<%= c %>" ).autocomplete({
+        minLength: 0,
+        source: record,
+        focus: function( event, ui ) {
+          $( "#select_employee_<%= c %>" ).val(ui.item.field1);
+            return false;
+        },
+        select: function( event, ui ) {
+          // $(this).val(ui.item.field1);
+          $( "#select_employee_<%= c %>" ).val(ui.item.field0);
+          $(".employee_id_<%= c %>").val(ui.item.key);
+          $(".employee_nik_<%= c %>").val(ui.item.field1);
+          $(".employee_department_<%= c %>").val(ui.item.field2);
+          $.ajax({
+            url: "/<%= controller_name %>",
+            type: "Get",
+            data: {
+              partial: "show_schedule",
+              employee_id: ui.item.key,
+              employee_name: ui.item.field0,
+              employee_nik: ui.item.field1,
+              department_name: ui.item.field2,
+              seq: "<%= c %>",
+              job: "<%= params[:job]%>",
+              input_date: $('#employee_overtime_date').val(),
+              candidate_id: $("#trid<%= c %> #new_record_item__employee_id").val()
+            },
+            dataType: "script",
+            success: function (data){
+            }
+          });
+          return false;
+        }, 
+        change: function(event, ui) {
+        }
+      })
+      
+      .data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+        return $( "<li style='width:500px;'>" )
+        .append( "<div>" + item.field0 + " - " + item.field1 + "</div>" )
+        .appendTo( ul );
+      };
+    });
+  </script>
+<% when "account_id" %>
+  <%= text_field_tag "select_account_#{account}", field_value, :account=>account, :class=>"uk-input uk-form-small", :prompt=>"--select--", :required=>true%>
+  
+  <script>
+    $(function() {
+      var record = <%= raw  @accounts.map {|k| { key:  k.id, value: "#{k.first_name} #{k.last_name}", field0: k.username, field1: "#{k.first_name} #{k.last_name}"} }.to_json %>;
+      var account = $('#select_account_<%=account%>').attr('account');
+      // alert(account);
+      $( "#select_account_"+account).autocomplete({
+        minLength: 0,
+        source: record,
+        focus: function( event, ui ) {
+          $( "#select_account_"+account ).val(ui.item.field1);
+            return false;
+        },
+        select: function( event, ui ) {
+          $("#select_account_"+account ).val(ui.item.field1);
+          $("."+account).val(ui.item.key);
+        }, 
+        change: function(event, ui) {
+        }
+      })
+      
+      .data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+        return $( "<li style='width:500px;'>" )
+        .append( "<div>" + item.field0 + " - " + item.field1 + "</div>" )
+        .appendTo( ul );
+      };
+    });
+  </script>
+<!-- 2021106 - Danny -->
+<% when "bank_account_id" %>
+  <%= text_field_tag "select_list_bank_account_#{kind}", field_value, :kind=>kind, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+
+  <script>
+    <% case kind %>
+    <% when 'internal' %>
+      internal = <%= raw  @list_internal_bank_accounts.map {|k| { key:  k.id, value: "#{k.code_voucher} - #{k.number_account}", field0: k.code_voucher, field1: k.number_account, field2: k.currency.name } }.to_json %>;
+      var field0 = "Code Voucher",
+          width0 = "width: 100px;",
+          field1 = "Bank Penerima",
+          width1 = "width: 150px;",
+          field2 = "Currency",
+          width2 = "width: 100px;";
+      var kind = $('#select_list_bank_account_<%=kind%>').attr('kind');
+       $( "#select_list_bank_account_"+kind ).autocomplete({
+          minLength: 0,
+          source: function(request, response) {
+            var results = $.ui.autocomplete.filter(internal, request.term);             
+            response(results.slice(0, 20)); // limit list
+          },
+          focus: function( event, ui ) {    
+            return false;
+          },
+          select: function( event, ui ) { 
+            $(this).val(ui.item.field1);
+            $("."+kind+"_bank_account_id").val(ui.item.key);
+            $(".code_voucher").val(ui.item.field0);
+            $(".currency_id").val(ui.item.field2);
+
+            return false;
+          },
+          create: function () {
+            $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+              var self = this;
+              ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+              $.each(items, function (index, item) {
+                  self._renderItemData(ul, item);
+              });
+            };
+            $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+              return $("<li>")
+                .data("item.autocomplete", item)
+                .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+                .appendTo(table);
+            };        
+          },
+        });
+    <% when 'external' %>
+      record = <%= raw  @list_external_bank_accounts.map {|k| { key:  k.id, value: "#{k.dom_bank.bank_name} - #{k.name_account} - #{k.number_account}", field0: k.dom_bank.bank_name, field1: k.name_account, field2: k.number_account } }.to_json %>;
+        var field0 = "Bank Name",
+            width0 = "width: 100;",
+            field1 = "A/N",
+            width1 = "width: 200;",
+            field2 = "No. Rek",
+            width2 = "width: 200;";
+        var kind = $('#select_list_bank_account_<%=kind%>').attr('kind');
+        $( "#select_list_bank_account_<%= kind %>" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field1);
+          $("."+kind+"_bank_account_id").val(ui.item.key);
+          $(".dom_bank_id<%= c %>").val(ui.item.field0);
+          $(".number_account<%= c %>").val(ui.item.field2);
+
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR3' style='"+width2+"'>" + item.field2 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    <% end %>
+
+   
+  </script>
+
+<% when "list_internal_bank_account_id" %>
+  <%= text_field_tag "select_list_internal_bank_account", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    internal = <%= raw  @list_internal_bank_accounts.map {|k| { key:  k.id, value: "#{k.code_voucher} - #{k.number_account}", field0: k.code_voucher, field1: k.number_account, field2: k.currency.name, curr: k.currency_id } }.to_json %>;
+    var field0 = "Code Voucher",
+        width0 = "width: 150px;",
+        field1 = "No. Rek",
+        width1 = "width: 150px;",
+        field2 = "Currency",
+        width2 = "width: 100px;";
+
+    $( "#select_list_internal_bank_account" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(internal, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1);
+        $(".list_internal_bank_account_id").val(ui.item.key);
+        $(".code_voucher").val(ui.item.field0);
+        $(".currency_id").val(ui.item.field2);
+        $(".curr").val(ui.item.curr);
+
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR2' style='"+width2+"'>" + item.field2 + "</div>")
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+  </script>
+
+<% when "list_external_bank_account_id" %>
+  <%= text_field_tag "select_list_external_bank_account", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    // autocomplete bank external
+    external = <%= raw  @list_external_bank_accounts.map {|k| { key:  k.id, value: "#{k.dom_bank.bank_name} - #{k.name_account} - #{k.number_account}", ext0: k.dom_bank.bank_name, ext1: k.name_account, ext2: k.number_account } }.to_json %>;
+    var ext0 = "Bank Name",
+        wd0 = "width: 330px;",
+        ext1 = "A/N",
+        wd1 = "width: 110px;",
+        ext2 = "No. Rek",
+        wd2 = "width: 100px;";
+
+    $( "#select_list_external_bank_account" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(external, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.ext1);
+        $(".list_external_bank_account_id").val(ui.item.key);
+        $(".dom_bank_id").val(ui.item.ext0);
+        $(".number_account").val(ui.item.ext2);
+
+        return false;
+      },
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+wd0+"'>"+ext0+"</div><div class='listACR2 listHeader' style='"+wd1+"'>"+ext1+"</div><div class='listACR3 listHeader' style='"+wd2+"'>"+ext2+"</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='"+wd0+"'>" + item.ext0 + "</div><div class='listACR2' style='"+wd1+"'>" + item.ext1 + "</div><div class='listACR3' style='"+wd2+"'>" + item.ext2 + "</div>")
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+  </script>
+
+<% when "cash_submission_id" %>
+  <%= text_field_tag "kasbon_number", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+
+  <script>
+    // autocomplete Kasbon
+    var kabon_arr = []
+    kabon_arr = <%= raw  @cash_submissions.map {|k| { key:  k.id, value: "#{k.number} - #{k.date} - #{k.department.name} - #{k.description}", amount:k.amount, number:k.number, date:k.date, description:k.description, dept_name:k.department.name, department: k.department_id, voucher_number: k.voucher_number, currency_id: 1} }.to_json %>;
+     
+    $( "#kasbon_number" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(kabon_arr, request.term);              
+        response(results.slice(0, 20)); // limit list
+      },
+      create: function () {
+         $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:1000px;'><div class='listACR1 listHeader' style='width:100px;'>Date</div><div class='listACR4 listHeader' style='width:200px;'>Number</div><div class='listACR2 listHeader' >Dept</div><div class='listACR3 listHeader'>Amount</div><div class='listACR4 listHeader' style='width:400px;'>Description</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='width:100px;'>" + item.date + "</div>" + "<div class='listACR4' style='width:200px;'>" + item.number + "</div>" + "<div class='listACR2'>" + item.dept_name + "</div>"  + "<div class='listACR3'>" + item.amount + "</div>"  + "<div class='listACR4' style='width:400px;'>" + item.description + "</div>")
+            .appendTo(table);
+        };        
+      },
+      focus: function( event, ui ) {
+        $("#kasbon_number" ).val( ui.item.number );
+        $("#currency_id").val( ui.item.currency_id );  
+        $("#voucher_payment_sub_total").val( ui.item.amount.toLocaleString('id-ID', {minimumFractionDigits: 2}) )
+        $("#voucher_payment_grand_total").val( ui.item.amount.toLocaleString('id-ID', {minimumFractionDigits: 2}) ) 
+        $("#voucher_payment_remarks").val( ui.item.description );
+        $("#voucher_payment_dept_name").val( ui.item.dept_name )
+        $("#voucher_payment_department_id").val( ui.item.department )
+        $("#voucher_payment_cash_submission_id").val( ui.item.key )
+        return false;
+      },
+      select: function( event, ui ) {
+        $("#kasbon_number" ).val( ui.item.number );
+        $("#currency_id").val( ui.item.currency_id );  
+        $("#voucher_payment_sub_total").val( ui.item.amount.toLocaleString('id-ID', {minimumFractionDigits: 2}) )
+        $("#voucher_payment_grand_total").val( ui.item.amount.toLocaleString('id-ID', {minimumFractionDigits: 2}) )  
+        $("#voucher_payment_remarks").val( ui.item.description );
+        $("#voucher_payment_dept_name").val( ui.item.dept_name )
+        $("#voucher_payment_department_id").val( ui.item.department )
+        $("#voucher_payment_cash_submission_id").val( ui.item.key )
+        return false;
+      },
+      change: function( event, ui) {
+        $("#kasbon_number" ).val( ui.item.number );
+        $("#currency_id").val( ui.item.currency_id ); 
+        $("#voucher_payment_sub_total").val( ui.item.amount.toLocaleString('id-ID', {minimumFractionDigits: 2}) )
+        $("#voucher_payment_grand_total").val( ui.item.amount.toLocaleString('id-ID', {minimumFractionDigits: 2}) )  
+        $("#voucher_payment_remarks").val( ui.item.description );
+        $("#voucher_payment_dept_name").val( ui.item.dept_name )
+        $("#voucher_payment_department_id").val( ui.item.department )
+        $("#voucher_payment_cash_submission_id").val( ui.item.key )
+        return false;
+      }
+    });
+  </script>
+
+<% when "cs_id" %>
+  <%= text_field_tag "select_customer", field_value, :class=>"uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+  
+  <script>
+    internal = <%= raw  @customers.map {|k| { key:  k.id, value: "#{k.number} - #{k.name}", field0: k.number, field1: k.name, term_of_payment_id: k.term_of_payment_id, top_day: k.top_day, tax_id: k.tax_id } }.to_json %>;
+    var field0 = "Number",
+        width0 = "width: 100px;",
+        field1 = "Name",
+        width1 = "width: 250px;";
+
+    $( "#select_customer" ).autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(internal, request.term);             
+        response(results.slice(0, 20)); // limit list
+      },
+      focus: function( event, ui ) {    
+        return false;
+      },
+      select: function( event, ui ) { 
+        $(this).val(ui.item.field1);
+        $(".cs_id").val(ui.item.key);
+        $(".number_id").val(ui.item.field0);
+        $(".tax_id").val(ui.item.tax_id);
+
+
+        return false;
+      },
+
+      select: function( event, ui ) {
+        $( "#select_customer" ).val(ui.item.field1);
+        $(".cs_id").val(ui.item.key);
+        $.ajax({
+          url: "/<%= controller_name %>",
+          type: "Get",
+          data: {
+            partial: "change_pi",
+            cs_id: ui.item.key,
+            select_customer_id: ui.item.field1,
+            select_tax_id: ui.item.tax_id
+          },
+          dataType: "script",
+          success: function (data){
+          }
+        });
+        return false;
+      }, 
+
+      create: function () {
+        $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+          var self = this;
+          ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div></li>");
+          $.each(items, function (index, item) {
+              self._renderItemData(ul, item);
+          });
+        };
+        $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+          return $("<li>")
+            .data("item.autocomplete", item)
+            .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div>")
+            .appendTo(table);
+        };        
+      },
+      change: function( event, ui) {          
+      }
+    });
+  </script>
+<% when "invoice_customer_id" %>
+  <% kind = kind.present? ? "#{kind}_" : "" %>
+  <%= text_field_tag "select_#{kind}invoice_customer_id", field_value, :class=>"uk-select uk-form-width-large uk-form-small", :prompt=>"--select--"%>
+
+  
+  <% case controller_name %>
+  <% when "invoice_tools" %>
+    <script>
+      internal = <%= raw  @invoice_customers.where(:customer_id=>cutomer_value).map {|k| { key:  k.id, value: "#{k.number}", field0: k.number, field1: k.date, field2: k.customer.name } }.to_json %>;
+      var field0 = "Nomor Inovice",
+          width0 = "width: 150px;",
+          field1 = "Tanggal",
+          width1 = "width: 150px;",
+          field2 = "Customer",
+          width2 = "width: 150px;";
+      var kind = "<%= kind %>";
+
+      $( "#select_"+kind+"invoice_customer_id" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(internal, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+
+          var kind = "<%= kind %>";
+          $("#"+kind+"invoice_customer_id").val(ui.item.key);
+          $("#"+kind+"invoice_date").val(ui.item.field1);
+          $(".do_invoice_customer_id").val(ui.item.key);
+          $(".do_invoice_number").val(ui.item.field0);
+          $(".do_invoice_date").val(ui.item.field1);
+
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderMenu = function (ul, items) {
+            var self = this;
+            ul.append("<li class='ui-autocomplete-category' aria-label='header' style='width:600px;'><div class='listACR1 listHeader' style='"+width0+"'>"+field0+"</div><div class='listACR2 listHeader' style='"+width1+"'>"+field1+"</div><div class='listACR3 listHeader' style='"+width2+"'>"+field2+"</div></li>");
+            $.each(items, function (index, item) {
+                self._renderItemData(ul, item);
+            });
+          };
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div><div class='listACR2' style='"+width1+"'>" + item.field1 + "</div><div class='listACR3' style='"+width2+"'>" + item.field2 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>
+  <% end %>
+<% end %>

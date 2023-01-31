@@ -1,0 +1,54 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    
+    <!-- panel -->
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto">
+              <%= link_to 'ADD', new_employee_time_off_request_path, class: "uk-button uk-button-primary uk-button-small" %>
+            </div>
+            <div class="uk-width-auto"><h4><%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+              <thead class="bg-primary">
+                <tr>
+                  <th>#</th>
+                  <th>Department</th>
+                  <th>Employee</th>
+                  <th>Leave Type</th>
+                  <th colspan="2">Date Between</th>
+                  <th colspan="2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% c=0 %>
+                <% @employee_time_off_requests.each do |record| %>
+                  <tr>
+                    <td><%= c+=1 %></td>
+                    <td class="uk-width-large"><%= record.department.name if record.department.present? %></td>
+                    <td class="uk-width-large"><%= record.employee.name if record.employee.present? %></td>
+                    <td class="uk-width-large"><%= record.leave_type.name if record.leave_type.present? %></td>
+                    <td class="uk-width-large"><%= record.beginning_at %> .. <%= record.ending_at %></td>
+                    <td class="uk-width-auto"><%= link_to 'Show', record %></td>
+                    <td class="uk-width-auto"><%= link_to 'Edit', edit_employee_time_off_request_path(record) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /panel -->
+
+  </div>
+  
+</div>

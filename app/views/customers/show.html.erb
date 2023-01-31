@@ -1,0 +1,171 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', customers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Name</div>
+                <div class="uk-width-3-4@m">       
+                  <%= text_field_tag :name, @customer.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Number</div>
+                <div class="uk-width-1-4@m">       
+                  <%= text_field_tag :number, @customer.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Currency</div>
+                <div class="uk-width-1-4@m">       
+                  <%= text_field_tag :currency, (@customer.currency.present? ? @customer.currency.name : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Terms of Payment</div>
+                <div class="uk-width-1-2@m">    
+                  <div class="uk-flex">
+                    <%= text_field_tag :top_day, @customer.top_day, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true, :style=> "width: 50px;" %>
+                    <%= text_field_tag :term_of_payment, (@customer.term_of_payment.name if @customer.term_of_payment.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Inv.Numbering</div>
+                <div class="uk-width-1-3@m">       
+                  <%= text_field_tag :invoice_numbering_period, @customer.invoice_numbering_period, :class=> "uk-input uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Type of Tax</div>
+                <div class="uk-width-1-2@m">    
+                  <div class="uk-flex">
+                    <%= text_field_tag :tax, (@customer.tax.name if @customer.tax.present?), :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Status</div>
+                <div class="uk-width-1-4@m">       
+                  <%= text_field_tag :status, @customer.status, :class=> "uk-input uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+              <li class="uk-active"><a href="#">Contact</a></li>
+              <li><a href="#">Address</a></li>
+            </ul>
+            <ul id="tab-content" class="uk-switcher">
+              <li>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">Name</div>
+                    <div class="uk-width-3-4@m">   
+                      <%= text_field_tag :name, (@customer_contact.name if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">Telepon</div>
+                    <div class="uk-width-3-4@m">   
+                    <%= text_field_tag :telephone, (@customer_contact.telephone if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">Fax</div>
+                    <div class="uk-width-3-4@m">   
+                      <%= text_field_tag :fax, (@customer_contact.fax if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">E-mail</div>
+                    <div class="uk-width-3-4@m">  
+                      <%= mail_to (@customer_contact.email if @customer_contact.present?) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">Webiste</div>
+                    <div class="uk-width-3-4@m">  
+                      <%= link_to (@customer_contact.website if @customer_contact.present?), "http://#{(@customer_contact.website if @customer_contact.present?)}"  %>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li>    
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">Office</div>
+                    <div class="uk-width-3-4@m">    
+                      <%= text_area_tag :office, (@customer_address.office if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3, :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">tax invoice</div>
+                    <div class="uk-width-3-4@m"> 
+                      <%= text_area_tag :tax_invoice, (@customer_address.tax_invoice if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3, :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">Delivery 1</div>
+                    <div class="uk-width-3-4@m"> 
+                      <%= text_area_tag :delivery1, (@customer_address.delivery1 if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3, :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-4@m">Delivery 2</div>
+                    <div class="uk-width-3-4@m"> 
+                      <%= text_area_tag :delivery2, (@customer_address.delivery2 if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3, :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', customers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_customer_path(@customer), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

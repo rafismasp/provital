@@ -1,0 +1,29 @@
+<%= stylesheet_link_tag 'hrd' %>
+<%= form_with(model: employee_schedule, local: true, class: "uk-form-horizontal", :job=>params[:job], multipart: true) do |form| %>
+  <%= hidden_field_tag 'job', (params[:job]) %>
+  <%= hidden_field_tag 'employee_schedule[created_by]', current_user.id %>
+  <%= hidden_field_tag 'employee_schedule[created_at]', DateTime.now() %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Upload File</div>
+            <div class="uk-width-1-5@m">
+              <%= file_field_tag 'file[attachment]', :class=>'btn btn-default btn-sm' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', employee_schedules_path,  class: "uk-button uk-button-secondary uk-button-small" %>
+    <%#= link_to 'Save', upload_employee_schedule_path(), class: "uk-button uk-button-primary uk-button-small", data: { disable_with: "Please wait..." } %>
+
+    <%= form.submit "Upload", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

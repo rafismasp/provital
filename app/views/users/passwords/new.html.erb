@@ -1,0 +1,38 @@
+
+    <body class="login uk-cover-container uk-background-secondary uk-flex uk-flex-center uk-flex-middle uk-height-viewport uk-overflow-hidden uk-light" data-uk-height-viewport>
+    <!-- overlay -->
+    <div class="uk-position-cover uk-overlay-primary"></div>
+    <!-- /overlay -->
+    <div class="uk-position-bottom-center uk-position-small uk-visible@m uk-position-z-index">
+      <span class="uk-text-small uk-text-muted">© 2019 Company Name - <a href="https://github.com/zzseba78/Kick-Off">Created by KickOff</a> | Built with <a href="http://getuikit.com" title="Visit UIkit 3 site" target="_blank" data-uk-tooltip><span data-uk-icon="uikit"></span></a></span>
+    </div>
+    <div class="uk-width-medium uk-padding-small uk-position-z-index" uk-scrollspy="cls: uk-animation-fade">
+      
+      <div class="uk-text-center uk-margin">
+        Forgot your password?
+      </div>
+
+      <!-- login -->      
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }, class: 'toggle-class') do |f| %>
+  			<%= render "devise/shared/error_messages", resource: resource %>
+        <fieldset class="uk-fieldset">
+          <div class="uk-margin-small">
+            <div class="uk-inline uk-width-1-1">
+              <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: user"></span>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "uk-input uk-border-pill" %>
+            </div>
+          </div>
+
+          <div class="uk-margin-bottom">
+            <%= f.submit "Submit", class: "uk-button uk-button-primary uk-border-pill uk-width-1-1" %>
+          </div>
+        </fieldset>
+          
+      <% end %>
+
+      <%= render "users/shared/links" %>
+
+      <!-- /login -->
+    </div>
+    
+  </body>

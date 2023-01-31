@@ -1,0 +1,159 @@
+<%= form_with(model: bill_of_material, local: true, class: "uk-form-horizontal") do |form| %>
+  <% if bill_of_material.errors.any? %>
+    <% alert = "<h4> #{pluralize(bill_of_material.errors.count, 'error')} prohibited this bill_of_material from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% bill_of_material.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end %>
+  
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Product Name</div>
+            <div class="uk-width-2-3@m">       
+              <%= hidden_field_tag "bill_of_material[product_id]", bill_of_material.product_id, :class=>"product_id0 uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+              <%= render 'layouts/form_item', c: 0, field_name: "product_id", field_value: (bill_of_material.product.present? ? bill_of_material.product.name : nil) %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Product Code</div>
+            <div class="uk-width-1-4@m">       
+              <%= text_field_tag "part_id", (bill_of_material.product.present? ? bill_of_material.product.part_id : nil), :class=>"part_id0 uk-input uk-form-small", :disabled=> true%>
+            </div>
+            <div class="uk-width-1-6@m">Type</div>
+            <div class="uk-width-1-4@m">       
+              <%= text_field_tag "product_type", (bill_of_material.product.present? ? bill_of_material.product.type_name : nil), :class=>"type_name0 uk-input uk-form-small", :disabled=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if bill_of_material.product.present? and bill_of_material.product.kind == 'FG' %>
+    <hr>
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-auto">
+          <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="wip_item">
+            <tr>
+              <th>#</th>
+              <th>WIP Name</th>
+              <th>WIP Code</th>
+              <th>WIP Type</th>
+              <th>Standard Quantity</th>
+              <th>Allowance</th>
+              <th>Quantity</th>
+              <th>PRF</th>
+            </tr>
+            <% (1..2).each do |c| %>
+              <tr>
+                <td><%= c %></td>
+                <td>
+                  <%= hidden_field_tag "bill_of_material[product_wip#{c}_id]", bill_of_material["product_wip#{c}_id"],:id=>"product_wip#{c}-hidden" %>
+                  <%= render 'layouts/form_item', c: c, field_name: "product_wip", field_value: bill_of_material.try("product_wip#{c}")&.name %>
+                </td>
+                <td>
+                  <%= text_field_tag "product_wip#{c}_part_id", bill_of_material.try("product_wip#{c}")&.part_id, {:class=>"wip_part_id#{c} uk-input uk-form-width-small uk-form-small", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag "product_wip#{c}_type_name", bill_of_material.try("product_wip#{c}")&.type_name, {:class=>"wip_type_name#{c} uk-input uk-form-width-small uk-form-small", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= number_field_tag "bill_of_material[wip#{c}_standard_quantity]", bill_of_material["wip#{c}_standard_quantity"], {:step=> "any", :class=>"wip#{c}_standard_quantity uk-input uk-form-small uk-text-right", :required=> true, :onchange=> "change_bom_wip_quantity(this, '#{c}');"} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= number_field_tag "bill_of_material[wip#{c}_allowance]", bill_of_material["wip#{c}_allowance"], {:placeholder=> '%', :class=>"wip#{c}_allowance uk-input uk-form-small uk-text-right", :required=> true, :step=> "any", :onchange=> "change_bom_wip_quantity(this, '#{c}');"} %>
+                </td>
+                <td>
+                  <%= number_field_tag "bill_of_material[product_wip#{c}_quantity]", bill_of_material["product_wip#{c}_quantity"], {:class=>"wip_quantity#{c} uk-input uk-form-width-small uk-form-small", :readonly=> true} %>
+                </td>
+                <td>
+                  <%= select_tag "bill_of_material[product_wip#{c}_prf]", options_for_select(['no','yes'], bill_of_material["product_wip#{c}_prf"]) , { :class=>'uk-select uk-form-small'} %></td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Material Name</th>
+            <th>Material Code</th>
+            <th>Standard Quantity</th>
+            <th>Allowance</th>
+            <th>Quantity</th>
+            <th>Unit Name</th>
+            <th>Remarks</th>
+          </tr>
+          <% c=0 %>
+          <% @bill_of_material_items.each do |item| %>
+            <%= hidden_field_tag 'bill_of_material_item[][id]', item.id %>
+            <tr>
+              <td class="counter uk-text-right"><%= c+=1%></td>
+              <td class="uk-width-medium">
+                <%= hidden_field_tag "bill_of_material_item[][material_id]", item.material_id, :class=>"material_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                <%= render 'layouts/form_item', c: c, field_name: "material_id", field_value: (item.material.present? ? item.material.name : "") %>
+              </td>
+              
+              <td class="uk-width-small">
+                <%= text_field_tag 'part_id',(item.material.present? ? item.material.part_id : ""), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+
+              <td class="uk-width-small">
+                <%= number_field_tag 'bill_of_material_item[][standard_quantity]', item.standard_quantity, {:step=> "any", :class=>"standard_quantity#{c} uk-input uk-form-small uk-text-right", :required=> true, :onchange=> "change_bom_quantity(this, '#{c}');"} %>
+              </td>
+              <td class="uk-width-small">
+                <%= number_field_tag 'bill_of_material_item[][allowance]', item.allowance, {:placeholder=> '%', :class=>"allowance#{c} uk-input uk-form-small uk-text-right", :required=> true, :step=> "any", :onchange=> "change_bom_quantity(this, '#{c}');"} %>
+              </td>
+              <td class="uk-width-small">
+                <%= number_field_tag 'bill_of_material_item[][quantity]', item.quantity, {:step=> "any", :class=>"quantity#{c} uk-input uk-form-small uk-text-right", :required=> true, :readonly=> true} %>
+              </td>
+              <td class="uk-width-small">
+                <%= text_field_tag 'unit_name', (item.material.present? ? item.material.unit_name : ""), {:class=>"unit_name#{c} uk-input uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+              <td class="uk-width-medium">
+                <%= text_field_tag 'bill_of_material_item[][remarks]', item.remarks, {:class=>"uk-input uk-form-small uk-text-right"} %>
+              </td>
+              <td class="uk-width-small">
+                <%= select_tag "bill_of_material_item[][status]", options_for_select(['active','deleted'],
+                  item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @bill_of_material_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', bill_of_materials_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+<% end %>

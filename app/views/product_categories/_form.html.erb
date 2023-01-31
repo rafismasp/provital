@@ -1,0 +1,47 @@
+
+<%= form_with(model: product_category, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if product_category.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(product_category.errors.count, "error") %> prohibited this product_category from being saved:</h2>
+
+      <ul>
+      <% product_category.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Category</div>
+      <div class="uk-width-3-4@m">
+        <%= form.select :kind, options_for_select(@kind_categories.map{|c| c }, form.object.kind), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small"} if @kind_categories.present? %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Code</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :code, id: :product_category_code, :class=> "uk-input uk-form-width-small uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Description</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_area :name, id: :product_category_name, :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 5 %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', product_categories_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

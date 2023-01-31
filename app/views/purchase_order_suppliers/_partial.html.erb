@@ -1,0 +1,382 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_supplier" %>
+	<% case field %>
+	<% when 'tax_id' %>
+    <%= select_tag "purchase_order_supplier[tax_id]", options_for_select(@taxes.map{|c| [c.name, c.id ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+	<% when 'currency_id' %>
+    <%= select_tag "purchase_order_supplier[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "purchase_order_supplier[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+	<% end %>
+<% when "change_department","change_po_base" %>
+  <% if select_kind == 'employee_section_id' %>
+    <%= select_tag "purchase_order_supplier[employee_section_id]", options_for_select(@sections.map{|c| [c.name, c.id ]} ) , { :required => true, :class=> "uk-select uk-form-width-medium uk-form-small"} if @sections.present? %>
+  <% end %>
+
+  <% if select_kind == 'purchase_request_id' %>
+    <% if @purchase_requests.present? %>
+      <%= select_tag "purchase_order_supplier[purchase_request_id]", options_for_select(@purchase_requests.map{|c| [c.number, c.id, {:request_kind=> c.request_kind} ]}) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} %>
+    <% else %>
+      Tidak ada PRF Outstanding!
+    <% end %>
+  <% end %>
+  <% if select_kind == 'pdm_id' %>
+    <% if @pdms.present? %>
+      <%= select_tag "purchase_order_supplier[pdm_id]", options_for_select(@pdms.map{|c| [c.number, c.id, {:request_kind=> 'material'} ]}) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} %>
+    <% else %>
+      Tidak ada PDM Outstanding!
+    <% end %>
+  <% end %>
+<% when 'change_purchase_request' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+    <tr>
+      <th>#</th>
+      <th>
+        <input type="checkbox" style="margin-left: 10px;margin-right: 10px;" id="checkAll" value="" aria-label="checkall">
+
+        <%= link_to "", 'javascript:;', {:id=> "DeleteAllChecked", :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+        <%#= link_to approve_purchase_order_supplier_path(0, :status=> 'approve3', :q=> params[:q]), method: :put, :kind=> params[:q], :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+          <!-- <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button> -->
+        <%# end %> 
+      </th>
+      <% case params[:q] %>
+      <% when 'material' %>
+        <th>PPB Number</th>
+        <th>PPB Date</th>
+      <% end %>
+      <th>Part Name</th>
+      <th>Internal Part ID</th>
+      <th>Model</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Due Date</th>
+      <th>Remarks</th>
+    </tr>
+    <% c=0 %>
+
+    <% if params[:po_base] == 'PRF' or params[:po_base] == 'All' %>
+      <% if @purchase_request_items.present? %>
+        <% @purchase_request_items.each do |purchase_request_item| %>
+          <% if @purchase_order_supplier_items.present? and @purchase_order_supplier_items.where(:purchase_request_item_id=> purchase_request_item.id).present? %>
+            <% @purchase_order_supplier_items.where(:purchase_request_item_id=> purchase_request_item.id).each do |purchase_order_supplier_item| %>
+              <% if purchase_order_supplier_item.purchase_request_item.product.present? %>
+                <% part = purchase_order_supplier_item.purchase_request_item.product %>
+              <% elsif purchase_order_supplier_item.purchase_request_item.material.present? %>
+                <% part = purchase_order_supplier_item.purchase_request_item.material %>
+              <% elsif purchase_order_supplier_item.purchase_request_item.consumable.present? %>
+                <% part = purchase_order_supplier_item.purchase_request_item.consumable %>
+              <% elsif purchase_order_supplier_item.purchase_request_item.equipment.present? %>
+                <% part = purchase_order_supplier_item.purchase_request_item.equipment %>
+              <% elsif purchase_order_supplier_item.purchase_request_item.general.present? %>
+                <% part = purchase_order_supplier_item.purchase_request_item.general %>
+              <% end %>
+
+              <tr>
+                <td class="counter">
+                  <%= c+=1%>
+                  <%= hidden_field_tag 'record_item[][id]', purchase_order_supplier_item.id %>
+                  <%= hidden_field_tag 'record_item[][pdm_item_id]', nil %>
+                  <%= hidden_field_tag 'record_item[][purchase_request_item_id]', purchase_order_supplier_item.purchase_request_item_id %>
+                </td>
+                <td>
+                  <input type='checkbox' class='form-check-input delete_check'>
+                </td>
+                <% case params[:q] %>
+                <% when 'material' %>
+                  <td><%= purchase_request_item.purchase_request.number if purchase_request_item.purchase_request.present? %></td>
+                  <td><%= purchase_request_item.purchase_request.date if purchase_request_item.purchase_request.present? %></td>
+                <% end %>
+                <td class="uk-width-medium">
+                  <%= text_field_tag 'part_name', (part.name if part.present?), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td class="uk-width-medium">
+                  <%= text_field_tag 'part_id', (part.part_id if part.present?), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= text_field_tag 'part_model', (part.part_model if part.present?), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= text_field_tag 'unit_name', (part.unit.name if part.present? and part.unit.present?), {:class=>"uk-input uk-form-small uk-text-center", :disabled=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= number_field_tag 'record_item[][quantity]', purchase_order_supplier_item.quantity, {:step=> "any", :min=> 0, :max=> purchase_order_supplier_item.quantity, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= number_field_tag 'record_item[][unit_price]', purchase_order_supplier_item.unit_price, {:step=> "any", :placeholder=> 'Unit Price', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= date_field_tag 'record_item[][due_date]', purchase_order_supplier_item.due_date, {:class=>"uk-input uk-form-width-small uk-form-small due_date_item"} %>
+                </td>
+                <td class="uk-width-medium">
+                  <%= text_field_tag 'record_item[][remarks]', purchase_order_supplier_item.remarks, {:class=>"uk-input uk-form-small"} %>
+                </td>
+                <td>
+                  <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], purchase_order_supplier_item.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <% if purchase_request_item.product.present? %>
+              <% part = purchase_request_item.product %>
+            <% elsif purchase_request_item.material.present? %>
+              <% part = purchase_request_item.material %>
+            <% elsif purchase_request_item.consumable.present? %>
+              <% part = purchase_request_item.consumable %>
+            <% elsif purchase_request_item.equipment.present? %>
+              <% part = purchase_request_item.equipment %>
+            <% elsif purchase_request_item.general.present? %>
+              <% part = purchase_request_item.general %>
+            <% end %>
+
+            <tr>
+              <td class="counter">
+                <%= c+=1%>
+                <%= hidden_field_tag 'new_record_item[][pdm_item_id]', nil %>
+                <%= hidden_field_tag 'new_record_item[][purchase_request_item_id]', purchase_request_item.id %>
+              </td>
+              <td>
+                <input type='checkbox' class='form-check-input delete_check'>
+              </td>
+              <% case params[:q] %>
+              <% when 'material' %>
+                <td><%= purchase_request_item.purchase_request.number if purchase_request_item.purchase_request.present? %></td>
+                <td><%= purchase_request_item.purchase_request.date if purchase_request_item.purchase_request.present? %></td>
+              <% end %>
+              <td><%= (part.name if part.present?) %></td>
+              <td><%= (part.part_id if part.present?) %></td>
+              <td><%= (part.part_model if part.present?) %></td>
+              <td><%= (part.unit.name if part.present? and part.unit.present?) %></td>
+              <td class="uk-width-small">
+                <%= number_field_tag 'new_record_item[][quantity]', purchase_request_item.outstanding, {:step=> "any", :min=> 0, :max=> purchase_request_item.outstanding, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+              </td>
+              <td class="uk-width-small">
+                <%= number_field_tag 'new_record_item[][unit_price]', purchase_request_item.last_price, {:step=> "any", :placeholder=> 'unit price', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+              </td>
+              <td class="uk-width-small">
+                <%= date_field_tag 'new_record_item[][due_date]', nil, {:class=>"uk-input uk-form-width-small uk-form-small due_date_item"} %>
+              </td>
+              <td class="uk-width-medium">
+                <%= text_field_tag 'new_record_item[][remarks]', purchase_request_item.remarks, {:class=>"uk-input uk-form-small"} %>
+              </td>
+              <td align='center' width=30px>
+                <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% if params[:po_base] == 'PDM' or params[:po_base] == 'All' %>
+      <% if @pdm_items.present? %>
+        <% @pdm_items.each do |pdm_item| %>
+          <% if @purchase_order_supplier_items.present? and @purchase_order_supplier_items.where(:pdm_item_id=> pdm_item.id).present? %>
+            <% @purchase_order_supplier_items.where(:pdm_item_id=> pdm_item.id).each do |purchase_order_supplier_item| %>
+              <% if purchase_order_supplier_item.pdm_item.material.present? %>
+                <% part = purchase_order_supplier_item.pdm_item.material %>
+              <% end %>
+
+              <tr>
+                <td class="counter">
+                  <%= c+=1%>
+                  <%= hidden_field_tag 'record_item[][id]', purchase_order_supplier_item.id %>
+                  <%= hidden_field_tag 'record_item[][purchase_request_item_id]', nil %>
+                  <%= hidden_field_tag 'record_item[][pdm_item_id]', purchase_order_supplier_item.pdm_item_id %>
+                </td>
+                <td>
+                  <input type='checkbox' class='form-check-input delete_check'>
+                </td>
+                <% case params[:q] %>
+                <% when 'material' %>
+                  <td><%= pdm_item.pdm.number if pdm_item.pdm.present? %></td>
+                  <td><%= pdm_item.pdm.date if pdm_item.pdm.present? %></td>
+                <% end %>
+                <td class="uk-width-medium">
+                  <%= text_field_tag 'part_name', (part.name if part.present?), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td class="uk-width-medium">
+                  <%= text_field_tag 'part_id', (part.part_id if part.present?), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= text_field_tag 'part_model', (part.part_model if part.present?), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= text_field_tag 'unit_name', (part.unit.name if part.present? and part.unit.present?), {:class=>"uk-input uk-form-small uk-text-center", :disabled=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= number_field_tag 'record_item[][quantity]', purchase_order_supplier_item.quantity, {:step=> "any", :min=> 0, :max=> purchase_order_supplier_item.quantity, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= number_field_tag 'record_item[][unit_price]', purchase_order_supplier_item.unit_price, {:step=> "any", :placeholder=> 'Unit Price', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+                </td>
+                <td class="uk-width-small">
+                  <%= date_field_tag 'record_item[][due_date]', purchase_order_supplier_item.due_date, {:class=>"uk-input uk-form-width-small uk-form-small due_date_item"} %>
+                </td>
+                <td class="uk-width-medium">
+                  <%= text_field_tag 'record_item[][remarks]', purchase_order_supplier_item.remarks, {:class=>"uk-input uk-form-small"} %>
+                </td>
+                <td>
+                  <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], purchase_order_supplier_item.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <% part = pdm_item.material %>
+
+            <tr>
+              <td class="counter">
+                <%= c+=1%>
+                <%= hidden_field_tag 'new_record_item[][purchase_request_item_id]', nil %>
+                <%= hidden_field_tag 'new_record_item[][pdm_item_id]', pdm_item.id %>
+              </td>
+              <td>
+                <input type='checkbox' class='form-check-input delete_check'>
+              </td>
+              <td><%= pdm_item.pdm.number if pdm_item.pdm.present? %></td>
+              <td><%= pdm_item.pdm.date if pdm_item.pdm.present? %></td>
+              <td><%= (part.name if part.present?) %></td>
+              <td><%= (part.part_id if part.present?) %></td>
+              <td><%= (part.part_model if part.present?) %></td>
+              <td><%= (part.unit_name if part.present?) %></td>
+              <td class="uk-width-small">
+                <%= number_field_tag 'new_record_item[][quantity]', pdm_item.outstanding, {:step=> "any", :min=> 0, :max=> pdm_item.outstanding, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+              </td>
+              <td class="uk-width-small">
+                <%= number_field_tag 'new_record_item[][unit_price]', pdm_item.last_price, {:step=> "any", :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+              </td>
+              <td class="uk-width-small">
+                <%= date_field_tag 'new_record_item[][due_date]', nil, {:class=>"uk-input uk-form-width-small uk-form-small due_date_item"} %>
+              </td>
+              <td class="uk-width-medium">
+                <%= text_field_tag 'new_record_item[][remarks]', pdm_item.remarks, {:class=>"uk-input uk-form-small"} %>
+              </td>
+              <td align='center' width=30px>
+                <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </table>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>PO Number</th>
+            <th>PRF / PDM</th>
+            <th>Part Code</th>
+            <th>Part Name</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Outstanding</th>
+            <th>Due Date</th>
+            <th>Remarks Item</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @purchase_order_suppliers.each do |item| %>
+            <% part = prf_number = nil %>
+            <% prf_item = item.purchase_request_item %>
+            <% pdm_item = item.pdm_item %>
+            <% if prf_item.present? %>
+              <% prf_number = prf_item.purchase_request.number %>
+              <% if prf_item.product.present? %>
+                <% part = prf_item.product %>
+              <% elsif prf_item.material.present? %>
+                <% part = prf_item.material %>
+              <% elsif prf_item.consumable.present? %>
+                <% part = prf_item.consumable %>
+              <% elsif prf_item.equipment.present? %>
+                <% part = prf_item.equipment %>
+              <% elsif prf_item.general.present? %>
+                <% part = prf_item.general %>
+              <% end %>
+            <% elsif pdm_item.present? %>
+              <% prf_number = pdm_item.pdm.number %>
+              <% if pdm_item.material.present? %>
+                <% part = pdm_item.material %>
+              <% end %>
+            <% end %>
+            <% unit_name = (part.present? ? part.unit.name : "") %>
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= @c+=1 %></td>
+              <td><%= item.purchase_order_supplier.status %></td>
+              <td><%= item.purchase_order_supplier.number %></td>
+              <td><%= prf_number %></td>
+              <td><%= part.part_id if part.present? %></td>
+              <td><%= part.name if part.present? %></td>
+              <td><%= unit_name %></td>
+              <td><%= item.quantity %></td>
+              <td><%= item.outstanding %></td>
+              <td><%= item.due_date %></td>
+              <td><%= item.remarks %></td>
+              <td><%= link_to 'Show', purchase_order_supplier_path(:id=> item.purchase_order_supplier_id, :q=> item.purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+              <td><%= link_to 'Edit', edit_purchase_order_supplier_path(:id=> item.purchase_order_supplier_id, :q=> item.purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value])%></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>
+              <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+              <%= link_to approve_purchase_order_supplier_path(0, :status=> 'approve3', :q=> params[:q]), method: :put, :kind=> params[:q], :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+              <% end %> 
+            </th>
+            <th>Status</th>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Department</th>
+            <th>Supplier</th>
+            <th>Currency</th>
+            <th>Subtotal</th>
+            <th colspan="2">TOP</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @purchase_order_suppliers.each do |purchase_order_supplier| %>
+            <tr uk-tooltip="title: <%= row_tooltip(purchase_order_supplier) %>; pos: top-left">
+              <td><%= @c+=1 %></td>
+              <td align="left" style="vertical-align: middle;">
+                <% case purchase_order_supplier.status %>
+                <% when "approved2","canceled3" %>
+                  <input type='checkbox'onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= purchase_order_supplier.id %>" trid="<%=@c%>">
+                <% else %>
+                -
+                <% end %>
+              </td>
+              <td><%= purchase_order_supplier.status %></td>
+              <td><%= purchase_order_supplier.number %></td>
+              <td><%= purchase_order_supplier.date %></td>
+              <td><%= purchase_order_supplier.department.name if purchase_order_supplier.department.present? %></td>
+              <td><%= purchase_order_supplier.supplier.name if purchase_order_supplier.supplier.present? %></td>
+              <td><%= purchase_order_supplier.currency.name if purchase_order_supplier.currency.present? %></td>
+              <td><%= number_with_precision(purchase_order_supplier.total_amount.to_f, precision: ( purchase_order_supplier.total_amount.to_f % 1 == 0 ? 0 : 2 ), delimiter: ".", separator: ",") %></td> 
+              <td><%= purchase_order_supplier.top_day %></td>
+              <td><%= purchase_order_supplier.term_of_payment.name if purchase_order_supplier.term_of_payment.present? %></td>
+              <td><%= link_to 'Show', purchase_order_supplier_path(:id=> purchase_order_supplier.id, :q=> purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+              <td><%= link_to 'Edit', edit_purchase_order_supplier_path(:id=> purchase_order_supplier.id, :q=> purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value])%></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,97 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-2-3@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', company_profiles_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-5@m">Name</div>
+                <div class="uk-width-3-4@m">
+                  <%= text_field_tag :name, @company_profile.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <ul uk-tab class="uk-margin-small">
+              <li class="uk-active"><a href="#">General</a></li>
+              <li><a href="#">Payment Receipt</a></li>
+            </ul>
+
+            <ul class="uk-switcher uk-margin">
+              <li>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-5@m">Address row 1</div>
+                    <div class="uk-width-3-4@m">
+                      <%= text_field_tag :address_row1, @company_profile.address_row1, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-5@m">Address row 2</div>
+                    <div class="uk-width-3-4@m">
+                      <%= text_field_tag :address_row2, @company_profile.address_row2, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-5@m">Address row 3</div>
+                    <div class="uk-width-3-4@m">
+                      <%= text_field_tag :address_row3, @company_profile.address_row3, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1@m">
+                      <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+                        <tr>
+                          <td>#</td>
+                          <td>Currency</td>
+                          <td>Bank Name</td>
+                          <td>Bank Account</td>
+                          <td>Signature</td>
+                        </tr>
+                        <% c = 0 %>
+                        <% @company_payment_receivings.each do |item| %>
+                          <tr>
+                            <td><%= c += 1 %></td>
+                            <td><%= item.currency.name if item.currency.present? %></td>
+                            <td><%= item.bank_name %></td>
+                            <td><%= item.bank_account %></td>
+                            <td><%= item.signature %></td>
+                          </tr>
+                        <% end if @company_payment_receivings.present? %>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', company_profiles_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_company_profile_path(@company_profile), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

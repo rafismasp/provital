@@ -1,0 +1,186 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+
+
+<% when 'add_bon' %>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-2-3@m">
+      <%= link_to 'Add Item', 'javascript:;', :class=>"uk-button uk-button-primary uk-button-small", :onclick=>"add_new_item(1,'#{params[:controller].to_s}')" %>
+    </div>
+    <div class="uk-width-1-3@m">
+      <%= file_field_tag 'bon_file', :class=>'btn btn-default btn-sm', :onchange=>"readFile(this)" %>
+      <input type="hidden" value="" class="files_base64">
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+          <thead> 
+            <tr>
+              <th class="uk-text-middle">No.</th>  
+              <th class="uk-text-middle">Action</th>  
+              <th class="uk-text-middle uk-text-center">Jenis Biaya/Nama</th>
+              <th class="uk-text-middle uk-text-center">No. COA</th>
+              <th class="uk-text-middle uk-text-center">Keterangan</th>
+              <th class="uk-text-middle uk-text-center">Nominal</th>
+            </tr>
+          </thead>
+          <tbody class="new_tbody_item">
+            <tr trid="1">
+              <td>1.</td>
+              <td><%= link_to "Delete","javascript:;", :onclick=>"delete_new_item(1,'#{params[:controller].to_s}')", :class=>"uk-button uk-button-default uk-button-small" %></td>
+              <td><%= text_field_tag 'type_cost', nil , {:class=>"uk-input uk-form-small"} %></td>
+              <td><%= text_field_tag 'no_coa', nil , {:class=>"uk-input uk-form-small"} %></td>
+              <td><%= text_field_tag 'remarks', nil , {:class=>"uk-input uk-form-small"} %></td>
+              <td><%= number_field_tag 'nominal', nil , {:placeholder=> '0', :class=>"uk-input uk-form-small", :step=>"any"} %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<% when 'load_bon' %>
+  <% count = params[:count].to_i %>
+  <% rowspan = params[:obj].as_json.length %>
+  <% c = 1 %>
+  <% params[:obj].each do |v,k| %>
+    <tr trid="<%= count %>" bon_count="<%= params[:bon_count] %>">
+      <%= hidden_field_tag "proof_cash_expenditure_item[][bon_count]", params[:bon_count] %>
+      <td><%= count %>.</td>
+      <% if c==1 %>
+        <td rowspan="<%= rowspan %>">
+          <%= link_to "Delete","javascript:;", :onclick=>"delete_bon('#{params[:bon_count]}','#{params[:controller].to_s}')", :class=>"uk-button uk-button-default uk-button-small" %>
+          
+          <a target="_blank" class="uk-button uk-button-secondary uk-button-small" onclick="change_attachment('<%= params[:bon_count] %>', '<%= params[:controller].to_s %>')">Change File</a>
+          
+          <span class="hidden-attachment" bon_count="<%= params[:bon_count] %>">
+            <%= hidden_field_tag "proof_cash_expenditure_file[][bon_count]", params[:bon_count] %>
+            <%= hidden_field_tag "proof_cash_expenditure_file[][attachment]", nil, :class=>"save_bon_file" %>
+            <%= link_to "View File","javascript:;", :class=>"uk-button uk-button-default uk-button-small bon_files", :onClick=>"showFiles(this)" %>
+          </span>
+        </td>
+      <% end %>
+      <td><%= text_field_tag 'proof_cash_expenditure_item[][type_cost]', k["type_cost"] , {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= text_field_tag 'proof_cash_expenditure_item[][no_coa]', k["no_coa"] , {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= text_field_tag 'proof_cash_expenditure_item[][remarks]', k["remarks"] , {:class=>"uk-input uk-form-small"} %></td>
+      <td><%= number_field_tag 'proof_cash_expenditure_item[][nominal]', k["nominal"] , {:class=>"uk-input uk-form-small", :step=>"any", :onchange=>"calculation_amount(this, '"+params[:controller].to_s+"')"} %></td>
+    </tr>
+    <% count += 1 %>
+    <% c += 1 %>
+  <% end %>
+
+<% when 'add_new_item' %>
+  <tr trid="<%= params[:count] %>">
+    <td><%= params[:count] %>.</td>
+    <td><%= link_to "Delete","javascript:;", :onclick=>"delete_new_item('#{params[:count]}','#{params[:controller].to_s}')", :class=>"uk-button uk-button-default uk-button-small" %></td>
+    <td><%= text_field_tag 'type_cost', nil , {:class=>"uk-input uk-form-small"} %></td>
+    <td><%= text_field_tag 'no_coa', nil , {:class=>"uk-input uk-form-small"} %></td>
+    <td><%= text_field_tag 'remarks', nil , {:class=>"uk-input uk-form-small"} %></td>
+    <td><%= number_field_tag 'nominal', nil , {:placeholder=>'0', :class=>"uk-input uk-form-small", :step=>"any"} %></td>
+  </tr>
+<% when 'change_attachment' %>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">
+      <%= file_field_tag 'bon_file', :class=>'btn btn-default btn-sm', :onchange=>"readFile(this)" %>
+      <input type="hidden" value="" class="files_base64">
+    </div>
+  </div>
+<% when 'load_attachment' %>
+  <%= link_to "View File","javascript:;", :class=>"uk-button uk-button-default uk-button-small bon_files", :onClick=>"showFiles(this)" %>
+  <%= hidden_field_tag "proof_cash_expenditure_file[][bon_count]", params[:bon_count] %>
+  <%= hidden_field_tag "proof_cash_expenditure_file[][attachment]", nil, :class=>"save_bon_file" %>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <!-- Item -->
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>No. BPK</th>
+            <th>Tanggal BPK</th>
+            <th>Department</th>
+            <th>Keterangan Biaya</th>
+            <th>Nominal</th>
+            <th>No. Voucher Payment</th>
+            <th>Remarks</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @proof_cash_expenditures.each do |item| %>          
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= item.proof_cash_expenditure.status %></td>
+              <td><%= item.proof_cash_expenditure.number %></td>
+              <td><%= item.proof_cash_expenditure.date %></td>
+              <td><%= item.proof_cash_expenditure.department.name %></td>
+              <td><%= item.remarks %></td>
+              <td><%= number_with_precision(item.nominal, precision: 2, delimiter: ".", separator: ",") %></td>
+              <td><%= item.proof_cash_expenditure.voucher_payment %></td>
+              <td><%= item.proof_cash_expenditure.remarks %></td>
+              <td><%= link_to 'Show', proof_cash_expenditure_path(:id=> item.proof_cash_expenditure_id, :q=> params[:q]) %></td>
+              <td><%= link_to 'Edit', edit_proof_cash_expenditure_path(item.proof_cash_expenditure, :q=> params[:q]) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <!-- Header -->
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>
+              <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+              <%= link_to approve_proof_cash_expenditure_path(0, :status=> 'approve3'), method: :put, :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+              <% end %>  
+            </th>
+            <th>Status</th>
+            <th>No. BPK</th>
+            <th>Tanggal BPK</th>
+            <th>Department</th>
+            <th>Total Nominal</th>
+            <th>No. Voucher Payment</th>
+            <th>Remarks</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @proof_cash_expenditures.each do |proof_cash_expenditure| %>          
+            <tr uk-tooltip="title: <%= row_tooltip(proof_cash_expenditure) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td align="left" style="vertical-align: middle;">
+                <% case proof_cash_expenditure.status %>
+                <% when "approved2","canceled3" %>
+                  <input type='checkbox'onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= proof_cash_expenditure.id %>" trid="<%=@c%>">
+                <% else %>
+                -
+                <% end %>
+              </td>
+              <td><%= proof_cash_expenditure.status %></td>
+              <td><%= proof_cash_expenditure.number %></td>
+              <td><%= proof_cash_expenditure.date %></td>
+              <td><%= proof_cash_expenditure.department.name if proof_cash_expenditure.department.present? %></td>
+              <td><%= number_with_precision(proof_cash_expenditure.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+              <td><%= proof_cash_expenditure.voucher_payment %></td>
+              <td><%= proof_cash_expenditure.remarks %></td>
+              <td><%= link_to 'Show', proof_cash_expenditure_path(:id=> proof_cash_expenditure.id, :q=> params[:q]) %></td>
+              <td><%= link_to 'Edit', edit_proof_cash_expenditure_path(proof_cash_expenditure, :q=> params[:q]) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% end %>
+<% end %>

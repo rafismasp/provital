@@ -1,0 +1,49 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>PDM Number </th>
+          <th>PDM Date</th>
+          <th>Part Code</th>
+          <th>Part Name</th>
+          <th>Unit</th>
+          <th>Quantity</th>
+          <th>Outstanding</th>
+          <th>PO</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @records.each do |item| %>
+          <% part = nil %>
+          <% if item.material.present? %>
+            <% part = item.material %>
+          <% end %>
+
+          <% unit_name = (part.present? ? part.unit.name : "") %>
+          <tr>
+            <td><%= @c+=1 %></td>
+            <td width="10%"><b><%= item.pdm.number %></b></td>
+            <td width="10%"><i><%= item.pdm.date %></i></td>
+            <td><%= part.part_id if part.present? %></td>
+            <td><%= part.name if part.present? %></td>
+            <td><%= unit_name %></td>
+            <td width="5%"><%= number_with_precision(item.quantity, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td width="5%"><%= number_with_precision(item.outstanding, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td>
+              <% item.purchase_order_supplier_items.each do |po_item| %>
+                <%= link_to "#{po_item.purchase_order_supplier.number}", purchase_order_supplier_path(:id=> po_item.purchase_order_supplier_id, :q=> po_item.purchase_order_supplier.kind) , {:target=> "blank"} if po_item.status == 'active' %>
+              <% end %> 
+            </td>
+            <td><%= link_to 'Show', pdm_path(:id=> item.pdm_id, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+          </tr>
+        <% end if @records.present? %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

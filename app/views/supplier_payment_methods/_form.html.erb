@@ -1,0 +1,31 @@
+
+<%= form_with(model: supplier_payment_method, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if supplier_payment_method.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(supplier_payment_method.errors.count, "error") %> prohibited this supplier_payment_method from being saved:</h2>
+
+      <ul>
+      <% supplier_payment_method.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Name</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :name, id: :supplier_payment_method_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', supplier_payment_methods_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

@@ -1,0 +1,301 @@
+
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', inventories_path(:select_inventory_kind=> params[:select_inventory_kind]), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Kind</div>
+                <div class="uk-width-1-3@m">       
+                  <%= select_tag "invetory_kind", options_for_select(@option_filters, params[:select_inventory_kind]),:class=> "uk-select uk-form-width-small uk-form-small", :required=> true,  :onclick=> "change_inventory_kind(this, '"+params[:controller].to_s+"');" %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Code</div>
+                <div class="uk-width-1-3@m">       
+                  <%= text_field_tag :periode, @inventory.part("part_id"), :class=> "part_id1 uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Name</div>
+                <div class="uk-width-2-3@m" id="inventory_part_name">
+                  <%= hidden_field_tag "#{params[:select_inventory_kind]}_id", @inventory.part("id"), :class=>"#{params[:select_inventory_kind]}_id1 part", :prompt=>"--select--"%>
+                  <%= render 'layouts/form_item', c: 1, field_name: "#{params[:select_inventory_kind]}_id", field_value: @inventory.part("name") %>
+
+                  <%#= text_field_tag :periode, @inventory.part("name"), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <hr>
+
+            <div class="uk-margin-small">
+              <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider uk-animation-shake">                 
+                <thead class="bg-primary">
+                  <tr>
+                    <th colspan="2">Periode</th>
+                    <th>Begin Stock</th>
+                    <th>Trans In</th>
+                    <th>Trans Out</th>
+                    <th>End Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+
+                      <% select_year = (params[:periode].present? ? params[:periode].first(4) : DateTime.now().strftime("%Y")) %>
+                      <% select_month = (params[:periode].present? ? params[:periode].last(2) : DateTime.now().strftime("%m")) %>
+                      
+                      <%= select_tag "periode_mm", options_for_select([["January", '01'], ["February", '02'], ["March", '03'], ["April", "04"], ["May", "05"], ["June", "06"], ["July", "07"], ["August", "08"], ["September", "09"], ["October", "10"], ["November", "11"], ["December", "12"]], select_month), :class=> "uk-select uk-form-width-small uk-form-small", :required=> true %>
+                    </td>
+                    <td>
+                      <%= select_tag "periode_yyyy", options_for_select(2020 .. 1.years.from_now.year, select_year), :class=> "uk-select uk-form-small", :required=> true %>
+
+                    </td>
+                    <td class="uk-text-right"><%= number_with_precision(@inventory.begin_stock, precision: ( @inventory.begin_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                    <td class="uk-text-right"><%= number_with_precision(@inventory.trans_in, precision: ( @inventory.trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                    <td class="uk-text-right"><%= number_with_precision(@inventory.trans_out, precision: ( @inventory.trans_out.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                    <td class="uk-text-right"><%= number_with_precision(@inventory.end_stock, precision: ( @inventory.end_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">
+                  <%= link_to 'Back', inventories_path(:select_inventory_kind=> params[:select_inventory_kind]), class: "uk-button uk-button-secondary uk-button-small" %>
+                </div>
+                <div class="uk-width-1-4@m">
+                </div>
+                <div class="uk-width-1-4@m">
+                </div>
+                <div class="uk-width-1-4@m">
+                  <%= link_to 'javascript:;', class: "uk-button uk-button-small uk-button-primary", :view_kind=> params[:view_kind],
+                  :onclick=> "search_stock_card(this, '"+params[:controller].to_s+"')" do  %>
+                    <span data-uk-icon="icon: search">Search </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Batch Number Stock</h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', inventories_path(:select_inventory_kind=> params[:select_inventory_kind]), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider uk-animation-shake">                
+                    <thead class="bg-primary">
+                      <tr>
+                        <th>#</th>
+                        <th>Batch Number</th>
+                        <th>Begin Stock</th>
+                        <th>Trans In</th>
+                        <th>Trans Out</th>
+                        <th>End Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% c=0 %>
+                      <% sum_begin_stock = sum_trans_in = sum_trans_out = sum_end_stock = 0%>
+                      <% case params[:select_inventory_kind] %>
+                      <% when "product_id" %>
+                        <% @inventory.stock_product_batch_numbers.each do |bn| %>
+                          <tr>
+                            <td><%= c+=1 %></td>
+                            <td>
+                              <%= link_to bn.product_batch_number.number, "/monitoring_kanbans/#{bn.product_batch_number_id}" if bn.product_batch_number.present?%>
+                            </td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.begin_stock, precision: ( bn.begin_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_in, precision: ( bn.trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_out, precision: ( bn.trans_out.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.end_stock, precision: ( bn.end_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                          </tr>
+                          <% sum_begin_stock += bn.begin_stock.to_f %>
+                          <% sum_trans_in += bn.trans_in.to_f %>
+                          <% sum_trans_out += bn.trans_out.to_f %>
+                          <% sum_end_stock += bn.end_stock.to_f %>
+                        <% end %>
+                      <% when "material_id" %>
+                        <% @inventory.stock_material_batch_numbers.each do |bn| %>
+                          <tr>
+                            <td><%= c+=1 %></td>
+                            <td><%= bn.material_batch_number.number if bn.material_batch_number.present? %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.begin_stock, precision: ( bn.begin_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_in, precision: ( bn.trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_out, precision: ( bn.trans_out.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.end_stock, precision: ( bn.end_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                          </tr>
+                          <% sum_begin_stock += bn.begin_stock.to_f %>
+                          <% sum_trans_in += bn.trans_in.to_f %>
+                          <% sum_trans_out += bn.trans_out.to_f %>
+                          <% sum_end_stock += bn.end_stock.to_f %>
+                        <% end %>
+                      <% when "general_id" %>
+                        <% @inventory.stock_general_batch_numbers.each do |bn| %>
+                          <tr>
+                            <td><%= c+=1 %></td>
+                            <td><%= bn.general_batch_number.number if bn.general_batch_number.present? %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.begin_stock, precision: ( bn.begin_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_in, precision: ( bn.trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_out, precision: ( bn.trans_out.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.end_stock, precision: ( bn.end_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                          </tr>
+                          <% sum_begin_stock += bn.begin_stock.to_f %>
+                          <% sum_trans_in += bn.trans_in.to_f %>
+                          <% sum_trans_out += bn.trans_out.to_f %>
+                          <% sum_end_stock += bn.end_stock.to_f %>
+                        <% end %>
+                      <% when "consumable_id" %>
+                        <% @inventory.stock_consumable_batch_numbers.each do |bn| %>
+                          <tr>
+                            <td><%= c+=1 %></td>
+                            <td><%= bn.consumable_batch_number.number if bn.consumable_batch_number.present? %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.begin_stock, precision: ( bn.begin_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_in, precision: ( bn.trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_out, precision: ( bn.trans_out.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.end_stock, precision: ( bn.end_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                          </tr>
+                          <% sum_begin_stock += bn.begin_stock.to_f %>
+                          <% sum_trans_in += bn.trans_in.to_f %>
+                          <% sum_trans_out += bn.trans_out.to_f %>
+                          <% sum_end_stock += bn.end_stock.to_f %>
+                        <% end %>
+                      <% when "equipment_id" %>
+                        <% @inventory.stock_equipment_batch_numbers.each do |bn| %>
+                          <tr>
+                            <td><%= c+=1 %></td>
+                            <td><%= bn.equipment_batch_number.number if bn.equipment_batch_number.present? %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.begin_stock, precision: ( bn.begin_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_in, precision: ( bn.trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.trans_out, precision: ( bn.trans_out.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                            <td class="uk-text-right"><%= number_with_precision(bn.end_stock, precision: ( bn.end_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                          </tr>
+                          <% sum_begin_stock += bn.begin_stock.to_f %>
+                          <% sum_trans_in += bn.trans_in.to_f %>
+                          <% sum_trans_out += bn.trans_out.to_f %>
+                          <% sum_end_stock += bn.end_stock.to_f %>
+                        <% end %>
+                      <% end %>
+                      <tr>
+                        <td colspan=2></td>
+                        <td class="uk-text-right"><%= number_with_precision(sum_begin_stock, precision: ( sum_begin_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                        <td class="uk-text-right"><%= number_with_precision(sum_trans_in, precision: ( sum_trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                        <td class="uk-text-right"><%= number_with_precision(sum_trans_out, precision: ( sum_trans_out.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                        <td class="uk-text-right"><%= number_with_precision(sum_end_stock, precision: ( sum_end_stock.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>History of Transaction</h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', inventories_path(:select_inventory_kind=> params[:select_inventory_kind]), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider uk-animation-shake">                 
+              <thead class="bg-primary">
+                <tr>
+                  <th>#</th>
+                  <th>Dokumen</th>
+                  <th>Status</th>
+                  <th>Batch Number</th>
+                  <th>Processed by</th>
+                  <th>Processed at</th>
+                  <th>IN</th>
+                  <th>OUT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% c=0 %>
+                <% sum_trans_in = 0 %>
+                <% sum_trans_out = 0 %>
+                <% @inventory_logs.each do |log| %>
+                  <tr>
+                    <td><%= c+=1 %></td>
+                    <td><%= log.document_transaction("number") %></td>
+                    <td><%= log.document_transaction("status") %></td>
+                    <td>
+                      <% case params[:select_inventory_kind] %>
+                      <% when "product_id" %>
+                        <%= log.product_batch_number %>
+                      <% when "material_id" %>
+                        <%= log.material_batch_number %>
+                      <% end %>
+                    </td>
+                    <td><%= account_name(log.created_by) %></td>
+                    <td><%= log.created_at.to_datetime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+                    <td class="uk-text-right">
+                      <% if log.kind == 'in' %>
+                        <% sum_trans_in += log.quantity %>
+                        <%= number_with_precision(log.quantity, precision: ( log.quantity.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %>
+                      <% end %>
+                    </td>
+                    <td class="uk-text-right">
+                      <% if log.kind == 'out' %>
+                        <% sum_trans_out += log.quantity %>
+                        <%= number_with_precision(log.quantity, precision: ( log.quantity.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+                <tr>
+                  <td colspan="6"></td>
+                  <td class="uk-text-right">
+                    <%= number_with_precision(sum_trans_in, precision: ( sum_trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %>
+                  </td>
+                  <td class="uk-text-right">
+                    <%= number_with_precision(sum_trans_out, precision: ( sum_trans_in.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",", strip_insignificant_zeros: true) %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

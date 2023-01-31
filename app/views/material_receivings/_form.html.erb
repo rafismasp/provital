@@ -1,0 +1,189 @@
+
+<%= form_with(model: material_receiving, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if material_receiving.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(material_receiving.errors.count, "error") %> prohibited this material_receiving from being saved:</h2>
+
+      <ul>
+      <% material_receiving.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Supplier</div>
+            <div class="uk-width-2-3@m">
+
+              <%= hidden_field_tag "material_receiving[supplier_id]", (form.object.supplier.present? ? form.object.supplier_id : ""), :class=>"supplier_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "supplier_id", field_value: (form.object.supplier.present? ? form.object.supplier.name : ""), kind: params[:q] %>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Doc. Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :material_receiving_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Doc. Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :date, id: :material_receiving_date, :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true, 
+                :min=> (form.object.date.present? ? form.object.date.to_date.at_beginning_of_month() : ""),
+                :max=> (form.object.date.present? ? form.object.date.to_date.at_end_of_month() : "")
+                 %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Remarks</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :remarks, id: :material_receiving_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">SJ. Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :sj_number, id: :material_receiving_sj_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">SJ. Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :sj_date, id: :material_receiving_sj_date, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PO Suppliers</div>
+              <div class="uk-width-1-3@m purchase_order_supplier_detail">
+                <%= form.select :purchase_order_supplier_id, options_for_select(@purchase_order_suppliers.map{|c| [c.number, c.id ]}, form.object.purchase_order_supplier_id), {:prompt => " -- select -- "}, {class: "purchase_order_supplier_id uk-select uk-form-width-large uk-form-small", :onchange=> "$('#button_add_item').attr('sales_order_id', $(this).val()); $('#item').html('');"} if @purchase_order_suppliers.present? %>
+              </div>
+              <div class="uk-width-1-3@m">
+                <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                        :onclick=> "change_purchase_order_supplier_id(this, '"+params[:controller].to_s+"');" %>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+          <tr>
+            <th>#</th>
+            <th>Material Code</th>
+            <th>Material Name</th>
+            <th>Batch Number</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Supplier Batch Number</th>
+            <th>EXP Date</th>
+            <th>Packaging Condition</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @material_receiving_items.each do |material_receiving_item| %>
+            <%= hidden_field_tag 'material_receiving_item[][id]', material_receiving_item.id %>
+            <%= hidden_field_tag 'material_receiving_item[][purchase_order_supplier_item_id]', material_receiving_item.purchase_order_supplier_item_id %>
+            <%= hidden_field_tag 'material_receiving_item[][material_id]', material_receiving_item.material_id %>
+            <tr>
+              <td class="counter"><%= c+=1%></td>
+             <td>
+                <%= text_field_tag 'part_id', material_receiving_item.material.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+             <td>
+                <%= text_field_tag 'part_name', material_receiving_item.material.name, {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'batch_number', @material_batch_number.where(:material_receiving_item_id=> material_receiving_item.id).map { |e| e.number }, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name',material_receiving_item.material.unit.name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+             
+              <td>
+                <%= number_field_tag 'material_receiving_item[][quantity]', material_receiving_item.quantity, {:step=> "any", :min=> 0, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'material_receiving_item[][supplier_batch_number]', material_receiving_item.supplier_batch_number, {:class=>"uk-input uk-form-small", :placeholder=> "tidak ada"} %>
+              </td>
+              <td>
+                <%= date_field_tag 'material_receiving_item[][supplier_expired_date]', material_receiving_item.supplier_expired_date, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :placeholder=> "Tidak Ada"} %>
+              </td>
+              <td>
+                <%= select_tag "material_receiving_item[][packaging_condition]", options_for_select(['','OK','NG'], material_receiving_item.packaging_condition), { :class=>'uk-select uk-form-small'} %>
+              </td>
+              <td>
+                <%= text_field_tag 'material_receiving_item[][remarks]',material_receiving_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "material_receiving_item[][status]", options_for_select(['active','deleted'],
+                  material_receiving_item.status) , { :class=>'uk-input uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @material_receiving_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', material_receivings_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

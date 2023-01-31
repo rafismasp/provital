@@ -1,0 +1,102 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_product_batch_number' %>  
+  <%= @sfo_number %>
+<% when 'add_item' %>
+  <tr id=trid"<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-right'><%= params[:c] %></td>
+    <td>
+      <%= text_field_tag 'sfo_number',nil, {:class=>"sfo_number#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+
+      <%= hidden_field_tag "new_record_item[][product_batch_number_id]", nil, :class=>"product_batch_number_id#{params[:c]} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+      <%= render 'layouts/form_item', c: params[:c], field_name: "product_batch_number_id", field_value: "" %>
+        
+    </td>
+    <td>
+      <%= hidden_field_tag 'new_record_item[][product_id]',nil, {:class=>"product_id#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+      <%= text_field_tag 'part_name',nil, {:class=>"part_name#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'part_id',nil, {:class=>"part_id#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'unit_name',nil, {:class=>"unit_name#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+    </td>
+
+    <td>
+      <%= number_field_tag 'new_record_item[][quantity]',nil, {:placeholder=> 'quantity', :class=>"quantity#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+    </td>
+    <td align='center' width=30px>
+      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <% case params[:view_kind] %>
+    <% when 'item' %>
+      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Number</th>
+            <th>Batch Number</th>
+            <th>Product Code</th>
+            <th>Product Number</th>
+            <th>Quantity</th>
+            <th>Remarks Item</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @c = (@c.present? ? @c : 0) %>   
+          <% @semi_finish_good_receivings.each do |item| %>
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= @c+=1 %></td>
+              <td><%= item.semi_finish_good_receiving.status %></td>
+              <td><%= item.semi_finish_good_receiving.number %></td>
+              <td><%= item.product_batch_number.number if item.product_batch_number.present? %></td>
+              <td><%= item.product.part_id %></td>
+              <td><%= item.product.name %></td>
+              <td class="uk-text-right">
+                <%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+              </td>
+              <td><%= item.remarks %></td>
+              <td><%= link_to 'Show', item.semi_finish_good_receiving %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% else %>
+      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @c = (@c.present? ? @c : 0) %>   
+          <% @semi_finish_good_receivings.each do |semi_finish_good_receiving| %>          
+            <tr uk-tooltip="title: <%= row_tooltip(semi_finish_good_receiving) %>; pos: top-left">
+              <td><%= @c+=1 %></td>
+              <td><%= semi_finish_good_receiving.status %></td>
+              <td><%= semi_finish_good_receiving.number %></td>
+              <td><%= semi_finish_good_receiving.date %></td>
+              <td class="uk-width-auto"><%= link_to 'Show', semi_finish_good_receiving_path(:id=> semi_finish_good_receiving.id) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% end %>
+  </div>
+<% end %>

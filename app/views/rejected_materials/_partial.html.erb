@@ -1,0 +1,67 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_material_outgoing' %>  
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th rowspan="2" class="uk-text-middle">No</th>
+      <th rowspan="2" class="uk-text-middle uk-text-center">Material Name</th>
+      <th rowspan="2" class="uk-text-middle uk-text-center">Batch Number</th>
+      <th colspan="3" class="uk-text-center">Reason for Rejected (pcs)</th>
+    </tr>
+    <tr>
+      <th class="uk-text-center">NG Supplier</th>
+      <th class="uk-text-center">Production Process</th>
+      <th class="uk-text-center">Documentation</th>
+    </tr>
+    <% c=0 %>
+    <% @material_outgoing_items.each do |item| %>
+      <tr id="trid<%= c %>" valign=top><td align=right width=22px class='counter'><%= c+=1 %></td>
+        <% if item.material.present? %>
+          <td>
+            <%= hidden_field_tag "new_record_item[][material_outgoing_item_id]", item.id %>
+            <%= text_field_tag 'material_name', "#{item.material.name}", {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+          </td>
+          <td><%= text_field_tag 'material_batch', (item.material_batch_number.present? ? item.material_batch_number.number : "-"), {:class=>"material_batch#{c} uk-input uk-form-small", :disabled=> true} %></td>
+        <% elsif item.product.present? %>
+          <td>
+            <%= hidden_field_tag "new_record_item[][material_outgoing_item_id]", item.id %>
+            <%= text_field_tag 'product_name', "#{item.product.name}", {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+          </td>
+          <td><%= text_field_tag 'product_batch', (item.product_batch_number.present? ? item.product_batch_number.number : "-"), {:class=>"product_batch#{c} uk-input uk-form-small", :disabled=> true} %></td>
+        <% end %>
+        <td><%= number_field_tag 'new_record_item[][ng_supplier]', 0, {:class=>"uk-input uk-form-small", :min=>0, :max=>999} %></td>
+        <td><%= number_field_tag 'new_record_item[][production_process]', 0, {:class=>"uk-input uk-form-small", :min=>0, :max=>999} %></td>
+        <td><%= number_field_tag 'new_record_item[][documentation]', 0, {:class=>"uk-input uk-form-small", :min=>0, :max=>999} %></td>
+      </tr>
+    <% end if @material_outgoing_items.present? %>
+  </table>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+    <thead class="bg-primary">
+      <tr>
+        <th>No</th>
+        <th>Status</th>
+        <th>Customer</th>
+        <th>Document Number</th>
+        <th>Date</th>
+        <th>Picking Slip Number</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @rejected_materials.each do |rejected_material| %>
+        <tr uk-tooltip="title: <%= row_tooltip(rejected_material) %>; pos: top-left">
+          <td><%= c+=1 %></td>
+          <td><%= rejected_material.status %></td>
+          <td><%= rejected_material.number %></td>
+          <td><%= rejected_material.material_outgoing.number if rejected_material.material_outgoing.present? %></td>
+          <td><%= rejected_material.date %></td>
+          <td><%= link_to 'Show', rejected_material %></td>
+          <td><%= link_to 'Edit', edit_rejected_material_path(rejected_material, :job=>'edit') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

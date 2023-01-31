@@ -1,0 +1,296 @@
+<%= stylesheet_link_tag 'hrd' %>
+<%= form_with(model: @working_hour_summary, local: true, class: "uk-form-horizontal", :job=>params[:job]) do |form| %>
+  <%= hidden_field_tag 'view_kind', (params[:view_kind]) %>
+  <%= hidden_field_tag 'period', (params[:period]) %>
+  <%= hidden_field_tag 'job', (params[:job]) %>
+  <%= hidden_field_tag 'department_id', (params[:department_id]), :class=>'department' %>
+  <% employee = @employees.find_by(:id=>(params[:id].present? ? params[:id] : params[:employee_id]))%>
+  <% att_user = @attendance_user.find_by(:employee_id=>(params[:id].present? ? params[:id] : params[:employee_id])) %>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-5@m uk-width-1-3@l">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">NAMA</div>
+            <div class="uk-width-expand@m">
+              <%= hidden_field_tag "employee_id", (params[:employee_id].present? ? params[:employee_id] : employee.id), :class=>"employee_id uk-button uk-button-default uk-text-left uk-input uk-form-small"%>
+              <%= render 'layouts/form_item', field_name: "employee_id", field_value: (params[:employee_name].present? ?  params[:employee_name] : employee.name), :onchange=>"change_employee(this, '"+params[:controller].to_s+"')"  %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-3-5@m uk-width-2-3@l">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">PIN</div>
+            <div class="uk-width-expand@m employee_pin">
+              <%= text_field_tag 'employee_pin', (params[:employee_pin].present? ? params[:employee_pin] : att_user.id_number), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+            </div>
+            <div class="uk-width-1-5@m">Work Schedule</div>
+            <div class="uk-width-expand@m work_schedule">
+              <%= text_field_tag 'employee_work_schedule', (params[:employee_work_schedule].present? ? params[:employee_work_schedule] : employee.work_schedule), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-5@m uk-width-1-3@l">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">PERIODE</div>
+            <div class="uk-width-expand@m">
+              <%= select_tag "periode_yyyy", options_for_select(2019.."#{DateTime.now()+1.years}".to_date.strftime("%Y").to_i, (params[:period].present? ? params[:period].to_s[0,4] : DateTime.now().strftime("%Y") )), {:include_blank=>'-- Pilih --', :class=>"uk-button uk-button-default uk-text-left", :onchange=>"change_period_yyyy(this, '"+params[:controller].to_s+"')"} %>
+              <%= select_tag "periode_mm", options_for_select([
+                  ["21 Jan - 20 Feb","01"],
+                  ["21 Feb - 20 Mar","02"],
+                  ["21 Mar - 20 Apr","03"],
+                  ["21 Apr - 20 Mei","04"],
+                  ["21 Mei - 20 Jun","05"],
+                  ["21 Jun - 20 Jul","06"],
+                  ["21 Jul - 20 Aug","07"],
+                  ["21 Aug - 20 Sep","08"],
+                  ["21 Sep - 20 Oct","09"],
+                  ["21 Oct - 20 Nov","10"],
+                  ["21 Nov - 20 Dec","11"],
+                  ["21 Dec - 20 Jan","12"]
+                  ] , (params[:period].to_s[4,2] if params[:period].present?)), {:include_blank=>'-- Pilih --', :class=>"uk-button uk-button-default uk-text-left", :onchange=>"change_period_yymm(this, '"+params[:controller].to_s+"')"} %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-3-5@m uk-width-2-3@l">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">NIK</div>
+            <div class="uk-width-expand@m nik">
+              <%= text_field_tag 'employee_nik', (params[:employee_nik].present? ? params[:employee_nik] : employee.nik), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+            </div>
+            <div class="uk-width-1-5@m">Department</div>
+            <div class="uk-width-expand@m department_name">
+              <%= text_field_tag 'department_name', (params[:department_name].present? ? params[:department_name] : employee.department.name), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Hari</th>
+            <th>Schedule Code</th>
+            <th>Schedule IN</th>
+            <th>Schedule OUT</th>
+            <th>In</th>
+            <th>Out</th>
+            <th>Jam Kerja</th>
+            <th>Lembur Mulai</th>
+            <th>Lembur Selesai</th>
+            <th>Jam Lembur</th>
+            <th>Izin</th>
+            <th>Alpa</th>
+            <th>Telat</th>
+            <th>Pulang Awal</th>
+          </tr>
+          <% c= 1 %>
+          <% if @working_hour_summary_items.present? %>
+            <% @working_hour_summary_items.each do |record| %>
+
+              <% schedule_code = (record.schedule.code if record.schedule.present?) %>
+              <% case @record.work_schedule %>
+              <% when '6-2','6-0' %>
+                <% if record.date.sunday? %>
+                  <% bg_color = '#E8FFC2' %>
+                  <% tr_title = 'Masuk Hari Libur' %>
+                <% else %>
+                  <% tr_title = '' %>
+                  <% bg_color = '' %>
+                <% end %>
+              <% else %>
+                <% if record.date.saturday? || record.date.sunday? %>
+                  <% bg_color = '#E8FFC2' %>
+                  <% tr_title = 'Masuk Hari Libur' %>
+                <% else %>
+                  <% tr_title = '' %>
+                  <% bg_color = '' %>
+                <% end %>
+              <% end %>
+
+              <% holiday =  @holiday.find_by(:date=> record.date) %>
+              <% if holiday.present? %>
+                <% bg_color = '#ECA6A6' %>
+                <% tr_title = holiday.holiday %>
+              <% end %>
+              <% 
+                day_name = "#{record.date.strftime('%A')}".downcase
+                
+                schedule_time_in  = (record.schedule["#{day_name}_in"] if record.schedule.present?)
+                schedule_time_out = (record.schedule["#{day_name}_out"] if record.schedule.present?)
+                if schedule_time_in.present? and schedule_time_out.present? and (schedule_time_in.strftime("%H:%M:%S") > schedule_time_out.strftime("%H:%M:%S") )
+                  overday = 1
+                else
+                  overday = 0
+                end
+                ot = (@employee_overtimes.where(:date=> record.date) if @employee_overtimes.present?)
+              %>
+
+              <tr style="background: <%= bg_color %>;" title="<%= tr_title %>">
+                <td class="uk-text-right">
+                    <%= c %>
+                </td>
+                <td class="uk-text-center"><%= record.date %></td>
+                <td class="uk-text-center"><%= record.date.strftime("%A") if record.date.present? %></td>
+                <td class="uk-text-center"><%= record.schedule.code if record.schedule.present? %></td>
+                <td class="uk-text-center">
+                  <%= schedule_time_in.strftime("%H:%M:%S") if schedule_time_in.present? %></td>
+                <td class="uk-text-center">
+                  <%= schedule_time_out.strftime("%H:%M:%S") if schedule_time_out.present? %>
+                  <%= "(+1)" if overday.to_i == 1 %>  
+                  </td>
+                <td class="uk-text-center" style="background: <%= 'red' if record.att_time_out.present? and record.att_time_in.blank? %>;">
+                  <% if record.att_time_in.present? %>
+                    <%= record.att_time_in.strftime("%H:%M:%S") %>
+                  <% end %>
+                </td>
+                <td class="uk-text-center" style="background: <%= 'red' if record.att_time_in.present? and record.att_time_out.blank? %>;" 
+                  title="<%= "#{record.date+1.days} #{record.att_time_out.strftime("%H:%M:%S")}" if record.att_time_out.present? and overday.to_i == 1 %>">
+                  <% if record.att_time_out.present? %>
+                    <%= record.att_time_out.strftime("%H:%M:%S") %>
+                    <%= "(+1)" if record.att_time_in.present? and record.att_time_in > record.att_time_out %>
+                  <% end %>
+                </td>
+                <td class="uk-text-right"><%= record.working_hour %></td>
+                <td class="uk-text-center">
+                  <% ot.each do |r| %>
+                    <div title="<%= r.date %>"><%= r.overtime_begin.strftime("%H:%M:%S") if r.present? %>
+                    </div>
+                  <% end if ot.present? %>
+                </td>
+                <td align="center">
+                  <% ot.each do |r| %>
+                    <% if r.overtime_begin.strftime("%H:%M:%S") > r.overtime_end.strftime("%H:%M:%S") %>
+                      <div title="<%= r.date+1.days %>"><%= r.overtime_end.strftime("%H:%M:%S") if r.present? %>
+                        (+1)
+                      </div>
+                    <% else %>
+                      <div title="<%= r.date %>"><%= r.overtime_end.strftime("%H:%M:%S") if r.present? %></div>
+                    <% end %>
+                  <% end if ot.present? %>
+                </td>
+                <td align="right"><%= record.overtime %></td>
+                <td>
+                  <% absence_status = nil %>
+                  <% @employee_absences.where(:employee_id=> @record.id).where("begin_date <= ? and end_date >= ?", record.date, record.date).each do |absence| %>
+                    <%= absence.employee_absence_type.name if absence.employee_absence_type.present? %> 
+                    (<%= absence.status %>)                                        
+                    <% absence_status = absence.status %>
+                  <% end %>
+                </td>
+                <td style="<%= record.absence_a.to_i > 0 ? 'background:yellow;' : nil %> "><%= record.absence_a %></td>
+                <td style="<%= record.late_come.to_i > 0 ? 'background:yellow;' : nil %> "><%= record.late_come %></td>
+                <td style="<%= record.home_early.to_i > 0 ? 'background:yellow;' : nil %> "><%= record.home_early %></td>
+              </tr>
+              <% c+= 1 %>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="20">
+                <% if @record.work_status.present? %> 
+                  Status Kerja <%= @record.work_status.name %>
+                <% else %>
+                  Tidak ada schedule!
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+
+          <% period = params[:period].present? ? (params[:period]+'01').to_date.beginning_of_month().strftime("%Y-%m-%d") : DateTime.now().beginning_of_month().strftime("%Y-%m-%d")
+            period_begin = period.to_date+20.day if period.present?
+            period_end = period.to_date+1.month+19.day if period.present?
+            %>
+          <tr>
+            <td colspan="20"></td>
+          </tr>
+        </table>
+        <hr>
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item_2">                  
+          <tr>
+            <td class="uk-text-center"><b>Total Hari Kerja</b></td>
+            <td class="uk-text-center"><b>Total Jam Kerja</b></td>
+            <td class="uk-text-center"><b>Total Masuk Hari Libur</b></td>
+            <td class="uk-text-center" title="masuk kerja di schedule L"><b>Working off Day</b></td>
+            <td class="uk-text-center"><b>Total Overtime</b></td>
+          </tr>
+          <tr>
+            <td class="uk-text-right"><%= @working_hour_summary.working_weekday if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.working_hour.round(2) if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.working_weekend if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.working_off_day if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.overtime_hour.to_i if @working_hour_summary.present? %></td>
+          </tr>
+        </table>
+        <hr>
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item_3">                  
+          <tr>
+            <td class="uk-text-center"><b>Total Alpa</b></td>
+            <td class="uk-text-center" title="Jumlah Kode Schedule 'I' yang sudah approve 3"><b>Total Izin</b></td>
+            <td class="uk-text-center" title="Jumlah Kode Schedule 'S' yang sudah approve 3"><b>Total Sakit</b></td>
+            <td class="uk-text-center" title="Jumlah Kode Schedule 'C' yang sudah approve 3 ('C01','C02','C03','C04','C05','C06','CHM','CML','CT')"><b>Total Cuti</b></td>
+            <td class="uk-text-center" title="Jumlah Kode Schdule 'L' tidak termasuk libur nasional"><b>Total Libur</b></td>
+            <td class="uk-text-center"><b>Total Telat</b></td>
+            <td class="uk-text-center"><b>Total Pulang Awal</b></td>
+          </tr>
+          <tr>
+            <td class="uk-text-right"><%= @working_hour_summary.absence_a if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.absence_i if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.absence_s if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.absence_c if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.absence_l if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.late_come if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.home_early if @working_hour_summary.present? %></td>
+          </tr>
+        </table>
+        <hr>
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item_4">                  
+          <tr>
+            <td class="uk-text-center"><b>OT jam pertama</b></td>
+            <td class="uk-text-center"><b>OT jam kedua</b></td>
+            <td class="uk-text-center"><b>OT jam ke 4 s/d 7</b></td>
+            <td class="uk-text-center"><b>OT jam ke 8 s/d 11</b></td>
+            <td class="uk-text-center"><b>OT diatas jam ke 11</b></td>
+            <td class="uk-text-center"><b>OT jam ke 5 s/d 8</b></td>
+            <td class="uk-text-center"><b>OT diatas jam ke 8</b></td>
+          </tr>
+          <tr>
+            <td class="uk-text-right"><%= @working_hour_summary.overtime_first_hour.to_i if @working_hour_summary.present? %></td>
+            <td class="uk-text-right"><%= @working_hour_summary.overtime_second_hour.to_i if @working_hour_summary.present? %></td>
+            <td class="uk-text-right" title="Jumlah Overtime 4 sd 7 Jam"><%= @working_hour_summary.overtime_4_7 if @working_hour_summary.present? %></td>
+            <td class="uk-text-right" title="Jumlah Overtime 8 sd 11 jam"><%= @working_hour_summary.overtime_8_11 if @working_hour_summary.present? %></td>
+            <td class="uk-text-right" title="Jumlah Overtime diatas 11 jam"><%= @working_hour_summary.overtime_11plus if @working_hour_summary.present? %></td>
+            <td class="uk-text-right" title="Jumlah Overtime 5 sd 8 jam"><%= @working_hour_summary.overtime_5_8 if @working_hour_summary.present? %></td>
+            <td class="uk-text-right" title="Jumlah Overtime diatas 8 jam"><%= @working_hour_summary.overtime_8plus if @working_hour_summary.present? %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+    
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-5@m" id="validation">
+        <%= link_to 'Back', working_hour_summaries_path(:department_id =>params[:department_id], :period=>params[:period]), class: "uk-button uk-button-secondary uk-button-small" %>
+        <%= link_to 'Check', edit_working_hour_summary_path(:id=>params[:id], :view_kind=>'show_record', :department_id=>params[:department_id], :period=>params[:period]), class: "uk-button uk-button-primary uk-button-small" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+

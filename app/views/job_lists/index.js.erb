@@ -1,0 +1,7 @@
+<% case params[:partial] %>
+<% when 'change_interval' %>
+	$('.interval_detail').html("<%= escape_javascript(render 'partial') %>");
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>
+

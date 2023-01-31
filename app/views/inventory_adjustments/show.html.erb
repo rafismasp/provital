@@ -1,0 +1,157 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', inventory_adjustments_path(), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-2@m">
+					        <div class="uk-margin-small">
+					          <div class="uk-grid">
+					            <div class="uk-width-1-6@m">Number</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= text_field_tag :number, @inventory_adjustment.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					            <div class="uk-width-1-6@m">Date</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= date_field_tag :date, @inventory_adjustment.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					          </div>
+					        </div>
+					      </div>
+					      <div class="uk-width-1-2@m">
+					        <div class="uk-grid">
+					          <div class="uk-width-1-6@m">Kind</div>
+					          <div class="uk-width-1-3@m">
+                  		<%= text_field_tag :kind, (@inventory_adjustment.kind), :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+					          </div>
+					        </div>
+					      </div>
+					    </div>
+					  </div>
+
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-1@m">
+					        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+					          <tr>
+					            <th>#</th>
+					            <th>Batch Number</th>
+					            <th><%= @inventory_adjustment.kind %> Code</th>
+					            <th><%= @inventory_adjustment.kind %> Name</th>
+					            <% if @inventory_adjustment.kind == 'product' %>
+					            	<th>Product Type</th>
+					            <% end %>
+					            <th>Unit</th>
+					            <th>Stock</th>
+					            <th title="Nilai Negatif untuk mengurangi stock">Adj Qty</th>
+					            <th>Stock Seharusnya</th>
+					            <th>Remarks</th>
+					          </tr>
+					          <% c=0 %>
+					          
+					          <% @inventory_adjustment_items.each do |inventory_adjustment_item| %>
+					          	<% part = nil %>
+					          	<% batch_number = nil %>
+						          <% if inventory_adjustment_item.product.present? %>
+						          	<% part = inventory_adjustment_item.product %>
+						          	<% batch_number = "#{inventory_adjustment_item.product_batch_number.number if inventory_adjustment_item.product_batch_number.present?}" %>
+						          <% elsif inventory_adjustment_item.material.present? %>
+						          	<% part = inventory_adjustment_item.material %>
+						          	<% batch_number = "#{inventory_adjustment_item.material_batch_number.number if inventory_adjustment_item.material_batch_number.present?}" %>
+						          <% end %>
+					            
+					            <tr>
+					              <td class="counter"><%= c+=1%></td>
+					              <td>
+					                <%= batch_number %>
+					              </td>
+					              <td><%= (part.present? ? part.part_id : nil) %></td>
+					              <td><%= (part.present? ? part.name : nil) %></td>
+						            <% if @inventory_adjustment.kind == 'product' %>
+						              <td><%= (part.present? ? part.type_name : nil) %></td>
+						            <% end %>
+					              <td><%= (part.present? ? part.unit_name : nil) %></td>
+					              
+					              <td class="uk-text-right">
+					                <%= number_with_precision(inventory_adjustment_item.stock_quantity, precision: 2, delimiter: ".", separator: ",") %>
+					              </td>
+					              <td class="uk-text-right">
+					                <%= number_with_precision(inventory_adjustment_item.quantity, precision: 2, delimiter: ".", separator: ",") %>
+					              </td>
+					              <td class="uk-text-right">
+					                <%= number_with_precision(inventory_adjustment_item.stock_quantity.to_f + inventory_adjustment_item.quantity.to_f, precision: 2, delimiter: ".", separator: ",") %>
+					              </td>
+					              <td><%= inventory_adjustment_item.remarks %></td>
+					            </tr>
+					          <% end if @inventory_adjustment_items.present? %>
+					        </table>
+					      </div>
+					    </div>
+					  </div>
+					  <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @inventory_adjustment.status == 'new' or @inventory_adjustment.status == 'canceled1' %>
+                        <%= link_to approve_inventory_adjustment_path(@inventory_adjustment, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @inventory_adjustment.status == 'approved1' or @inventory_adjustment.status == 'canceled2' %>
+                        <%= link_to approve_inventory_adjustment_path(@inventory_adjustment, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_inventory_adjustment_path(@inventory_adjustment, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @inventory_adjustment.status == 'approved2' or @inventory_adjustment.status == 'canceled3' %>   
+                        <%= link_to approve_inventory_adjustment_path(@inventory_adjustment, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_inventory_adjustment_path(@inventory_adjustment, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_inventory_adjustment_path(@inventory_adjustment, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @inventory_adjustment.status %>
+                      <% when 'approved3' %>
+                        <%= link_to print_inventory_adjustment_path(@inventory_adjustment), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', inventory_adjustments_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', inventory_adjustments_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_inventory_adjustment_path(@inventory_adjustment), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,137 @@
+
+<%= form_with(model: supplier_tax_invoice, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if supplier_tax_invoice.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(supplier_tax_invoice.errors.count, "error") %> prohibited this supplier_tax_invoice from being saved:</h2>
+
+      <ul>
+      <% supplier_tax_invoice.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-2-3@m">
+
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">Suppliers</div>
+            <div class="uk-width-1-2@m">
+
+              <%= hidden_field_tag "supplier_tax_invoice[supplier_id]", (form.object.supplier.present? ? form.object.supplier_id : ""), :class=>"supplier_id uk-input uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "supplier_id", field_value: (form.object.supplier.present? ? form.object.supplier.name : ""), kind: params[:q] %>
+            </div>
+            <div class="uk-width-1-5@m select_currencies">
+              <%= text_field_tag "currency", (form.object.supplier.present? ? form.object.supplier.currency.name : ""), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">FP Number</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :number, id: :supplier_tax_invoice_number, :class=> "uk-input uk-form-width-large uk-form-small", :onchange=> "change_fp_number(this, '"+params[:controller].to_s+"');" %>
+            </div>
+            <div class="uk-width-1-6@m">FP Date</div>
+            <div class="uk-width-1-4@m">
+              <%= form.date_field :date, id: :supplier_tax_invoice_date, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">Remarks</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :remarks, id: :supplier_tax_invoice_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+            <div class="uk-width-1-6@m">Periode</div>
+            <div class="uk-width-1-4@m">
+              <%= text_field_tag "periode", (@supplier_tax_invoice.date.strftime("%B %Y") if @supplier_tax_invoice.present? and @supplier_tax_invoice.date.present?), {:class=>"uk-input uk-form-width-large uk-form-small", :disabled=> true } %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-5@m">DPP</div>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "dpptotal", number_with_precision(@supplier_tax_invoice.dpptotal, precision: 0, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true } %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">          
+            <div class="uk-width-1-5@m">PPN</div>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "ppntotal", number_with_precision(@supplier_tax_invoice.ppntotal, precision: 0, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true } %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="uk-margin-small">
+          <div class="uk-grid">          
+            <div class="uk-width-1-2@m">Checked by Accounting</div>
+            <div class="uk-width-1-5@m">
+              <%= form.check_box :checked, :class=> "uk-checkbox uk-form-width-small uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">   
+          <thead>
+            <tr>
+              <td>#</td>
+              <td>Invoice Number</td>
+              <td>Invoice Date</td>
+              <td>Invoice Status</td>
+              <td>Invoice Subtotal</td>
+              <td>Invoice PPN</td>
+              <td>Invoice PPH</td>
+              <td>Invoice GrandTotal</td>
+            </tr>
+          </thead>
+          <tbody>
+            <% c= 0 %>
+            <% if @invoice_suppliers.present? %>
+              <% @invoice_suppliers.each do |invoice| %>
+                <tr>
+                  <td><%= c+=1 %></td>
+                  <td><%= invoice.number %></td>
+                  <td><%= invoice.date %></td>
+                  <td class="<%= invoice.status == 'approved3' ? nil : 'uk-alert-danger' %>"><%= invoice.status %></td>
+                  <td class="uk-text-right"><%= number_with_precision(invoice.subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(invoice.pphtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                  <td class="uk-text-right"><%= number_with_precision(invoice.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                </tr>       
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="12">Tidak ada invoice</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', supplier_tax_invoices_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

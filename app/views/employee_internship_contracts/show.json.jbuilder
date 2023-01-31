@@ -1,0 +1,1 @@
+json.partial! "employee_internship_contracts/employee_internship_contract", employee_internship_contract: @employee_internship_contract

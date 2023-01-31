@@ -1,0 +1,327 @@
+
+<%= form_with(model: sales_order, local: true, class: "uk-form-horizontal", :multipart => true) do |form| %>
+
+  <% if sales_order.errors.any? %>
+    <% alert = "<h4> #{pluralize(sales_order.errors.count, 'error')} prohibited this sales_order from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% sales_order.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end %>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Customer</div>
+            <div class="uk-width-2-3@m">
+              <%= hidden_field_tag "sales_order[customer_id]", (form.object.customer.present? ? form.object.customer_id : ""), :class=>"customer_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "customer_id", field_value: (form.object.customer.present? ? form.object.customer.name : "") %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m" title="Terms of Payment">TOP</div>
+            <div class="uk-width-1-2@m">
+              <div class="uk-flex">
+                <%= form.text_field :top_day, id: :sales_order_top_day, :class=> "uk-input uk-form-small select_top_day", :style=> "width: 50px;" %>
+                <%= form.select :term_of_payment_id, options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, form.object.term_of_payment_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small select_term_of_payments"} if @term_of_payments.present? %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m" title="Terms of Payment">Service Type</div>
+            <div class="uk-width-1-2@m">
+              <div class="uk-margin-small">
+                <div class="uk-grid">
+                  <div class="uk-width-1-3@m" title="Design, Deevlopment and Validation">
+                    <div class="uk-flex">
+                      <%= form.check_box :service_type_ddv, :onclick=> "sales_order_service_type(this, '"+params[:controller].to_s+"');", :class=> "service_type_non_str" %><b>DDV</b>
+                    </div>
+                  </div>
+                  <div class="uk-width-1-3@m" title="Manufacturing">
+                    <div class="uk-flex">
+                      <%= form.check_box :service_type_mfg, :onclick=> "sales_order_service_type(this, '"+params[:controller].to_s+"');", :class=> "service_type_non_str" %> <b>MFG</b>
+                    </div>
+                  </div>
+                  <div class="uk-width-1-3@m" title="Other">
+                    <div class="uk-flex">
+                      <%= form.check_box :service_type_oth, :onclick=> "sales_order_service_type(this, '"+params[:controller].to_s+"');", :class=> "service_type_non_str" %> <b>OTH</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">SO Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :sales_order_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :date, id: :sales_order_date, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m" title="Terms of Payment"></div>
+            <div class="uk-width-1-2@m">
+              <div class="uk-margin-small">
+                <div class="uk-grid">
+                  <div class="uk-width-1-3@m" title="Sterilization">
+                    <div class="uk-flex">
+                      <%= form.check_box :service_type_str, :onclick=> "sales_order_service_type(this, '"+params[:controller].to_s+"');", :class=> "service_type_str" %> <b>STR</b>
+                    </div>
+                  </div>
+                  <div class="uk-width-1-3@m" title="Laboratory Testing">
+                    <div class="uk-flex">
+                      <%= form.check_box :service_type_lab, :onclick=> "sales_order_service_type(this, '"+params[:controller].to_s+"');" %> <b>LAB</b>
+                    </div>
+                  </div>
+                  <div class="uk-width-1-3@m">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PO Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :po_number, id: :sales_order_po_number, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true, :placeholder=> "PO from Customer" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PO Received</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :po_received, id: :sales_order_po_received, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Delivery Date</div>
+            <div class="uk-width-1-3@m">
+              <% select_year = (sales_order.month_delivery.present? ? sales_order.month_delivery.first(4) : DateTime.now().strftime("%Y")) %>
+              <% select_month = (sales_order.month_delivery.present? ? sales_order.month_delivery.last(2) : DateTime.now().strftime("%m")) %>
+              
+              <%= form.select :month_delivery_mm, [["January", '01'], ["February", '02'], ["March", '03'], ["April", "04"], ["May", "05"], ["June", "06"], ["July", "07"], ["August", "08"], ["September", "09"], ["October", "10"], ["November", "11"], ["December", "12"]], {:selected=> select_month}, :class=> "uk-select uk-form-width-large uk-form-small", :required=> true %>
+            </div>
+            <div class="uk-width-1-3@m">
+              <%= form.select :month_delivery_yyyy, Date.today.year.. 3.years.from_now.year, {:selected=> select_year}, :class=> "uk-select uk-form-width-large uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Quotation No.</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :quotation_number, id: :sales_order_quotation_number, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Remarks</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :remarks, id: :sales_order_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Type of Tax</div>
+            <div class="uk-width-2-3@m select_taxes">
+              <%= form.select :tax_id, options_for_select(@taxes.map{|c| [c.name, c.id ]}, form.object.tax_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-small"} if @taxes.present? %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+      <div class="uk-width-1-2@m">
+
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Attachments</div>
+            <div class="uk-width-3-4@m">
+
+              <table class="uk-table uk-table-hover">
+                <tbody>
+                  <% @record_files.each do |record_file| %>
+                    <%= hidden_field_tag 'record_file[][id]', record_file.id %>
+                    <% case record_file.ext.downcase %>
+                    <% when '.png','.jpg','.jpeg','.jfif','.svg','.webp' %>
+                      <tr>
+                        <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 100px"/></a></td>
+                        <td>status: <%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+                      </tr>
+                    <% else %>
+                      <tr>
+                        <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a></td>
+                        <td>status: <%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+                      </tr>
+                    <% end %>
+                  <% end if @record_files.present? %>
+                  <tr>
+                    <td>PO</td>
+                    <td><%= file_field_tag 'file[][attachment]', :class=>'btn btn-default btn-sm', :multiple=>true %></td>
+                  </tr>
+                  <tr>
+                    <td>Cost Structure</td>
+                    <td><%= file_field_tag 'file[][attachment]', :class=>'btn btn-default btn-sm', :multiple=>true %></td>
+                  </tr>
+                </tbody> 
+              </table>  
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid table-wrapper" style="max-width: 1400px">
+      <div class="md-card-content" style="overflow-x: auto;">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Product Name</th>
+            <th>Product Code</th>
+            <th>Type</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Outstanding</th>
+            <th>Discount %</th>
+            <th>Unit Price</th>
+            <th>Due Date</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @sales_order_items.each do |sales_order_item| %>
+            <%= hidden_field_tag 'sales_order_item[][id]', sales_order_item.id %>
+            <% part = nil %>
+            <% if sales_order_item.product.present? %>
+              <% part = sales_order_item.product %>
+            <% elsif sales_order_item.material.present? %>
+              <% part = sales_order_item.material %>
+            <% end %>
+            <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+
+            <tr>
+              <td class="counter uk-text-right"><%= c+=1%></td>
+              <td title="<%= part.name if part.present? %>">
+                <%= hidden_field_tag "sales_order_item[][product_id]", sales_order_item.product_id, :class=>"product_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                <%= render 'layouts/form_item', c: c, field_name: "product_id", field_value: part.name %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_id', part.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :title=> part.part_id, :disabled=> true, :style=> "width:100px;"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'type_name', part.type_name, {:class=>"type_name#{c} uk-input uk-form-small", :title=> part.type_name, :disabled=> true, :style=> "width:80px;"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-small uk-text-center", :title=> unit_name, :disabled=> true, :style=> "width:50px;"} %>
+              </td>
+             
+              <td title="Jika diubah tidak boleh kurang dari outstanding">
+                <%= number_field_tag 'sales_order_item[][quantity]', sales_order_item.quantity, 
+                  {:min=> (sales_order_item.outstanding.to_f == sales_order_item.quantity.to_f ? 0 : (sales_order_item.quantity.to_f - sales_order_item.outstanding.to_f) ), :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'outstanding', sales_order_item.outstanding, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+              </td>
+              <td>
+                <%= number_field_tag 'sales_order_item[][discount]', sales_order_item.discount, {:min=> 0, :max=> 100, :class=>"uk-input uk-form-small uk-text-right", :style=> "width:50px;"} %>
+              </td>
+              <td>
+                <%= number_field_tag 'sales_order_item[][unit_price]', sales_order_item.unit_price, {:placeholder=> 'Unit Price', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", step: :any} %>
+              </td>
+              <td>
+                <%= date_field_tag 'sales_order_item[][due_date]',sales_order_item.due_date, {:placeholder=> 'Due Date', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'sales_order_item[][remarks]',sales_order_item.remarks, {:placeholder=> 'remarks', :title=> sales_order_item.remarks, :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "sales_order_item[][status]", options_for_select(['active','deleted'],
+                  sales_order_item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @sales_order_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', sales_orders_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

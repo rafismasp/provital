@@ -1,0 +1,1 @@
+json.partial! "proof_cash_expenditure_open_prints/proof_cash_expenditure_open_print", proof_cash_expenditure_open_print: @proof_cash_expenditure_open_print

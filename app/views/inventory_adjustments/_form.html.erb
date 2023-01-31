@@ -1,0 +1,225 @@
+
+<%= form_with(model: inventory_adjustment, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <% if inventory_adjustment.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(inventory_adjustment.errors.count, "error") %> prohibited this inventory_adjustment from being saved:</h2>
+
+      <ul>
+      <% inventory_adjustment.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-6@m">Number</div>
+      <div class="uk-width-1-4@m">
+        <%= form.text_field :number, id: :inventory_adjustment_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+      </div>
+      <div class="uk-width-1-6@m">Date</div>
+      <div class="uk-width-1-4@m">
+        <%= form.date_field :date, id: :inventory_adjustment_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+      </div>
+    </div>
+  </div>
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-6@m">Kind</div>
+        <div class="uk-width-1-4@m">
+          <% if form_kind == 'new' %>
+            <%= form.select :kind, options_for_select(['product','material'], form.object.kind), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_kind_adjustment(this, '"+params[:controller].to_s+"');"} %>
+          <% else %>
+            <%= form.select :kind, options_for_select([form.object.kind], form.object.kind), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_kind_adjustment(this, '"+params[:controller].to_s+"');"} %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <% case form_kind %>
+      <% when 'new','edit' %>
+        <div class="uk-width-1-2@m">
+          <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+        </div>
+      <% end %>
+      <div class="uk-padding-small">
+        <a class="uk-button uk-button-primary uk-button-small" href="#modal-upload" uk-toggle>Upload</a>
+
+        <%= link_to 'Master', "/inventory_adjustments/export?kind=master", class: "uk-button uk-button-primary uk-button-small" %>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+            <% case form_kind %>
+            <% when 'import' %>
+              <tr>
+                <th>#</th>
+                <th>Batch Number</th>
+                <th><%= form.object.kind %> Code</th>
+                <th><%= form.object.kind %> Name</th>
+                <% if form.object.kind == 'product' %>
+                  <th>Product Type</th>
+                <% end %>
+                <th>Unit</th>
+                <th>Stock</th>
+                <th>Actual</th>
+                <th title="Nilai Negatif untuk mengurangi stock">Qty Adjustment</th>
+                <th>Remarks</th>
+                <th>Remove</th>
+              </tr>
+              <% c=0 %>
+              <% @import_results.each do |item| %>
+                <tr>
+                  <td><%= item[:counter] %>
+                    <%= hidden_field_tag "new_record_item[][product_batch_number_id]", item[:product_batch_number_id] %>
+                    <%= hidden_field_tag "new_record_item[][material_batch_number_id]", item[:material_batch_number_id] %>
+                    <%= hidden_field_tag "new_record_item[][material_id]", item[:material_id] %>
+                    <%= hidden_field_tag "new_record_item[][product_id]", item[:product_id] %>
+                  </td>
+                  <td><%= item[:batch_number] %></td>
+                  <td><%= item[:part_id] %></td>
+                  <td><%= item[:part_name] %></td>
+                  <% if form.object.kind == 'product' %>
+                    <td><%= item[:part_type_name] %></td>
+                  <% end %>
+                  <td><%= item[:part_unit_name] %></td>
+                  <td><%= item[:end_stock] %></td>
+                  <td><%= item[:actual_stock] %></td>
+                  <td>
+                    <% adj_qty = 0 %>
+                    <% if item[:actual_stock].to_f == 0 and item[:end_stock].to_f < 0 %>
+                      <% adj_qty = item[:end_stock].to_f.abs %>
+                    <% elsif item[:actual_stock].to_f == 0 and item[:end_stock].to_f > 0 %>
+                      <% adj_qty = item[:actual_stock].to_f - item[:end_stock].to_f %>
+                    <% else %>
+                      <% if item[:end_stock].to_f > item[:actual_stock].to_f %>
+                        <% adj_qty = item[:actual_stock].to_f - item[:end_stock].to_f %>
+                      <% elsif item[:actual_stock].to_f > item[:end_stock].to_f %>
+                        <% adj_qty = item[:actual_stock].to_f - item[:end_stock].to_f %>
+                      <% elsif item[:actual_stock].to_f == item[:end_stock].to_f %>
+                        <% adj_qty = 0 %>
+                      <% else %>
+                          XXXXXXXXXXXXXXXXXXXXXXXXXXxx
+                      <% end %>
+                    <% end %>
+
+                    <%= number_field_tag 'new_record_item[][quantity]', adj_qty, {:placeholder=> 'quantity', :readonly=> true, :class=>"quantity#{item[:counter]} uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+                    </td>
+                  <td>
+                    <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+                  </td>
+                  <td align='center' width=30px>
+                    <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+                  </td>
+                </tr>
+              <% end if @import_results.present? %>
+            <% when 'new', 'edit' %>
+              <tr>
+                <th>#</th>
+                <th>Batch Number</th>
+                <th><%= form.object.kind %> Code</th>
+                <th><%= form.object.kind %> Name</th>
+                <% if form.object.kind == 'product' %>
+                  <th>Product Type</th>
+                <% end %>
+                <th>Unit</th>
+                <th>Stock</th>
+                <th title="Nilai Negatif untuk mengurangi stock">Quantity</th>
+                <th>Remarks</th>
+                <th>Remove</th>
+              </tr>
+              <% c=0 %>
+
+              <% @inventory_adjustment_items.each do |inventory_adjustment_item| %>
+                <%= hidden_field_tag 'inventory_adjustment_item[][id]', inventory_adjustment_item.id %>
+                <% part = nil %>
+                <% batch_number = nil %>
+                <% batch_number_id = nil %>
+                <% if inventory_adjustment_item.product.present? %>
+                  <% part = inventory_adjustment_item.product %>
+                  <% if inventory_adjustment_item.product_batch_number.present? %>
+                    <% batch_number = inventory_adjustment_item.product_batch_number.number %>
+                    <% batch_number_id = inventory_adjustment_item.product_batch_number_id %>
+                  <% end %>
+                <% elsif inventory_adjustment_item.material.present? %>
+                  <% part = inventory_adjustment_item.material %>
+                  <% if inventory_adjustment_item.material_batch_number.present? %>
+                    <% batch_number = inventory_adjustment_item.material_batch_number.number %>
+                    <% batch_number_id = inventory_adjustment_item.material_batch_number_id %>
+                  <% end %>
+                <% end %>
+
+                <tr>
+                  <td class="counter uk-text-right"><%= c+=1%></td>
+                  <td>
+                    <% case form.object.kind %>
+                    <% when 'product' %>
+                      <%= hidden_field_tag "inventory_adjustment_item[][product_batch_number_id]", batch_number_id, :class=>"product_batch_number_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                      <%= render 'layouts/form_item', c: c, field_name: "product_batch_number_id", field_value: batch_number %>
+                    <% when 'material' %>
+                      <%= hidden_field_tag "inventory_adjustment_item[][material_batch_number_id]", batch_number_id, :class=>"material_batch_number_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+
+                      <%= render 'layouts/form_item', c: c, field_name: "material_batch_number_id", field_value: batch_number %>
+                    <% end %>
+                  </td>
+                  <td>
+                    <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true, :style=> "width:80px;"} %>
+                  </td>
+                  <td>
+                    <% case form.object.kind %>
+                    <% when 'product' %>
+                      <%= hidden_field_tag 'inventory_adjustment_item[][product_id]', inventory_adjustment_item.product_id, {:class=>"product_id#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+                    <% when 'material' %>
+                      <%= hidden_field_tag 'inventory_adjustment_item[][material_id]', inventory_adjustment_item.material_id, {:class=>"material_id#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+                    <% end %>
+                    <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+                  </td>
+                  <% if form.object.kind == 'product' %>
+                    <td>
+                      <%= text_field_tag 'part_type', (part.present? ? part.type_name : nil), {:class=>"part_type#{c} uk-input uk-form-small", :disabled=> true} %>
+                    </td>
+                  <% end %>
+                  <td>
+                    <%= text_field_tag 'unit_name', (part.present? ? part.unit_name : nil), {:class=>"unit_name#{c} uk-input uk-form-small uk-text-center", :disabled=> true, :style=> "width:50px;"} %>
+                  </td>               
+                  <td class="uk-text-right">
+                    <%= number_with_precision(inventory_adjustment_item.stock_quantity, precision: 0, delimiter: ".", separator: ",") %>
+                  </td>
+                  <td>
+                    <%= number_field_tag 'inventory_adjustment_item[][quantity]', inventory_adjustment_item.quantity, {:placeholder=> 'quantity', :class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+                  </td>
+                  <td>
+                    <%= text_field_tag 'inventory_adjustment_item[][remarks]',inventory_adjustment_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+                  </td>
+                  <td>
+                    <%= select_tag "inventory_adjustment_item[][status]", options_for_select(['active','deleted'],
+                      inventory_adjustment_item.status) , { :class=>'uk-select uk-form-small'} %>
+                  </td>
+                </tr>
+              <% end if @inventory_adjustment_items.present? %>
+            <% end %>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', inventory_adjustments_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

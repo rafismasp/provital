@@ -1,0 +1,4 @@
+<% case params[:partial] %>
+<% when 'change_department' %>
+  <%= select_tag "user[employee_section_id]", options_for_select(@sections.map { |e| [e.name, e.id] }, @user.employee_section_id), :class=>"uk-select uk-form-small", :prompt=>"--select--"%>
+<% end %>

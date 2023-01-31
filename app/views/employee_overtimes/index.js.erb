@@ -1,0 +1,22 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_period' %>
+	$('.date_input').html("<%= escape_javascript(render 'partial') %>");
+<% when 'approve_all' %>
+	$('#content').html("<%= escape_javascript(render 'approve_all') %>");
+<% when 'change_period' %>
+	$('.date_input').html("<%= escape_javascript(render 'partial') %>");
+<% when 'show_schedule' %>
+	$("#trid"+<%= params[:seq] %>+" #sched").html("<%= escape_javascript(render 'partial') %>");
+<% when 'get_date' %>
+	$('#item').html("<%= escape_javascript(render 'partial', {field:'item'}) %>");
+	$('#employee_overtime_date').prop('readonly',true);
+	$('.year').html("<%= escape_javascript(render 'partial', {field:'year'}) %>");
+	$('.period_yymm').html("<%= escape_javascript(render 'partial', {field:'period_yymm'}) %>");
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

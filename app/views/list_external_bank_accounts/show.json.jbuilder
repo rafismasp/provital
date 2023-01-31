@@ -1,0 +1,1 @@
+json.partial! "list_external_bank_accounts/list_external_bank_account", list_external_bank_account: @list_external_bank_account

@@ -1,0 +1,21 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_customer' %>
+	$('.select_currencies').html("<%= escape_javascript(render 'partial', {field:'currency_id'}) %>");
+	$("#invoice_customer_unused").html("<%= escape_javascript(render 'partial', {field:'invoice_customer_unused'}) %>");
+<% when 'load_invoice_customer' %>
+	$("#item").html("<%= escape_javascript(render 'partial', {field:'load_invoice_customer'}) %>");
+	<% subtotal = 0 %>
+	<% ppntotal = 0 %>
+	<% @invoice_customers.each do |invoice| %>
+		<% subtotal += invoice.subtotal.to_f %>
+		<% ppntotal += invoice.ppntotal.to_f %>
+	<% end if @invoice_customers.present? %>
+	$("#customer_tax_invoice_subtotal").val("<%= number_with_precision(subtotal, precision: 0, delimiter: ".", separator: ",") %>");
+	$("#customer_tax_invoice_ppntotal").val("<%= number_with_precision(ppntotal, precision: 0, delimiter: ".", separator: ",") %>");
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

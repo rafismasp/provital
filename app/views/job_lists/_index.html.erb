@@ -1,0 +1,65 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    
+    <!-- panel -->
+    <div class="uk-width-1-1@l">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4><%= feature("name").humanize %></h4></div>
+          </div>
+          <hr class="uk-margin-small">
+
+          <nav class="uk-navbar-container uk-navbar-transparent" uk-navbar>
+            <div class="uk-navbar-left">
+              <div class="uk-padding-small">
+                <%= link_to 'ADD', new_job_list_path(), class: "uk-button uk-button-primary uk-button-small" %>
+              </div>
+              <div class="uk-padding-small">
+                <a class="uk-button uk-button-default uk-button-small" href="#modal-sections" uk-toggle>Filter</a>
+              </div>
+            </div>
+            <div class="uk-navbar-right">
+            </div>
+          </nav>
+
+        </div>
+        <div class="uk-card-body">
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+              <thead class="bg-primary">
+                <tr>
+                  <th>#</th>
+                  <th>Interval</th>
+                  <th>User</th>
+                  <th>Job</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Minute</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% c=0 %>   
+                <% @job_lists.each do |job_list| %>
+                  <tr data-link="/job_lists/<%= job_list.id %>" ondblclick="show_form(this)">
+                    <td><%= c+=1 %></td>
+                    <td><%= job_list.interval %></td>
+                    <td><%= job_list.user.email if job_list.user.present? %></td>
+                    <td><%= job_list.name %></td>
+                    <td><%= job_list.description %></td>
+                    <td><%= job_list.job_category.name if job_list.job_category.present? %></td>
+                    <td><%= job_list.time_required %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /panel -->
+
+  </div>
+  
+</div>

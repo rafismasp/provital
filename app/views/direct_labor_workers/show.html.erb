@@ -1,0 +1,33 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', direct_labor_workers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-width-1-5@m">Nama</div>
+              <div class="uk-width-1-4@m">
+                  <%= @direct_labor_worker.name %>
+                
+              </div>
+            </div>
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', direct_labor_workers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_direct_labor_worker_path(@direct_labor_worker), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

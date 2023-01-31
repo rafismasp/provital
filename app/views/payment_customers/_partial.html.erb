@@ -1,0 +1,112 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+	<% case field %>
+	<% when 'currency_id' %>
+    <%= select_tag "payment_customer[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "payment_customer[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+  <% when 'modal_invoice_customer' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_invoice_customers">  
+      <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>Invoice Number</td>
+        <td>Invoice Date</td>
+      </tr>
+      <% c = 0 %>
+      <% if @invoice_customers.present? %>
+        <% @invoice_customers.each do |invoice| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><input class="uk-checkbox select_invoice_customer_id" type="checkbox" invoice_customer_id="<%= invoice.id %>"></td>
+            <td><%= invoice.number %></td>
+            <td><%= invoice.date %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Not Found</td>
+        </tr>
+      <% end %>
+    </table>
+	<% end %>
+<% when "load_invoice_customer" %> 
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+    <thead>      
+      <tr>
+        <th>#</th>
+        <th>Invoice Number</th>
+        <th>Jumlah</th>
+        <th>Pajak</th>
+        <th>Discount</th>
+        <th>Down Payment</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @invoice_customer_selected.present? %>
+        <% c = 0 %>
+        <% @invoice_customer_selected.each do |invoice| %>
+          <% case params[:kind] %>
+          <% when 'proforma' %>
+            <%= hidden_field_tag "record[][proforma_invoice_customer_id]", invoice.id %>
+            <tr>
+              <td><%= c+= 1%></td>
+              <td><%= invoice.number %></td>
+              <td class="uk-text-right"><%= number_with_precision(invoice.grand_total, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-right"><%= number_with_precision(invoice.ppn_total, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-right"><%= number_with_precision(invoice.discount_total, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-right"><%= number_with_precision(invoice.down_payment_total, precision: 0, delimiter: ".", separator: ",") %></td>
+            </tr>
+          <% else %>
+            <%= hidden_field_tag "record[][invoice_customer_id]", invoice.id %>
+            <tr>
+              <td><%= c+= 1%></td>
+              <td><%= invoice.number %></td>
+              <td class="uk-text-right"><%= number_with_precision(invoice.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-right"><%= number_with_precision(invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-right"><%= number_with_precision(invoice.discount, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-right"><%= number_with_precision(0, precision: 0, delimiter: ".", separator: ",") %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="10">Tidak ada Invoice </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Invoice Kind</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Supplier</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @payment_customers.each do |payment_customer| %>
+          <tr uk-tooltip="title: <%= row_tooltip(payment_customer) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= payment_customer.status %></td>
+            <td><%= payment_customer.invoice_kind %></td>
+            <td><%= payment_customer.number %></td>
+            <td><%= payment_customer.date %></td>
+            <td><%= payment_customer.customer.name if payment_customer.customer.present? %></td>
+            <td><%= link_to 'Show', payment_customer_path(:id=> payment_customer.id, :kind=> payment_customer.invoice_kind) %></td>
+            <td><%= link_to 'Edit', edit_payment_customer_path(payment_customer, :kind=> payment_customer.invoice_kind)%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

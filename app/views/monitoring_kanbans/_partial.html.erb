@@ -1,0 +1,243 @@
+<% case params[:template] %>
+<% when 'old' %>
+	<div class="uk-child-width-1-6 uk-text-center uk-card-secondary" uk-grid uk-sticky>
+	  <div class="uk-padding-small">Batch Number</div>
+	  <div class="uk-padding-small">Production</div>
+	  <div class="uk-padding-small">Sterilization</div>
+	  <div class="uk-padding-small">Warehouse</div>
+	  <div class="uk-padding-small">Delivery</div>
+	  <div class="uk-padding-small">Summary</div>
+	</div>
+
+
+	<% @records.each do |record| %>
+		<% batch_number = record.number %>
+		<% batch_number_created_at = record.created_at %>
+
+
+		<% sfo_id = record.document_production("id") %>
+		<% sfo_number = record.document_production("number") %>
+		<% sfo_date = record.document_production("approved3_at") %>
+		<% sfo_quantity = record.document_production("quantity") %>
+
+		<% sterilization_process = record.sterilization_process(current_user.company_profile_id) %>
+		<% warehouse_process = record.fg_receiving_process(current_user.company_profile_id) %>
+		<% delivery_process = record.delivery_process(current_user.company_profile_id) %>
+		<% last_updated_at = sfo_date %>
+		<div class="uk-child-width-1-6 uk-text-center uk-margin-small" uk-grid>
+		  <div>
+		  	<% if batch_number.present? %>
+					<div class="uk-card uk-card-secondary">
+						<div class="uk-card-header">
+							<div class="uk-grid-small uk-flex-middle" uk-grid>
+								<div class="uk-width-expand">
+							    <p class="uk-text-normal uk-margin-remove-bottom"><%= batch_number %></p>
+							    <p class="uk-text-meta uk-margin-remove-top"><%= batch_number_created_at.to_datetime.strftime("%Y-%m-%d %H:%M:%S") %></p>
+								</div>
+							</div>
+						</div>
+						<div class="uk-card-body uk-padding-remove">
+							<p class="uk-padding-small"><%= record.product.name if record.product.present? %>
+							<%= record.product.type_name if record.product.present? %></p>
+						</div>
+					</div>
+		  	<% end %>
+		  </div>
+
+		  <div>
+		  	<% if sfo_number.present? %>
+					<div class="uk-card <%= sterilization_process.blank? ? (warehouse_process.blank? ? 'uk-card-primary' : 'uk-card-default') : 'uk-card-default' %>">
+						<div class="uk-card-header">
+							<div class="uk-grid-small uk-flex-middle" uk-grid>
+								<div class="uk-width-expand">
+							    <p class="uk-text-normal uk-margin-remove-bottom"><%= sfo_number %></p>
+							    <p class="uk-text-meta uk-margin-remove-top"><%= sfo_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if sfo_date.present? %></p>
+								</div>
+							</div>
+						</div>
+						<div class="uk-card-body uk-padding-remove">
+							<table class="uk-table uk-table-bordered">
+								<tr>
+									<td title="Quantity">
+										<%= number_with_precision(sfo_quantity, precision: 0, delimiter: ".", separator: ",") %>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div class="uk-card-footer uk-padding-remove">
+							<%= link_to 'Read more', shop_floor_order_path(:id=> sfo_id), :class=>"uk-button uk-button-text uk-padding-small" %>
+						</div>
+					</div>
+		  	<% end %>
+		  </div>
+
+		  <div>
+		  	<% str_process_date = nil %>
+		  	<% if sterilization_process.present? %>	  
+			  	<% sterilization_process.each do |str_process| %>		
+			  		<% str_process_number = str_process.shop_floor_order_sterilization.number %>
+			  		<% str_process_date   = str_process.shop_floor_order_sterilization.approved3_at %>
+						<div class="uk-card <%= warehouse_process.blank? ? 'uk-card-primary' : 'uk-card-default' %>">
+							<div class="uk-card-header">
+								<div class="uk-grid-small uk-flex-middle" uk-grid>
+									<div class="uk-width-expand">
+								    <p class="uk-text-normal uk-margin-remove-bottom"><%= str_process_number %></p>
+								    <p class="uk-text-meta uk-margin-remove-top"><%= str_process_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if str_process_date.present? %></p>
+									</div>
+								</div>
+							</div>
+							<div class="uk-card-body uk-padding-remove">
+								<table class="uk-table uk-table-bordered">
+									<tr>
+										<td title="Quantity">
+											<%= number_with_precision(str_process.quantity, precision: 0, delimiter: ".", separator: ",") %>
+										</td>
+									
+										<td title="Production to Sterilization ">
+							  		<%= TimeDifference.between(sfo_date, str_process_date).in_hours if sfo_date.present? and str_process_date.present? %> Hours</td>
+									</tr>
+								</table>
+							</div>
+							<div class="uk-card-footer uk-padding-remove">
+								<%= link_to 'Read more', shop_floor_order_sterilization_path(:id=> str_process.shop_floor_order_sterilization_id), :class=>"uk-button uk-button-text uk-padding-small" %>
+							</div>
+						</div>
+						<% last_updated_at = str_process_date %>
+			  	<% end %>
+		  	<% end %>
+		  </div>
+
+		  <div>
+		  	<% whfg_process_date = nil %>
+		  	<% if warehouse_process.present? %>	 
+			  	<% warehouse_process.each do |whfg_process| %>	
+			  		<% whfg_process_number = whfg_process.finish_good_receiving.number %>	
+			  		<% whfg_process_date   = whfg_process.finish_good_receiving.approved3_at %>	
+				  	<div class="uk-card <%= delivery_process.blank? ? 'uk-card-primary' : 'uk-card-default' %>">
+							<div class="uk-card-header">
+								<div class="uk-grid-small uk-flex-middle" uk-grid>
+									<div class="uk-width-expand">
+								    <p class="uk-text-normal uk-margin-remove-bottom"><%= whfg_process_number %></p>
+								    <p class="uk-text-meta uk-margin-remove-top"><%= whfg_process_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if whfg_process_date.present? %></p>
+									</div>
+								</div>
+							</div>
+							<div class="uk-card-body uk-padding-remove">
+								<table class="uk-table uk-table-bordered">
+									<tr>
+										<td title="Quantity"><%= number_with_precision(whfg_process.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+										<td title="Production to Warehouse">
+								  		<%= TimeDifference.between(sfo_date, whfg_process_date).in_hours if sfo_date.present? and whfg_process_date.present? %> Hours</td>
+									</tr>
+								</table>
+							</div>
+							<div class="uk-card-footer uk-padding-remove">
+									<%= link_to 'Read more', finish_good_receiving_path(:id=> whfg_process.finish_good_receiving_id), :class=>"uk-button uk-button-text uk-padding-small" %>
+								
+							</div>
+						</div>
+						<% last_updated_at = whfg_process_date %>
+			  	<% end %>
+		  		
+		  	<% end %>
+		  </div>
+		  <div>
+		  	<% if delivery_process.present? %>	  
+		  		<% summary_dlv_quantity = 0 %>
+
+			  	<% delivery_process.each do |dlv_process| %>	
+			  		<% dlv_process_number = dlv_process.delivery_order.number %>	
+			  		<% dlv_process_date   = dlv_process.delivery_order.approved3_at %>		
+						<div class="uk-card uk-card-primary">
+							<div class="uk-card-header">
+								<div class="uk-grid-small uk-flex-middle" uk-grid>
+									<div class="uk-width-expand">
+								    <p class="uk-text-normal uk-margin-remove-bottom"><%= dlv_process_number %></p>
+								    <p class="uk-text-meta uk-margin-remove-top"><%= dlv_process_date.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if dlv_process_date.present? %></p>
+									</div>
+								</div>
+							</div>
+							<div class="uk-card-body uk-padding-remove">
+								<table class="uk-table uk-table-bordered">
+									<tr>
+										<td title="Quantity">
+		  								<% summary_dlv_quantity += dlv_process.quantity.to_i %>
+											<%= number_with_precision(dlv_process.quantity, precision: 0, delimiter: ".", separator: ",") %>
+										</td>
+									
+										<td title="Production to Delivery">
+							  		<%= TimeDifference.between(sfo_date, dlv_process_date).in_hours if sfo_date.present? and dlv_process_date.present? %> Hours</td>
+									</tr>
+								</table>
+							</div>
+							<div class="uk-card-footer uk-padding-remove">
+								<%= link_to 'Read more', delivery_order_path(:id=> dlv_process.delivery_order_id), :class=>"uk-button uk-button-text uk-padding-small" %>
+							</div>
+						</div>
+						<% last_updated_at = dlv_process_date %>
+			  	<% end %>
+		  	<% end %>
+		  </div>
+
+		  <div>
+		  	<div class="uk-card uk-card-secondary">
+					<div class="uk-card-header">
+						<div class="uk-grid-small uk-flex-middle" uk-grid>
+							<div class="uk-width-expand">
+						    <p class="uk-text-normal uk-margin-remove-bottom">					    	
+									<% if record.outstanding.to_i == 0 and (sfo_quantity.to_i - summary_dlv_quantity.to_i == 0) %>							
+										Done
+									<% else %>
+										On Progress
+									<% end %>
+						    </p>
+						    <p class="uk-text-meta uk-margin-remove-top">
+						    	<%= last_updated_at.to_datetime.strftime("%Y-%m-%d %H:%M:%S") if last_updated_at.present? %>
+						    </p>
+							</div>
+						</div>
+					</div>
+					<div class="uk-card-body uk-padding-remove">
+						<table class="uk-table uk-table-bordered">
+							<tr>
+								<td title="Quantity"><%= summary_dlv_quantity %></td>
+								<td title="Production to Delivery">
+					  			<%= TimeDifference.between(sfo_date, last_updated_at).in_hours if sfo_date.present? and last_updated_at.present? %> Hours</td>
+							</tr>
+						</table>
+					</div>
+					<div class="uk-card-footer uk-padding-remove">
+					</div>
+				</div>
+		  </div>
+		</div>
+	<% end if @records.present? %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item"> 
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Batch Number</th>
+				<th>Name</th>
+				<th>Code</th>
+				<th>Type</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% c = 0 %>
+			<% @records.each do |record| %>
+				<% batch_number = record.number %>
+				<tr>
+					<td><%= c += 1 %></td>
+					<td><%= batch_number %></td>
+					<td><%= record.product.name if record.product.present? %></td>
+					<td><%= record.product.part_id if record.product.present? %></td>
+					<td><%= record.product.type_name if record.product.present? %></td>
+          <td><%= link_to 'Show', "/monitoring_kanbans/#{record.id}" %></td>
+				</tr>
+			<% end if @records.present? %>
+		</tbody>
+	</table>
+<% end %>
+<%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>

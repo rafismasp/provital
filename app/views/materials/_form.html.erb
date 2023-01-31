@@ -1,0 +1,121 @@
+<%= form_with(model: material, local: true, class: "uk-form-horizontal") do |form| %>
+  <% if material.errors.any? %>
+    <% alert = "<h4> #{pluralize(material.errors.count, 'error')} prohibited this material from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% material.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end %>
+  
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Vendor</div>
+      <div class="uk-width-1-2@m">        
+        <%= form.text_field :vendor_name, id: :material_vendor_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Category</div>
+      <div class="uk-width-1-2@m">
+        <% if action_kind == "new" %>
+          <%= form.collection_select :material_category_id, @material_categories, :id, :name, {:selected=> nil, :include_blank=>"-- Select --"}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_material_category(this, '"+params[:controller].to_s+"')", :required=> true} %>
+        <% else %>
+          <%= text_field_tag "category", material.material_category.name , {:class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true} %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Material Code</div>
+      <div class="uk-width-1-2@m">  
+        <% if action_kind == "new" %>            
+          <%= form.text_field :part_id, id: :material_part_id, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true %>
+        <% else %>
+          <%= text_field_tag "part_id", material.part_id , {:class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true} %>   
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Material Name</div>
+      <div class="uk-width-3-4@m">     
+        <%= form.text_field :name, id: :material_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small" title="Minimum Order Quantity">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">MOQ</div>
+      <div class="uk-width-1-3@m">       
+        <%= form.number_field :minimum_order_quantity, id: :material_minimum_order_quantity, :class=> "uk-input uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Unit</div>
+      <div class="uk-width-1-3@m">     
+        <%= form.collection_select :unit_id, @units,:id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Color</div>
+      <div class="uk-width-1-3@m">       
+        <%= form.collection_select :color_id, @colors,:id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', materials_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+<% end %>
+
+
+
+    <script>
+      record = <%= raw  @vendor_lists.map {|k| { key:  k.id, value: k.vendor_name, field0: k.vendor_name } }.to_json %>;
+      var field0 = "Vendor Name",
+          width0 = "width: auto;";
+  
+      $( "#material_vendor_name" ).autocomplete({
+        minLength: 0,
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(record, request.term);             
+          response(results.slice(0, 20)); // limit list
+        },
+        focus: function( event, ui ) {    
+          return false;
+        },
+        select: function( event, ui ) { 
+          $(this).val(ui.item.field0);
+          $("#filter_value").val(ui.item.field0);
+          return false;
+        },
+        create: function () {
+          $(this).data('ui-autocomplete')._renderItem = function (table, item) {
+            return $("<li>")
+              .data("item.autocomplete", item)
+              .append("<div class='listACR1' style='"+width0+"'>" + item.field0 + "</div>")
+              .appendTo(table);
+          };        
+        },
+        change: function( event, ui) {          
+        }
+      });
+    </script>

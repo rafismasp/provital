@@ -1,0 +1,52 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+    <thead class="bg-primary">
+      <tr>
+        <th width="20px" rowspan="2">No</th>
+        <th rowspan="2">Supplier</th>
+        <% Date::MONTHNAMES.each do |month| %>
+          <% if month.present? %>
+            <th colspan="3"><%= month %></th>
+          <% end %>
+        <% end %>
+      </tr>
+      <tr>
+        <% Date::MONTHNAMES.each do |month| %>
+          <% if month.present? %>
+            <th>Hutang</th>
+            <th>Pembayaran</th>
+            <th>Sisa AP</th>
+          <% end %>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <%c=0 %>
+      <% @records.group(:supplier_id).each do |record| %>  
+        <tr>       
+          <td class="uk-text-right"><%= c+=1 %>.</td>
+          <td class="uk-text-nowrap"><%= record.supplier.name if record.supplier.present? %></td>
+          <% Date::MONTHNAMES.each do |month| %>
+            <% if month.present? %>
+              <% 
+                period_begin = month.to_date.strftime("%Y-%m-%d").to_date.at_beginning_of_month()
+                period_end   = month.to_date.strftime("%Y-%m-%d").to_date.at_end_of_month() %>
+              <td align="right">
+                <% sum_debt = @records.where(:supplier_id=> record.supplier_id, :periode=> month.to_date.strftime("%Y%m")).sum(:debt) %>
+                <%= number_with_precision( sum_debt , precision: 0, delimiter: ".") %>
+              </td>
+              <td align="right" title="Berdasarkan Payment Supplier (Approved3) pada range tanggal <%= period_begin %> sd <%= period_end %>">
+                <% sum_pay =  @records.where(:supplier_id=> record.supplier_id, :periode=> month.to_date.strftime("%Y%m")).sum(:payment) %>
+                <%= number_with_precision( sum_pay , precision: 0, delimiter: ".") %>
+              </td>
+              <td align="right"><%= number_with_precision( sum_debt - sum_pay , precision: 0, delimiter: ".") %></td>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end if @records.present? %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

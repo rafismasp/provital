@@ -1,0 +1,1 @@
+json.partial! "routine_cost_payment_open_prints/routine_cost_payment_open_print", routine_cost_payment_open_print: @routine_cost_payment_open_print

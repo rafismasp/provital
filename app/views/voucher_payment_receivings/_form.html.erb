@@ -1,0 +1,139 @@
+<%= form_with(model: voucher_payment_receiving, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if voucher_payment_receiving.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(voucher_payment_receiving.errors.count, "error") %> prohibited this voucher_payment_receiving from being saved:</h2>
+
+      <ul>
+      <% voucher_payment_receiving.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <!-- Left -->
+      <div class="uk-width-1-3@m">
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Number</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :number, id: :voucher_payment_receiving_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically", :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Bank Penerima</div>
+          <div class="uk-width-2-3@m">
+            <%= hidden_field_tag "voucher_payment_receiving[list_internal_bank_account_id]", (form.object.list_internal_bank_account.present? ? form.object.list_internal_bank_account_id : ""), :class=>"list_internal_bank_account_id uk-input uk-form-small" %>
+            <%= render 'layouts/form_item', c: nil, field_name: "list_internal_bank_account_id", field_value: (form.object.list_internal_bank_account.present? ? form.object.list_internal_bank_account.number_account : "") %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Tanggal Pembayaran</div>
+          <div class="uk-width-2-3@m">
+            <%= form.date_field :date, id: :voucher_payment_receiving_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :max=> DateTime.now.strftime("%Y-%m-%d"), :class=> "uk-input uk-form-width-medium uk-form-small" %>
+          </div>
+        </div>
+
+      </div>
+      <!-- End Left -->
+
+      <!-- Right -->
+      <div class="uk-width-1-3@m">
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Nama Pengirim</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :name_account, id: :voucher_payment_receiving_name_account, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Currency</div>
+          <div class="uk-width-2-3@m">
+            <%= hidden_field_tag "voucher_payment_receiving[currency_id]", (form.object.currency.present? ? form.object.currency_id : ""), :class=>"curr uk-input uk-form-small" %>
+            <%= text_field_tag "name",(form.object.currency.present? ? form.object.currency.name : ""), {:class=>"currency_id#{params[:c]} uk-input uk-form-width-small uk-form-small", :readonly=> true} %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Total Amount</div>
+          <div class="uk-width-2-3@m payment_date_form">
+            <%#= text_field_tag "voucher_payment_receiving_total_amount",(form.object.present? ? number_with_precision(form.object.total_amount, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' %>
+            <%#= form.hidden_field :total_amount, id: :voucher_payment_receiving_total_amount, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' %>
+            
+            <%= text_field_tag "total_amount",(form.object.present? ? number_with_precision(form.object.total_amount, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' %>
+            <%= form.hidden_field "total_amount", id: :voucher_payment_receiving_total_amount, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' %>
+
+          </div>
+        </div>
+
+      </div>
+      <!-- End Right -->
+    </div>
+  </div>
+
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :id=> "add_item", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1 uk-overflow-auto">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">                 
+          <thead>
+            <tr>
+              <th class="uk-text-middle uk-text-center">#</th>
+              <th class="uk-text-middle uk-text-center">No. Coa</th>
+              <th class="uk-text-middle uk-text-center">Nama Coa</th>
+              <th class="uk-text-middle uk-text-center">Keterangan</th>
+              <th class="uk-text-middle uk-text-center">Amount</th>
+              <th class="uk-text-middle uk-text-center">Delete</th>
+            </tr>
+          </thead>
+          <tbody class="tbody_item">            
+            <% c=0 %>
+            <% if @voucher_payment_receiving_items.present? %>
+              <% @voucher_payment_receiving_items.each do |voucher_payment_receiving_item| %>
+                <tr id="trid<%= c+1 %>" trid='<%= c+1 %>' row_id="<%= c+1 %>">
+                  <td class="counter">
+                    <%= c+=1%>
+                    <%= hidden_field_tag 'record_item[][id]', voucher_payment_receiving_item.id %>
+                  </td>
+                  <td>
+                    <%= text_field_tag 'record_item[][coa_number]', voucher_payment_receiving_item.coa_number, {:class=>"uk-input uk-form-width-auto uk-form-small"} %>
+                  </td>
+                  <td>
+                    <%= text_field_tag 'record_item[][coa_name]', voucher_payment_receiving_item.coa_name, {:class=>"uk-input uk-form-width-auto uk-form-small"} %>
+                  </td>
+                  <td>
+                    <%= text_field_tag 'record_item[][description]', voucher_payment_receiving_item.description, {:class=>"uk-input uk-form-width-auto uk-form-small"} %>
+                  </td>
+                  <td>
+                    <%= text_field_tag 'record_item[][amount]',number_with_precision(voucher_payment_receiving_item.amount, precision: 0, delimiter: "", separator: ","), {:class=>"uk-input uk-form-small uk-text-right", :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')"} %>
+                  </td>
+                  <td>
+                    <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], voucher_payment_receiving_item.status) , { :class=>'uk-select uk-form-small uk-form-width-auto', :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')"} %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', voucher_payment_receivings_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

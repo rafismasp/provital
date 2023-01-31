@@ -1,0 +1,148 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_material_return' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+     <tr>
+        <th rowspan="2">#</th>
+        <th rowspan="2" rowspan="2">Batch Number</th>
+        <th rowspan="2">Material Name</th>
+        <th rowspan="2">Material Code</th>
+        <th rowspan="2">Unit</th>
+        <th colspan="2">Return Material</th>
+        <th rowspan="2">Additional Material Qty</th>
+        <th rowspan="2">Remarks</th>
+        <th rowspan="2">Remove</th>
+      </tr>
+      <tr>
+        <td>Qty</td>
+        <td>Outstanding</td>
+      </tr>
+    <% c=0 %>
+    <% @material_return_items.each do |material_return_item| %>
+      <% quanitty_available = material_return_item.outstanding %>
+      <% part = nil %>
+      <% if material_return_item.material.present? %>
+        <% part = material_return_item.material %>
+      <% elsif material_return_item.product.present? %>
+        <% part = material_return_item.product %>
+      <% end %>
+      <% unit_name = (part.present? ? part.unit_name : nil) %>
+
+      <tr class="uk-animation-shake">
+        <td class="counter uk-text-right"><%= c+=1%></td>
+        <td>
+          <%= hidden_field_tag "new_record_item[][material_batch_number_id]", material_return_item.material_batch_number_id %>
+          <%= hidden_field_tag "new_record_item[][material_id]", material_return_item.material_id %>
+          <%= hidden_field_tag "new_record_item[][product_batch_number_id]", material_return_item.product_batch_number_id %>
+          <%= hidden_field_tag "new_record_item[][product_id]", material_return_item.product_id %>
+          <%= hidden_field_tag 'new_record_item[][material_return_item_id]', material_return_item.id %>
+
+          <% if material_return_item.material_batch_number.present? %>
+            <%= text_field_tag "batch_number_row#{c}", "#{material_return_item.material_batch_number.number}", {:class=>"batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+          <% elsif material_return_item.product_batch_number.present? %>
+            <%= text_field_tag "batch_number_row#{c}", "#{material_return_item.product_batch_number.number}", {:class=>"batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+          <% end %>
+        </td>
+        <td>
+          <%= text_field_tag 'part_name', "#{part.name if part.present?}", {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag 'part_id', "#{part.part_id if part.present?}", {:class=>"part_id#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag "rm_quantity#{c}", "#{material_return_item.quantity}", {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag "rm_outstanding#{c}", "#{material_return_item.outstanding}", {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+        </td>
+       
+        <td >
+          <%= number_field_tag 'new_record_item[][quantity]', quanitty_available, {step: :any, :max=> quanitty_available, :placeholder=> 'quantity', :class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :qty_base=> quanitty_available } %>
+        </td>
+        <td>
+          <%= text_field_tag 'new_record_item[][remarks]',material_return_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+        </td>
+        <td>
+          <%= check_box_tag 'new_record_item[][use]', 1, false, :onclick=>"setTimeout(() => { $(this).parent().parent().remove()}, 1000);" %>
+        </td>
+      </tr>
+    <% end if @material_return_items.present? %>
+  </table>
+<% else %>
+    <% case params[:view_kind] %>
+    <% when 'item' %>
+      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>AM Number</th>
+            <th>RM Number</th>
+            <th>Batch Number</th>
+            <th>Material Code</th>
+            <th>Material Number</th>
+            <th>RM Qty</th>
+            <th>Additional Qty</th>
+            <th>Remarks Item</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @c = (@c.present? ? @c : 0) %>   
+          <% @material_additionals.each do |item| %>
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= @c+=1 %></td>
+              <td><%= item.material_additional.status %></td>
+              <td><%= item.material_additional.number %></td>
+              <td><%= item.material_additional.material_return.number %></td>
+              <td><%= item.material_batch_number.number if item.material_batch_number.present? %></td>
+              <td><%= item.material.part_id %></td>
+              <td><%= item.material.name %></td>
+              <td class="uk-text-right">
+                <%= number_with_precision(item.material_return_item.quantity, precision: (item.material_return_item.quantity.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",") %>
+              </td>
+              <td class="uk-text-right">
+                <%= number_with_precision(item.quantity, precision: (item.quantity.to_f % 1 == 0 ? 0 : 4 ), delimiter: ".", separator: ",") %>
+              </td>
+              <td><%= item.remarks %></td>
+              <td><%= link_to 'Show', item.material_additional %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% else %>
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>AM Number</th>
+            <th>AM Date</th>
+            <th>RM Number</th>
+            <th>MI Number</th>
+            <th>Batch Number</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @material_additionals.each do |material_additional| %>          
+            <tr uk-tooltip="title: <%= row_tooltip(material_additional) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= material_additional.status %></td>
+              <td><%= material_additional.number %></td>
+              <td><%= material_additional.date %></td>
+              <td><%= material_additional.material_outgoing.number if material_additional.material_outgoing.present? %></td>
+              <td><%= material_additional.material_return.number if material_additional.material_return.present? %></td>
+              <td><%= link_to 'Show', material_additional %></td>
+              <td><%= link_to 'Edit', edit_material_additional_path(material_additional) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% end %>
+<% end %>

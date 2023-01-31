@@ -1,0 +1,120 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+  <% case field %>
+  <% when 'tax_id' %>
+    <%= select_tag "sales_order[tax_id]", options_for_select(@taxes.map{|c| [c.name, c.id ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+  <% when 'currency_id' %>
+    <%= select_tag "sales_order[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, params[:select_currency_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+  <% when 'term_of_payment_id' %>
+    <%= select_tag "sales_order[term_of_payment_id]", options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, params[:select_term_of_payment_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @term_of_payments.present? %>
+  <% end %>
+<% when 'add_item' %>
+  <tr id="trid<%= params[:c] %>" valign=top><td align=right width=22px class='counter'><%= params[:c] %></td>
+    <td width="120px">
+      <%= hidden_field_tag "new_record_item[][product_id]", nil, :class=>"product_id#{params[:c]} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+      <%= render 'layouts/form_item', c: params[:c], field_name: "product_id", field_value: "" %>
+    </td>
+    
+    <td>
+      <%= text_field_tag 'part_id',nil, {:class=>"part_id#{params[:c]} uk-input uk-form-small", :disabled=> true, :style=> "width:100px;"} %>
+    </td>
+    <td>
+      <%= text_field_tag 'type_name',nil, {:class=>"type_name#{params[:c]} uk-input uk-form-small", :disabled=> true, :style=> "width:100px;"} %>
+    </td>
+    <td>
+      <%= text_field_tag 'unit_name',nil, {:class=>"unit_name#{params[:c]} uk-input uk-form-small uk-text-center", :disabled=> true, :style=> "width:50px;"} %>
+    </td>
+
+    <td>
+      <%= number_field_tag 'new_record_item[][quantity]',nil, {:required=> true, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+    </td>
+    <td>
+      <%= number_field_tag 'outstanding',nil, {:placeholder=> 'outstanding', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+    </td>
+    <td>
+      <%= number_field_tag 'new_record_item[][discount]', 0, {:required=> true, :min=> 0, :max=> 100, :class=>"uk-input uk-form-small uk-text-right", :style=> "width:50px;"} %>
+    <td>
+      <%= number_field_tag 'new_record_item[][unit_price]',nil, {:required=> true, :placeholder=> 'Unit Price', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", step: :any} %>
+    </td>
+    <td>
+      <%= date_field_tag 'new_record_item[][due_date]',nil, {:placeholder=> 'Due Date', :class=>"uk-input uk-form-small" } %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small uk-form-width-medium"} %>
+    </td>
+    <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+  </tr>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>SO Number</th>
+          <th>PO Number</th>
+          <th>Product Code</th>
+          <th>Product Number</th>
+          <th>Product Type</th>
+          <th>Quantity</th>
+          <th>Outstanding</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @sales_orders.each do |item| %>
+          <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td><%= item.sales_order.status %></td>
+            <td><%= item.sales_order.number %></td>
+            <td><%= item.sales_order.po_number %></td>
+            <td><%= item.product.part_id %></td>
+            <td><%= item.product.name %></td>
+            <td><%= item.product.type_name %></td>
+            <td><%= item.quantity %></td>
+            <td><%= item.outstanding %></td>
+            <td><%= link_to 'Show', sales_order_path(:id=> item.sales_order_id, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+            <td><%= link_to 'Edit', edit_sales_order_path(item.sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Customer</th>
+          <th>SO Number</th>
+          <th>SO Date</th>
+          <th>PO Number</th>
+          <th>PO Received</th>
+          <th>Month Delivery</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @sales_orders.each do |sales_order| %>
+          <tr uk-tooltip="title: <%= row_tooltip(sales_order) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td><%= sales_order.status %></td>
+            <td><%= sales_order.customer.present? ? sales_order.customer.name : "-" %></td>
+            <td><%= sales_order.number %></td>
+            <td><%= sales_order.date %></td>
+            <td><%= sales_order.po_number %></td>
+            <td><%= sales_order.po_received %></td>
+            <td><%= sales_order.month_delivery %></td>
+            <td><%= link_to 'Show', sales_order_path(:id=> sales_order.id, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+            <td><%= link_to 'Edit', edit_sales_order_path(sales_order, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

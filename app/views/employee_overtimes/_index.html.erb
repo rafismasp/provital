@@ -1,0 +1,62 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    
+    <!-- panel -->
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4><%= feature("name").humanize %></h4></div>
+          </div>
+          <hr class="uk-grid uk-grid-small">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto uk-margin-small">
+              <%= link_to 'ADD', new_employee_overtime_path(:job=>'new'), class: "uk-button uk-button-primary uk-button-small" %>
+              <%= link_to 'Approve', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "load_approve(this, '"+params[:controller].to_s+"')" %>
+              <%= select_tag "select_department", options_for_select(@departments.map { |e| [e.name, e.id] }, (params[:dept_id].present? ? params[:dept_id] : @department_selected) ), :include_blank=>'-- All Department --', :class=>"uk-button uk-button-default uk-text-left", :onchange=>"change_department(this, '"+params[:controller].to_s+"')" %>
+              <%= select_tag "periode_yyyy", options_for_select(2019.."#{DateTime.now()+1.years}".to_date.strftime("%Y").to_i, (params[:year].present? ? params[:year].to_s : DateTime.now().strftime("%Y") )), {:include_blank=>'-- Pilih --', :class=>"uk-button uk-button-default uk-text-left", :onchange=>"change_period_yyyy(this, '"+params[:controller].to_s+"')"} %>
+              <%= select_tag "periode_mm", options_for_select([
+                  ["21 Jan - 20 Feb","01"],
+                  ["21 Feb - 20 Mar","02"],
+                  ["21 Mar - 20 Apr","03"],
+                  ["21 Apr - 20 Mei","04"],
+                  ["21 Mei - 20 Jun","05"],
+                  ["21 Jun - 20 Jul","06"],
+                  ["21 Jul - 20 Aug","07"],
+                  ["21 Aug - 20 Sep","08"],
+                  ["21 Sep - 20 Oct","09"],
+                  ["21 Oct - 20 Nov","10"],
+                  ["21 Nov - 20 Dec","11"],
+                  ["21 Dec - 20 Jan","12"]
+                  ] , (params[:month].to_s if params[:month].present?)), {:include_blank=>'-- Pilih --', :class=>"uk-button uk-button-default uk-text-left", :onchange=>"change_period_yymm(this, '"+params[:controller].to_s+"')"} %>
+              <%= hidden_field_tag "employee_id", (params[:employee_id] if params[:employee_id].present?), :class=>"employee_id uk-button uk-button-default uk-text-left" %>
+              <%= render 'layouts/form_item', field_name: "employee_id", field_value: (params[:employee_name] if params[:employee_name].present?), :onchange=>"change_employee(this, '"+params[:controller].to_s+"')"  %>
+            </div>
+
+            <div class="uk-navbar-right">
+              <div class="uk-padding-small">
+                <%= select_tag "select_view_kind", options_for_select(['header'], params[:view_kind]), :class=>"uk-select uk-form-width-small uk-form-small",
+                :onchange=> "select_view_kind(this, '"+params[:controller].to_s+"')" %>
+              </div>
+              <div class="uk-padding-small">
+                <%= link_to 'Export', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                :onclick=> "export_report(this, '"+params[:controller].to_s+"')" %>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <div class="uk-overflow-auto" id="index_content">
+            <%= render 'partial' %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /panel -->
+    <%= render 'layouts/filter' %>
+
+
+  </div>
+  
+</div>

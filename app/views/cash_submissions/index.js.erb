@@ -1,0 +1,27 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_item' %>
+
+<% when 'select_payment_method' %>
+  $('.bank_name_form').html("<%= escape_javascript(render 'partial', {form_type: 'bank_name_form'}) %>");
+  $('.bank_number_form').html("<%= escape_javascript(render 'partial', {form_type: 'bank_number_form'}) %>");
+  $("#cash_submission_bank_name").select2({
+     placeholder: {
+        id: '-1', // the value of the option
+        text: 'Select an option'
+      }
+  });
+<% when 'change_department' %>
+    $("#cash_submission_bank_name").select2({
+     placeholder: {
+        id: '-1', // the value of the option
+        text: 'Select an option'
+      }
+  });
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

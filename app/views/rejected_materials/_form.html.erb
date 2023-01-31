@@ -1,0 +1,140 @@
+
+<%= form_with(model: rejected_material, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Doc. Number</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :number, id: :rejected_material_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically", :disabled=>(params[:job]=="edit" ? true : false) %>
+            </div>
+            <div class="uk-width-1-6@m">Doc. Date</div>
+            <div class="uk-width-1-3@m">
+              <%= form.date_field :date, id: :rejected_material_date, :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true, :disabled=>(params[:job]=="edit" ? true : false) %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Remarks</div>
+            <div class="uk-width-expand@m">
+              <%= form.text_field :remarks, id: :rejected_material_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Batch No</div>
+            <div class="uk-width-1-3@m">
+              <% if params[:job]=="edit" %>
+                <%= text_field_tag "product_batch", @rejected_material.material_outgoing.product_batch_number.number, {:class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+              <% else %>
+                <%= text_field_tag "product_batch", nil, {:class=> "uk-input uk-form-width-large uk-form-small product_batch", :disabled=> true} %>
+              <% end %>
+            </div>
+            <div class="uk-width-1-6@m">Product</div>
+            <div class="uk-width-1-3@m">
+              <% if params[:job]=="edit" %>
+                <%= text_field_tag "product_name", @rejected_material.material_outgoing.product_batch_number.product.name, {:class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+              <% else %>
+                <%= text_field_tag "product_name", nil, {:class=> "uk-input uk-form-width-large uk-form-small product_name", :disabled=> true} %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">
+              <% if params[:job]=="edit" %>
+                <%= text_field_tag "product_code", @rejected_material.material_outgoing.product_batch_number.product.part_id, {:class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+              <% else %>
+                <%= text_field_tag "product_code", nil, {:class=> "uk-input uk-form-width-large uk-form-small product_code", :disabled=> true} %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Material Issue No</div>
+            <div class="uk-width-1-3@m">
+              <% if params[:job]=="edit" %>
+                <%= text_field_tag :material_outgoing_id, (@rejected_material.material_outgoing.number if @rejected_material.material_outgoing.present?), {:class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true}%>
+              <% else %>
+                <%= form.select :material_outgoing_id, options_for_select(@material_outgoings.map{|e| [e.number, e.id, {:'product_id'=> e.product_batch_number.product_id, :'part_name'=> e.product_batch_number.product.name, :'part_id'=> e.product_batch_number.product.part_id, :'batch_no'=> e.product_batch_number.number }]}), {:prompt=>"-- Select --"}, {class: "uk-select uk-form-width-large uk-form-small", :disabled=>(params[:job]=="edit" ? true : false), :onchange=> "
+                $('.product_batch').val($(this).find(':selected').attr('batch_no'));
+                $('.product_name').val($(this).find(':selected').attr('part_name'));
+                $('.product_code').val($(this).find(':selected').attr('part_id'));
+                "} %>
+              <% end %>
+            </div>
+            <% if params[:job]=='new'%>
+              <div class="uk-width-1-3@m">
+                <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "change_material_outgoing_id(this, '"+params[:controller].to_s+"');" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">          
+          <tr>
+            <th rowspan="2" class="uk-text-middle">No</th>  
+            <th rowspan="2" class="uk-text-middle uk-text-center">Material Name</th>
+            <th rowspan="2" class="uk-text-middle uk-text-center">Batch Number</th>
+            <th colspan="3" class="uk-text-center">Reason for Rejected (pcs)</th>
+          </tr>
+          <tr>
+            <th class="uk-text-center">NG Supplier</th>
+            <th class="uk-text-center">Production Process</th>
+            <th class="uk-text-center">Documentation</th>
+          </tr>
+          <% case params[:job] %>
+          <% when 'edit' %>
+            <% c=0 %>
+            <% @rejected_material_items.each do |rejected_material_item| %>
+              <tr>
+                <%= hidden_field_tag 'record_item[][id]', rejected_material_item.id %>
+                <td><%= c+=1 %></td>
+                <td><%= text_field_tag 'material_name', rejected_material_item.material_outgoing_item.material.name, {:class=>"part_name#{c} uk-input uk-form-small", :disabled=>true} %></td>
+                <td><%= text_field_tag 'material_batch', rejected_material_item.material_outgoing_item.material_batch_number.number, {:class=>"material_batch#{c} uk-input uk-form-small", :disabled=>true} %></td>
+                <td><%= number_field_tag 'record_item[][ng_supplier]', rejected_material_item.ng_supplier, {:class=>"uk-input uk-form-small"} %></td>
+                <td><%= number_field_tag 'record_item[][production_process]', rejected_material_item.production_process, {:class=>"uk-input uk-form-small"} %></td>
+                <td><%= number_field_tag 'record_item[][documentation]', rejected_material_item.documentation, {:class=>"uk-input uk-form-small"} %></td>
+              </tr>
+            <% end %>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', outgoing_inspections_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

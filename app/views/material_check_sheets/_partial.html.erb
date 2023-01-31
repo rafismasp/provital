@@ -1,0 +1,36 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+    <thead class="bg-primary">
+      <tr>
+        <th>#</th>
+        <th>Status</th>
+        <th>Document Number</th>
+        <th>BATCH NO. MATERIAL</th>
+        <th>MATERIAL Name</th>
+        <th>Supplier</th>
+        <th>GRN Number</th>
+        <th>GRN Date</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @material_check_sheets.each do |material_check_sheet| %>
+        <tr>
+          <td><%= @c+=1%></td>
+          <td><%= material_check_sheet.status %></td>
+          <td><%= material_check_sheet.number %></td>
+          <td><%= material_check_sheet.material_batch_number.number if material_check_sheet.material_batch_number.present? %></td>
+          <td><%= material_check_sheet.material.name if material_check_sheet.material.present? %></td>
+          <td><%= material_check_sheet.supplier.name if material_check_sheet.supplier.present? %></td>
+          <td><%= material_check_sheet.material_receiving.number if material_check_sheet.material_receiving.present? %></td>
+          <td><%= material_check_sheet.material_receiving.date if material_check_sheet.material_receiving.present? %></td>
+          <td><%= link_to 'Show', material_check_sheet %></td>
+          <td><%= link_to 'Edit', edit_material_check_sheet_path(material_check_sheet) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

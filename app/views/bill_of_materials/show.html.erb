@@ -1,0 +1,302 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', bill_of_materials_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Product Name</div>
+                      <div class="uk-width-2-3@m">       
+                        <%= text_field_tag "product_name", (@bill_of_material.product.present? ? @bill_of_material.product.name : nil), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Product Code</div>
+                      <div class="uk-width-1-4@m">       
+                        <%= text_field_tag "part_id", (@bill_of_material.product.present? ? @bill_of_material.product.part_id : nil), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                      </div>
+                      <div class="uk-width-1-6@m">Type</div>
+                      <div class="uk-width-1-4@m">       
+                        <%= text_field_tag "product_type", (@bill_of_material.product.present? ? @bill_of_material.product.type_name : nil), :class=>"type_name1 uk-input uk-form-small", :disabled=> true%>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+                    <tr>
+                      <th>#</th>
+                      <th>Material Name</th>
+                      <th>Material Code</th>
+                      <th>Standard Quantity</th>
+                      <th>Allowance</th>
+                      <th>Quantity</th>
+                      <th>Unit Name</th>
+                      <th>Remarks</th>
+                    </tr>
+                    <% c=0 %>
+                    <% @bill_of_material_items.each do |item| %>
+                      <%= hidden_field_tag 'bill_of_material_item[][id]', item.id %>
+                      <tr>
+                        <td class="counter uk-text-right"><%= c+=1%></td>
+                        <td class="uk-width-medium">
+                          <%= (item.material.present? ? item.material.name : "") %>
+                        </td>
+                        
+                        <td class="uk-width-small">
+                          <%= (item.material.present? ? item.material.part_id : "") %>
+                        </td>
+
+                        <td class="uk-width-small">
+                          <%= item.standard_quantity %>
+                        </td>
+                        <td class="uk-width-small">
+                          <%= item.allowance %>
+                        </td>
+                        <td class="uk-width-small">
+                          <%= item.quantity %>
+                        </td>
+                        <td class="uk-width-small">
+                          <%= (item.material.present? ? item.material.unit_name : "") %>
+                        </td>
+                        <td class="uk-width-medium">
+                          <%= item.remarks %>
+                        </td>
+                      </tr>
+                    <% end if @bill_of_material_items.present? %>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+              <li class="uk-active"><a href="#">WIP 1</a></li>
+              <li><a href="#">WIP 2</a></li>
+            </ul>
+            <ul id="tab-content" class="uk-switcher">
+              <li>   
+                <% if @bill_of_material.product.present? and @bill_of_material.product.kind == 'FG' %>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-2@m">
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">Product Name</div>
+                            <div class="uk-width-2-3@m">       
+                              <%= text_field_tag "product_name", (@bill_of_material.product_wip1.present? ? @bill_of_material.product_wip1.name : nil), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">Product Code</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "part_id", (@bill_of_material.product_wip1.present? ? @bill_of_material.product_wip1.part_id : nil), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                            <div class="uk-width-1-6@m">Type</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "product_type", (@bill_of_material.product_wip1.present? ? @bill_of_material.product_wip1.type_name : nil), :class=>"type_name1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-width-1-2@m">
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">Quantity</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "product_quantity", (@bill_of_material.product_wip1.present? ? @bill_of_material.product_wip1_quantity : 0), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">PRF Services</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "product_quantity", (@bill_of_material.product_wip1.present? ? @bill_of_material.product_wip1_prf : ''), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @wip_bom_items.present? %>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-1@m">
+                        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+                          <tr>
+                            <th>#</th>
+                            <th>Material Name</th>
+                            <th>Material Code</th>
+                            <th>Standard Quantity</th>
+                            <th>Allowance</th>
+                            <th>Quantity</th>
+                            <th>Unit Name</th>
+                            <th>Remarks</th>
+                          </tr>
+                          <% c=0 %>
+                          <% @wip_bom_items.each do |item| %>
+                            <tr>
+                              <td class="counter uk-text-right"><%= c+=1%></td>
+                              <td class="uk-width-medium">
+                                <%= (item.material.present? ? item.material.name : "") %>
+                              </td>
+                              
+                              <td class="uk-width-small">
+                                <%= (item.material.present? ? item.material.part_id : "") %>
+                              </td>
+
+                              <td class="uk-width-small">
+                                <%= item.standard_quantity %>
+                              </td>
+                              <td class="uk-width-small">
+                                <%= item.allowance %>
+                              </td>
+                              <td class="uk-width-small">
+                                <%= item.quantity %>
+                              </td>
+                              <td class="uk-width-small">
+                                <%= (item.material.present? ? item.material.unit_name : "") %>
+                              </td>
+                              <td class="uk-width-medium">
+                                <%= item.remarks %>
+                              </td>
+                            </tr>
+                          <% end %>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </li>
+              <li>   
+                <% if @bill_of_material.product.present? and @bill_of_material.product.kind == 'FG' %>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-2@m">
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">Product Name</div>
+                            <div class="uk-width-2-3@m">       
+                              <%= text_field_tag "product_name", (@bill_of_material.product_wip2.present? ? @bill_of_material.product_wip2.name : nil), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">Product Code</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "part_id", (@bill_of_material.product_wip2.present? ? @bill_of_material.product_wip2.part_id : nil), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                            <div class="uk-width-1-6@m">Type</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "product_type", (@bill_of_material.product_wip2.present? ? @bill_of_material.product_wip2.type_name : nil), :class=>"type_name1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-width-1-2@m">
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">Quantity</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "product_quantity", (@bill_of_material.product_wip2.present? ? @bill_of_material.product_wip1_quantity : 0), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div class="uk-width-1-4@m">PRF Services</div>
+                            <div class="uk-width-1-4@m">       
+                              <%= text_field_tag "product_quantity", (@bill_of_material.product_wip2.present? ? @bill_of_material.product_wip1_prf : ''), :class=>"part_id1 uk-input uk-form-small", :disabled=> true%>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @wip2_bom_items.present? %>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-1@m">
+                        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+                          <tr>
+                            <th>#</th>
+                            <th>Material Name</th>
+                            <th>Material Code</th>
+                            <th>Standard Quantity</th>
+                            <th>Allowance</th>
+                            <th>Quantity</th>
+                            <th>Unit Name</th>
+                            <th>Remarks</th>
+                          </tr>
+                          <% c=0 %>
+                          <% @wip2_bom_items.each do |item| %>
+                            <tr>
+                              <td class="counter uk-text-right"><%= c+=1%></td>
+                              <td class="uk-width-medium">
+                                <%= (item.material.present? ? item.material.name : "") %>
+                              </td>
+                              
+                              <td class="uk-width-small">
+                                <%= (item.material.present? ? item.material.part_id : "") %>
+                              </td>
+
+                              <td class="uk-width-small">
+                                <%= item.standard_quantity %>
+                              </td>
+                              <td class="uk-width-small">
+                                <%= item.allowance %>
+                              </td>
+                              <td class="uk-width-small">
+                                <%= item.quantity %>
+                              </td>
+                              <td class="uk-width-small">
+                                <%= (item.material.present? ? item.material.unit_name : "") %>
+                              </td>
+                              <td class="uk-width-medium">
+                                <%= item.remarks %>
+                              </td>
+                            </tr>
+                          <% end %>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </li>
+            </ul>
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', bill_of_materials_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_bill_of_material_path(@bill_of_material), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

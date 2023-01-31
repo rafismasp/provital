@@ -1,0 +1,239 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', cash_submissions_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          
+
+              <div class="uk-margin-small">
+                <div class="uk-grid">
+                  <!-- Left -->
+                  <div class="uk-width-1-3@m">
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Cash Submission Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :number, @cash_submission.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Date</div>
+                      <div class="uk-width-2-3@m">
+                      <%= text_field_tag :date, @cash_submission.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Department</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :department, @cash_submission.department.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Date Needed</div>
+                      <div class="uk-width-2-3@m routine_cost_form">
+                        <%= text_field_tag :date_needed, @cash_submission.date_needed, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Description</div>
+                      <div class="uk-width-2-3@m routine_cost_form">
+                        <%= text_area_tag :description, @cash_submission.description, rows: 4, :class=> "uk-textarea uk-form-width-large uk-form-small", :style=>"line-height: normal !important;", :disabled=>true %>
+                      </div>
+                    </div>
+
+                  </div>
+                  <!-- End Left -->
+
+                  <!-- Right -->
+                  <div class="uk-width-1-3@m">
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Amount</div>
+                      <div class="uk-width-2-3@m" style="display: flex;">
+                        <%= text_field_tag :currency_id, @cash_submission.currency.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true, :style=> "width:60px;" %>
+                        <%= text_field_tag :amount, number_with_precision(@cash_submission.amount, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Payment Method</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :payment_method, @cash_submission.payment_method, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Receiver Name</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :receiver_name, "#{@cash_submission.receiver_name}", :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Bank Name</div>
+                      <div class="uk-width-2-3@m bank_name_form">
+                        <%= text_field_tag :bank_name, @cash_submission.bank_name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Bank Number</div>
+                      <div class="uk-width-2-3@m bank_number_form">
+                        <%= text_field_tag :bank_number, @cash_submission.bank_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Email</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :email_notification, @cash_submission.email_notification, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                    
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Attachment</div>
+                      <div class="uk-width-2-3@m">
+                        <table class="uk-table uk-table-striped">
+                          <thead>
+                            <tr>
+                              <th>File Upload</th>
+                            </tr>
+                          </thead>   
+                          <tbody>
+                            <% @record_files.each do |record_file| %>
+                              <% case record_file.ext.downcase %>
+                              <% when '.pdf' %>
+                                <tr>
+                                  <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a></td>
+                                </tr>
+                              <% else %>
+                                <tr>
+                                  <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 200px"/></a></td>
+                                </tr>
+                              <% end %>
+                            <% end if @record_files.present? %>
+                            
+                          </tbody> 
+                        </table>  
+                      </div>
+                    </div>
+
+                  </div>
+                  <!-- End Right -->
+                </div>
+              </div>
+
+              <%= form_with(model: @cash_submission, local: true, class: "uk-form-horizontal") do |form| %>
+              <% case current_user.department_id %>
+              <% when 5,2 %>
+                <hr class="uk-margin-small">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <!-- Left -->
+                      <div class="uk-width-1-3@m">
+                        <div class="uk-grid uk-margin-small">
+                          <div class="uk-width-1-3@m">Voucher Number</div>
+                          <div class="uk-width-2-3@m">
+                            <%= form.text_field :voucher_number, id: :cash_submission_voucher_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+                          </div>
+                        </div>
+                        <div class="uk-grid uk-margin-small">
+                          <div class="uk-width-1-3@m">Closing Number</div>
+                          <div class="uk-width-2-3@m">
+                            <%= form.text_field :closing_number, id: :cash_submission_closing_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+                          </div>
+                        </div>
+
+                      </div>
+                      <!-- End Left -->
+
+                      <!-- Right -->
+                      <div class="uk-width-1-3@m">
+                        <div class="uk-grid uk-margin-small">
+                          <div class="uk-width-1-3@m">Transfer Date</div>
+                          <div class="uk-width-2-3@m">
+                            <%= form.date_field :transfer_date, id: :cash_submission_transfer_date, :class=> "uk-input uk-form-small", :disabled=>(params[:action]=="edit" ? true : false) %>
+                          </div>
+                        </div>
+                        <div class="uk-grid uk-margin-small">
+                          <div class="uk-width-1-3@m">Closing Date</div>
+                          <div class="uk-width-2-3@m">
+                            <%= form.date_field :closing_date, id: :cash_submission_closing_date, :class=> "uk-input uk-form-small", :disabled=>(params[:action]=="edit" ? true : false) %>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- End Right -->
+                    </div>
+                  </div>
+
+                  <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+                <% end %>
+                <% end %>
+            <!-- APPROVE -->
+
+
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @cash_submission.status == 'new' or @cash_submission.status == 'canceled1' %>
+                        <%= link_to approve_cash_submission_path(@cash_submission, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @cash_submission.status == 'approved1' or @cash_submission.status == 'canceled2' %>
+                        <%= link_to approve_cash_submission_path(@cash_submission, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_cash_submission_path(@cash_submission, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @cash_submission.status == 'approved2' or @cash_submission.status == 'canceled3' %>   
+                        <%= link_to approve_cash_submission_path(@cash_submission, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_cash_submission_path(@cash_submission, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_cash_submission_path(@cash_submission, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @cash_submission.status %>
+                      <% when 'approved3' %>
+                        <%#= link_to print_cash_submission_path(@cash_submission), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <!-- <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button> -->
+                        <%# end %>
+                        <%= link_to 'Back', cash_submissions_path, class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', cash_submissions_path, class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_cash_submission_path(@cash_submission), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

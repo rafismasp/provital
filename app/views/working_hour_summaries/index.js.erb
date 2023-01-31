@@ -1,0 +1,61 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_employee' %>
+	$('#item').html("<%= escape_javascript(render 'partial', {field:'item'}) %>");	
+	$('#item_2').html("<%= escape_javascript(render 'partial', {field:'item_2'}) %>");	
+	$('#item_3').html("<%= escape_javascript(render 'partial', {field:'item_3'}) %>");	
+	$('#item_4').html("<%= escape_javascript(render 'partial', {field:'item_4'}) %>");	
+	$('#validation').html("<%= escape_javascript(render 'partial', {field:'validation'}) %>");	
+	// $('#item_general').html("<%= escape_javascript(render 'partial', {field:'item_general'}) %>");	
+	// $('#item_adjust').html("<%= escape_javascript(render 'partial', {field:'item_adjust'}) %>");	
+	$('.nik').html("<%= escape_javascript(render 'partial', {field:'employee_nik'}) %>");
+	$('.department_name').html("<%= escape_javascript(render 'partial', {field:'department_name'}) %>");
+	$('.employee_pin').html("<%= escape_javascript(render 'partial', {field:'employee_pin'}) %>");
+	$('.work_schedule').html("<%= escape_javascript(render 'partial', {field:'work_schedule'}) %>");
+	$('.department').val("<%= params[:department_id] %>");
+	$('.department_select').val("<%= params[:department_id] %>");
+<% when 'precompile' %>
+	$('#content').html("<%= escape_javascript(render 'precompile') %>");
+<% when 'precompile_process' %>
+	// $('#precompile_item').html("<%= escape_javascript(render 'partial') %>");
+	// $('#precompile_data tr:last').after("<tr><td>a</td><td>b</td><td>c</td><td>d Sec</td><td title='e'</td></tr>");
+	// $('#precompile_data tr:last').after("<tr><td><%= params[:counter] %></td><td><%= params[:next_id] %></td><td><%= params[:employee_name] %></td><td><%= params[:diff_time].round(2) if params[:diff_time].present? %> Sec</td><td title='<%= params[:note] %>'><%= params[:job_process] %></td></tr>");
+	<% if params[:precompile_process] == "stop" %>
+		<% if params[:counter].to_i > 0 %>		
+			$("#precompile_report").html("Done <%= params[:diff_time_summary].round(2) if params[:diff_time_summary].present? %> Sec.");
+		<% else %>
+			$("#precompile_report").html("Tidak ada karyawan pada department ini");
+		<% end %>
+	<% else %>
+		<% if params[:counter].to_i > 0 %>
+			$('#precompile_data tr:last').after("<tr><td><%= params[:counter] %></td><td><%= params[:next_id] %></td><td><%= params[:employee_name] %></td><td><%= params[:diff_time].round(2) if params[:diff_time].present? %> Sec</td><td title='<%= params[:note] %>'><%= params[:job_process] %></td></tr>");
+		<% end %>
+		<% case params[:precompile_process] %>
+		<% when "start", "running" %>
+			$.ajax({
+				url: "/working_hour_summaries",
+				type: "Get",
+				data: {
+					partial: "precompile_process",
+					kind_tbl: "<%= params[:kind_tbl] %>",
+					department_id: "<%= params[:department_id] %>",
+					period: "<%= params[:period] %>",
+					counter: "<%= params[:counter].to_i+1 %>", next_id: "<%= params[:next_id] %>",
+					precompile_process: "running"
+				},
+				dataType: "script",
+				success: function (data){
+				}
+			});
+			$("#precompile_report").html("<%= params[:precompile_info] %>");
+			// $(".scroll-container").animate({ scrollTop: $(".scroll-container")[0].scrollHeight}, 1000);
+
+		<% end %>
+	<% end %>
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

@@ -1,0 +1,64 @@
+
+/* auto complete with list */
+.ui-autocomplete {
+  font-size: 14px;
+  max-height: 300px;
+  width: auto;
+  /*width: 700px;*/
+  overflow-y: auto;
+  /* prevent horizontal scrollbar */
+  overflow-x: hidden;
+  /* add padding to account for vertical scrollbar */
+  
+  padding-left: 0px;
+  position: fixed;;
+  z-index: 9999;
+  background: white;
+  border: 1px solid #ebebeb;
+  /*position: relative;*/
+}
+
+.ui-helper-hidden-accessible {
+  display: none;
+}
+
+.ui-autocomplete .ui-menu-item {
+  list-style:none;
+  border-bottom: 1px solid #ebebeb;
+  background-color: #f6f8f8;
+  padding-left: 10px;
+  padding-top: 2px;
+}
+
+.ui-autocomplete .ui-menu-item:hover {
+  color: white;
+  background-color: #1F7BB6;
+}
+  /* IE 6 doesn't support max-height
+  * we use height instead, but this forces the menu to always be this tall
+  */
+* html .ui-autocomplete {
+  height: 350px;
+}
+
+
+.listHeader {
+font-weight: bold;
+}
+
+.listACR1{
+    width:350px;
+    display:inline-block;
+}
+.listACR2{
+    width:150px;
+    display:inline-block;
+}
+.listACR3{
+    width:130px;
+    display:inline-block;
+}
+.listACR4{
+    width:60px;
+    display:inline-block;
+}

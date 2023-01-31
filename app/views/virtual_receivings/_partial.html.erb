@@ -1,0 +1,207 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_department' %>
+  <%= select_tag "virtual_receiving[employee_section_id]", options_for_select(@sections.map{|c| [c.name, c.id ]} ) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small"} if @sections.present? %>
+<% when 'change_purchase_order_supplier' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>PRF/PDM</th>
+      <th>Name</th>
+      <th>Code</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Remarks</th>
+      <th>Remove</th>
+    </tr>
+    <% c=0 %>
+    <% @purchase_order_supplier_items.each do |item| %>
+      <% prf_item = item.purchase_request_item %>
+      <% po_quantity = item.outstanding %>
+      <% part = nil %>
+      <% prf_number = nil %>
+
+      <% if prf_item.present? %>
+        <% if prf_item.general.present? %>
+          <% part = item.purchase_request_item.general %>
+        <% elsif prf_item.product.present? %>
+          <% part = item.purchase_request_item.product %>
+        <% elsif prf_item.material.present? %>
+          <% part = item.purchase_request_item.material %>
+        <% elsif prf_item.equipment.present? %>
+          <% part = item.purchase_request_item.equipment %>
+        <% elsif prf_item.consumable.present? %>
+          <% part = item.purchase_request_item.consumable %>
+        <% end %>
+        <% prf_number = prf_item.purchase_request.number %>
+      <% end if prf_item.present? %>
+
+      <% pdm_item = item.pdm_item %>
+      <% if pdm_item.present? %>
+        <% if pdm_item.material.present? %>
+          <% part = item.pdm_item.material %>
+        <% end %>
+        <% prf_number = pdm_item.pdm.number %>
+      <% end if pdm_item.present? %>
+
+
+      <!-- group by part id only PDM-->
+      <% @purchase_order_supplier_items.each do |check_item| %>
+
+        <% check_pdm_item = check_item.pdm_item %>
+        <% if check_pdm_item.present? %>
+          <% if check_pdm_item.material.present? %>
+            <% check_part = check_item.pdm_item.material %>
+          <% end %>
+
+          <% if "#{check_part.part_id}" == "#{part.part_id}" %>
+            <% po_quantity += check_item.outstanding %>
+            <% prf_number += ", #{check_pdm_item.pdm.number}" %>
+          <% end if check_part.present? and part.present? %>
+        <% else %>
+          <% check_part = nil %>
+        <% end if check_pdm_item.present? %>
+      <% end %>
+
+      <% if part.present? and prf_item.present? %>
+        <!-- only PRF -->
+        <tr id="trid<%= c %>" valign=top><td align=right width=22px class='counter'><%= c+=1 %></td>
+          <td><%= prf_number %></td>
+          <td>
+            <%= hidden_field_tag "new_record_item[][general_id]", prf_item.general.present? ? prf_item.general_id : nil %>
+            <%= hidden_field_tag "new_record_item[][product_id]", prf_item.product.present? ? prf_item.product_id : nil %>
+            <%= hidden_field_tag "new_record_item[][material_id]", prf_item.material.present? ? prf_item.material_id : nil %>
+            <%= hidden_field_tag "new_record_item[][equipment_id]", prf_item.equipment.present? ? prf_item.equipment_id : nil %>
+            <%= hidden_field_tag "new_record_item[][consumable_id]", prf_item.consumable.present? ? prf_item.consumable_id : nil %>
+
+            <%= hidden_field_tag "new_record_item[][purchase_order_supplier_item_id]", item.id %>
+            <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              
+          </td>
+          <td>
+            <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+          </td>
+          <td>
+            <%= text_field_tag 'batch_number',nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true, :placeholder=> "Auto"} %>
+          </td>
+          <td>
+            <%= text_field_tag 'unit_name', (part.present? ? part.unit_name : nil), {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+          </td>
+
+          <td>
+            <%= number_field_tag 'new_record_item[][quantity]', po_quantity, {:min=> 0, :max=> po_quantity, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+          </td>
+          <td>
+            <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+          </td>
+          <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+        </tr>
+      <% end %>
+      <% if part.present? and pdm_item.present? %>
+        <!-- only PDM -->
+        <tr id="trid<%= c %>" valign=top><td align=right width=22px class='counter'><%= c+=1 %></td>
+          <td><%= prf_number %></td>
+          <td>
+            <%= hidden_field_tag "new_record_item[][general_id]", nil%>
+            <%= hidden_field_tag "new_record_item[][product_id]", nil %>
+            <%= hidden_field_tag "new_record_item[][material_id]", pdm_item.material.present? ? pdm_item.material_id : nil %>
+            <%= hidden_field_tag "new_record_item[][equipment_id]", nil %>
+            <%= hidden_field_tag "new_record_item[][consumable_id]", nil %>
+
+            <%= hidden_field_tag "new_record_item[][purchase_order_supplier_item_id]", item.id %>
+            <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              
+          </td>
+          <td>
+            <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+          </td>
+          <td>
+            <%= text_field_tag 'batch_number',nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true, :placeholder=> "Auto"} %>
+          </td>
+          <td>
+            <%= text_field_tag 'unit_name', (part.present? ? part.unit_name : nil), {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+          </td>
+
+          <td>
+            <%= number_field_tag 'new_record_item[][quantity]', po_quantity, {:min=> 0, :max=> po_quantity, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+          </td>
+          <td>
+            <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+          </td>
+          <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+        </tr>
+      <% end %>
+    <% end if @purchase_order_supplier_items.present? %>
+  </table>
+<% when 'change_supplier' %>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Doc. Number</th>
+            <th>Part Code</th>
+            <th>Part Name</th>
+            <th>Unit</th>
+            <th>Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>   
+          <% @virtual_receivings.each do |item| %>
+            <% prf_item = item.purchase_order_supplier_item.purchase_request_item %>
+            <% part = nil %>
+            <% if prf_item.general.present? %>
+              <% part = prf_item.general %>
+            <% elsif prf_item.product.present? %>
+              <% part = prf_item.product %>
+            <% elsif prf_item.material.present? %>
+              <% part = prf_item.material %>
+            <% end %>
+
+            <tr>
+              <td><%= c+=1 %></td>
+              <td><%= (item.virtual_receiving.present? ? item.virtual_receiving.number : nil) %></td>
+              <td><%= (part.present? ? part.part_id : nil) %></td>
+              <td><%= (part.present? ? part.name : nil) %></td>
+              <td><%= (part.present? ? part.unit.name : nil) %></td>
+              <td><%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Document Number</th>
+          <th>Date</th>
+          <th>PO Number</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @virtual_receivings.each do |virtual_receiving| %>          
+          <tr uk-tooltip="title: <%= row_tooltip(virtual_receiving) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= virtual_receiving.status %></td>
+            <td><%= virtual_receiving.number %></td>
+            <td><%= virtual_receiving.date %></td>
+            <td><%= virtual_receiving.purchase_order_supplier.number if virtual_receiving.purchase_order_supplier.present? %></td>
+            <td><%= link_to 'Show', virtual_receiving %></td>
+            <td><%= link_to 'Edit', edit_virtual_receiving_path(virtual_receiving) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

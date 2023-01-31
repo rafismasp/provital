@@ -1,0 +1,139 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', customer_tax_invoices_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-2-3@m">
+
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">Customer</div>
+                      <div class="uk-width-1-2@m">
+
+                        <%= text_field_tag :customer_name, @customer_tax_invoice.customer.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+
+                      </div>
+                      <div class="uk-width-1-5@m select_currencies">
+                        <%= text_field_tag "currency", (@customer_tax_invoice.customer.present? ? @customer_tax_invoice.customer.currency.name : ""), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">FP Number</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag "number", @customer_tax_invoice.number, {:class=>"uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+                      </div>
+                      <div class="uk-width-1-6@m">FP Date</div>
+                      <div class="uk-width-1-4@m">
+                        <%= date_field_tag "date", @customer_tax_invoice.date, {:class=>"uk-input uk-form-width-large uk-form-small", :disabled=> true } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">Remarks</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag "remarks", @customer_tax_invoice.remarks, {:class=>"uk-input uk-form-width-large uk-form-small", :disabled=> true } %>
+                      </div>
+                      <div class="uk-width-1-6@m">Kota</div>
+                      <div class="uk-width-1-4@m">
+                        <%= text_field_tag "city", @customer_tax_invoice.city, {:class=>"uk-input uk-form-width-large uk-form-small", :disabled=> true } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">Subtotal</div>
+                      <div class="uk-width-1-2@m">
+                        <%= text_field_tag "subtotal", number_with_precision(@customer_tax_invoice.subtotal, precision: 0, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">          
+                      <div class="uk-width-1-5@m">PPN</div>
+                      <div class="uk-width-1-2@m">
+                        <%= text_field_tag "ppntotal", number_with_precision(@customer_tax_invoice.ppntotal, precision: 0, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">          
+                      <div class="uk-width-1-5@m">Amount</div>
+                      <div class="uk-width-1-2@m">
+                        <%= text_field_tag "amount", number_with_precision(@customer_tax_invoice.amount, precision: 0, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+
+            <div  id="item">
+              <%= render 'tab_record' %>
+            </div>
+            <hr>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @customer_tax_invoice.status == 'new' or @customer_tax_invoice.status == 'canceled1' %>
+                        <%= link_to approve_customer_tax_invoice_path(@customer_tax_invoice, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @customer_tax_invoice.status == 'approved1' or @customer_tax_invoice.status == 'canceled2' %>
+                        <%= link_to approve_customer_tax_invoice_path(@customer_tax_invoice, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_customer_tax_invoice_path(@customer_tax_invoice, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @customer_tax_invoice.status == 'approved2' or @customer_tax_invoice.status == 'canceled3' %>   
+                        <%= link_to approve_customer_tax_invoice_path(@customer_tax_invoice, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_customer_tax_invoice_path(@customer_tax_invoice, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_customer_tax_invoice_path(@customer_tax_invoice, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+
+                      <%= form_tooltip(@customer_tax_invoice) %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <%= link_to 'Back', customer_tax_invoices_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <%= link_to 'Edit', edit_customer_tax_invoice_path(@customer_tax_invoice), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

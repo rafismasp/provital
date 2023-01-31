@@ -1,0 +1,147 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+
+<% when 'add_item' %>
+<% when "change_pi" %>
+  <% case field %>
+  <% when 'down_payment'%>
+    <%= number_field_tag "proforma_invoice_customer[down_payment]", @proforma_invoice_customer.down_payment, :class=> 'uk-input uk-form-small' %>
+  <% when 'tax_id' %>
+    <%= select_tag "select_tax_id", options_for_select(@taxes.map{|c| [c.name, c.id, {:'tax'=>c.value.to_f} ]}, params[:select_tax_id]) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-width-medium uk-form-small", :disabled =>true} if @taxes.present? %>
+    <%= hidden_field_tag "proforma_invoice_customer[tax_id]", params[:select_tax_id] %>
+  <% when 'modal_pi_list' %>
+    <!-- load process -->
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_pi_lists">  
+      <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>SO Number</td>
+        <td>PO Number</td>
+        <td colspan="2">TOP</td>
+        <td>Tax</td>
+      </tr>
+      <% c = 0 %>
+      <% @sales_orders.each do |rr| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <!-- <td><input class="uk-checkbox select_pi_list" type="checkbox" pi_list="<%#= rr.id %>"></td> -->
+          <td>
+            <% case rr.class.table_name %>
+            <% when 'sales_orders' %>
+              <% value_check = params[:stuff1] %>
+            <% end %>
+            <%= check_box_tag 'cb_po', rr.number, value_check, :class=> 'uk-checkbox select_pi_list', :table_name => rr.class.table_name, :val=> rr.id, :c=> c, :top_day => rr.top_day, :tax_id => rr.tax_id, :term_of_payment_id=> rr.term_of_payment_id, :id=> rr.id, :cclick=> nil%></td>
+          <td><%= rr.number %></td>
+          <td><%= rr.po_number %></td>
+          <td><%= rr.top_day %></td>
+          <td><%= rr.term_of_payment.name if rr.term_of_payment.present? %></td>
+          <td><%= rr.tax.name %></td>
+        </tr>
+      <% end if @sales_orders.present? %>
+    </table>
+  <% end %>
+<% when 'load_pi_list' %>
+  <% c=1 %>
+  <% if @sales_order_items.present? %>
+    <% @sales_order_items.each do |dd| %>
+      <tr trid="<%= c %>" row_id="<%= params[:c] %>" valign=top>
+        <td class="counter">
+          <%= c %>.
+          <%#= hidden_field_tag "new_record_item[][id]", nil %>
+          <%= hidden_field_tag "new_record_item[][deleted]", 0 %>
+          <%= hidden_field_tag "new_record_item[][sales_order_id]", (dd.sales_order_id if dd.class.table_name == "sales_order_items") %>
+          <%= hidden_field_tag "new_record_item[][sales_order_item_id]", (dd.id if dd.class.table_name == "sales_order_items")%>
+        </td>
+        <td>
+          <% case dd.class.table_name %>
+          <% when 'sales_order_items' %>
+            <%= dd.sales_order.po_number %>
+          <% end %>
+        </td>
+        <td><%= dd.product.part_id %></td>
+        <td><%= dd.product.name %></td>
+        <td><%= dd.product.type_name %></td>
+        <td><%= dd.product.unit_name %></td>
+        <td><%= number_with_precision(dd.quantity, precision: 2, delimiter: ".", separator: ",") %></td>
+        <td><%= number_with_precision(dd.discount, precision: 2, delimiter: ".", separator: ",") %></td>
+        <td><%= number_with_precision(dd.unit_price, precision: 2, delimiter: ".", separator: ",") %></td>
+        <td>
+          <% amount = (dd.try(:quantity) ? dd.quantity : nil) * (dd.try(:unit_price) ? dd.unit_price : nil) %>
+          <%#= text_field_tag "new_record_item[][amount]", (amount), {:class=> "uk-input uk-form-width-auto uk-form-small uk-text-right amount_td", :readonly=>true} %>
+          <%= text_field_tag "new_record_item[][amount]", number_with_precision(amount, precision: 2, delimiter: ".", separator: ","), {:class=> "uk-input uk-form-width-auto uk-form-small uk-text-right amount_td", :readonly=>true} %>
+
+        </td>
+        <td>
+          <%# amountdisc = (dd.try(:discount) ? dd.discount : nil) * (amount) %>
+          <% amountdisc = ((dd.try(:discount) ? dd.discount : nil) / (100).to_f ) * (amount) %>
+          <%#= text_field_tag "new_record_item[][amountdisc]", (amountdisc), {:class=> "uk-input uk-form-width-auto uk-form-small uk-text-right amountdisc_td", :readonly=>true} %>
+          <%= text_field_tag "new_record_item[][amountdisc]", number_with_precision(amountdisc, precision: 2, delimiter: ".", separator: ","), {:class=> "uk-input uk-form-width-auto uk-form-small uk-text-right amountdisc_td", :readonly=>true} %>
+        </td>
+      </tr>
+      <% c+= 1%>
+    <% end %>
+  <% else %>
+    <tr>
+      <td colspan="10">Tidak ada Data!</td>
+    </tr>
+  <% end %>
+<% when 'change_dp' %>
+  <%= number_field_tag "proforma_invoice_customer[down_payment]", (params[:select_dp]), :class=> "uk-input uk-form-width-small uk-form-small dp", :required=> true, :min=> 0, :max=> 100, :onchange=> "change_dp(this, '"+params[:controller].to_s+"');" %> %
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>
+            <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+            <%= link_to approve_proforma_invoice_customer_path(0, :status=> 'approve3'), method: :put, :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+              <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+            <% end %>  
+          </th>
+          <th>Status</th>
+          <th>Customer</th>
+          <th>PI Number</th>
+          <th>PO Customer</th>
+          <th>PO Total</th>
+          <th>PI Grand Total</th>
+          <th>Remark</th>
+          <th>PI Date</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @proforma_invoice_customers.each do |proforma_invoice_customer| %>
+          <tr uk-tooltip="title: <%= row_tooltip(proforma_invoice_customer) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td align="left" style="vertical-align: middle;">
+              <% case proforma_invoice_customer.status %>
+              <% when "approved2","canceled3" %>
+                <input type='checkbox'onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= proforma_invoice_customer.id %>" trid="<%=@c%>">
+              <% else %>
+              -
+              <% end %>
+            </td>
+            <td><%= proforma_invoice_customer.status %></td>
+            <td><%= proforma_invoice_customer.customer.name if proforma_invoice_customer.customer.present? %></td>
+            <td><%= proforma_invoice_customer.number %></td>
+            <td><%= proforma_invoice_customer.proforma_invoice_customer_items.where(:status=> 'active').map { |e| e.sales_order.po_number }.uniq.join(", ") %></td>
+            <td><%= number_with_precision(proforma_invoice_customer.proforma_invoice_customer_items.where(:status=> 'active').sum(:amount), precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= number_with_precision(proforma_invoice_customer.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= proforma_invoice_customer.remarks %></td>
+            <td><%= proforma_invoice_customer.date %></td>
+            <td><%= link_to 'Show', proforma_invoice_customer_path(:id=> proforma_invoice_customer.id, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+            <td><%= link_to 'Edit', edit_proforma_invoice_customer_path(proforma_invoice_customer, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

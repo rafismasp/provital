@@ -1,0 +1,39 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+
+<% when 'add_item' %>
+
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Bpk Status</th>
+          <th>Bpk Number</th>
+          <th>Req Date</th>
+          <th>Req Status</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @proof_cash_expenditure_open_prints.each do |item| %>
+          <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td><%= item.proof_cash_expenditure.status %></td>
+            <td><%= item.proof_cash_expenditure.number %></td>
+            <td><%= item.date %></td>
+            <td><%= item.status %></td>
+            <td><%= link_to 'Show', item %></td>
+            <td><%= link_to 'Edit', proof_cash_expenditure_open_print_path(item) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

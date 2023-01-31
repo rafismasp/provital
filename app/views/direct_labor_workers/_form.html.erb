@@ -1,0 +1,28 @@
+
+<%= form_with(model: direct_labor_worker, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if direct_labor_worker.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(direct_labor_worker.errors.count, "error") %> prohibited this direct_labor_worker from being saved:</h2>
+
+      <ul>
+      <% direct_labor_worker.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="uk-margin-small">
+    <div class="uk-width-1-5@m">Nama</div>
+    <div class="uk-width-1-4@m">
+        <%= form.text_field :name, id: :direct_labor_worker_name, :class=> "uk-input uk-form-small" %>
+      
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', direct_labor_workers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

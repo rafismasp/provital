@@ -1,0 +1,59 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_department' %>
+	$('.select_section').html("<%= escape_javascript(render 'partial') %>");
+
+<% when 'add_bon' %>
+    $('.add_bon .uk-modal-body').html("<%= escape_javascript(render 'partial') %>");
+    UIkit.modal('.add_bon').show();
+<% when 'load_bon' %>
+
+  <% if params[:bon_count].to_i == 1 %>
+    $('.tbody_item').html("<%= escape_javascript(render 'partial') %>");
+  <% else %>
+    $('.tbody_item tr:last').after("<%= escape_javascript(render 'partial') %>");
+  <% end %>
+
+  if($(".files_base64").val() != ""){
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .bon_files").attr('base64',$(".files_base64").val())
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .save_bon_file").val($(".files_base64").val())
+  }else{
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .bon_files").remove()
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .save_bon_file").remove()
+  }
+
+  calculation_amount("calculation_amount", "<%= params[:controller].to_s %>")
+
+  UIkit.modal('.add_bon').hide();
+<% when 'add_new_item' %>
+  <% if params[:count].to_i == 1 %>
+    $('.new_tbody_item').html("<%= escape_javascript(render 'partial') %>");
+  <% else %>
+    $('.new_tbody_item tr:last').after("<%= escape_javascript(render 'partial') %>");
+  <% end %>
+
+<% when 'change_attachment' %>
+    $('.change_attachment .uk-modal-body').html("<%= escape_javascript(render 'partial') %>");
+    UIkit.modal('.change_attachment').show();
+    $('.load_attachment').off('click');
+    $('.load_attachment').on('click', function(e) {
+      load_attachment("<%= params[:bon_count].to_s %>", "<%= params[:controller].to_s %>");
+    });
+<% when 'load_attachment' %>
+    $(".hidden-attachment[bon_count=<%= params[:bon_count].to_s %>]").html("<%= escape_javascript(render 'partial') %>");
+    if($(".files_base64").val() != ""){
+      $(".bon_files").attr('base64',$(".files_base64").val())
+      $(".save_bon_file").val($(".files_base64").val())
+      $(".bon_attachment[bon_count=<%= params[:bon_count].to_s %>]").remove()
+    }else{
+      $(".bon_files").remove()
+      $(".save_bon_file").remove()
+    }
+
+  UIkit.modal('.change_attachment').hide();
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

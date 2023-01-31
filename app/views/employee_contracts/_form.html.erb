@@ -1,0 +1,120 @@
+
+<%= form_with(model: employee_contract, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if employee_contract.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(employee_contract.errors.count, "error") %> prohibited this employee_contract from being saved:</h2>
+
+      <ul>
+      <% employee_contract.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">No.Kontrak</div>
+        <div class="uk-width-3-4@m">
+          <%= form.number_field :number, id: :employee_contract_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true%>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">Nama</div>
+        <div class="uk-width-3-4@m">
+          <%= form.collection_select :employee_id, @employees, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-small", :onchange=> "change_employee(this, '"+params[:controller].to_s+"')"  %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small employee_detail">
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">Department</div>
+        <div class="uk-width-3-4@m">
+          <%= form.collection_select :department_id, @departments, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-small" %>
+        </div>
+      </div>
+    </div>
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">Position</div>
+        <div class="uk-width-3-4@m">
+          <%= form.collection_select :position_id, @positions, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-small" %>
+        </div>
+      </div>
+    </div>
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-3@m">Jenis Kontrak</div>
+        <div class="uk-width-2-3@m">
+          <%= form.collection_select :work_status_id, @work_statuses, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-small" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">Tgl Awal</div>
+        <div class="uk-width-3-4@m">
+          <%= form.date_field :begin_of_contract, id: :employee_contract_begin_of_contract, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+        </div>
+      </div>
+    </div>
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">Tgl Akhir</div>
+        <div class="uk-width-3-4@m">
+          <%= form.date_field :end_of_contract, id: :employee_contract_end_of_contract, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">Basic Salary</div>
+        <div class="uk-width-3-4@m">
+          <%= form.number_field :basic_salary, id: :employee_contract_basic_salary, :class=> "uk-input uk-form-width-large uk-form-small" %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">Uang Makan</div>
+        <div class="uk-width-3-4@m">
+          <%= form.number_field :meal_and_transport_cost, id: :employee_contract_meal_and_transport_cost, :class=> "uk-input uk-form-width-large uk-form-small" %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">
+      <div class="uk-grid uk-margin-small">
+        <div class="uk-width-1-4@m">HRD</div>
+        <div class="uk-width-3-4@m">
+          <%= select_tag "employee_contract[hrd_name]", options_for_select(['Marlina Bhekti Hatmanto','Shandra Sijabat Robasa']), :class=> "uk-select uk-form-small"%>
+          <%#= text_field_tag "hrd_name", "#{current_user.first_name} #{current_user.last_name}", :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true  %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', employee_contracts_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+  <% end %>

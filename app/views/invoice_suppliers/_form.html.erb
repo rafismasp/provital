@@ -1,0 +1,532 @@
+
+<%= form_with(model: invoice_supplier, local: true, class: "uk-form-horizontal", :multipart => true) do |form| %>
+
+  <% if invoice_supplier.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(invoice_supplier.errors.count, "error") %> prohibited this invoice_supplier from being saved:</h2>
+
+      <ul>
+      <% invoice_supplier.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Suppliers</div>
+            <div class="uk-width-3-4@m">
+              <%= hidden_field_tag "invoice_supplier[supplier_id]", (form.object.supplier.present? ? form.object.supplier_id : ""), :class=>"supplier_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "supplier_id", field_value: (form.object.supplier.present? ? form.object.supplier.name : ""), kind: params[:q] %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Inv.Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :invoice_supplier_number, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">SJ.Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :sj_number, id: :invoice_supplier_sj_number, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">FP.Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :fp_number, id: :invoice_supplier_fp_number, :class=> "uk-input uk-form-width-large uk-form-small"%>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Remarks</div>
+            <div class="uk-width-3-4@m">
+              <%= form.text_area :remarks, id: :invoice_supplier_remarks, :rows=> 4, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Currency</div>
+            <div class="uk-width-1-4@m select_currencies">
+              <%= form.select :currency_id, options_for_select(@currencies.map{|c| [c.name, c.id ]}, form.object.currency_id), {:include_blank => true}, {class: "uk-select uk-form-width-large uk-form-small", :required=> true} if @currencies.present? %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Inv.Date</div>
+            <div class="uk-width-2-3@m">
+              <%= form.date_field :date, id: :invoice_supplier_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Due Date</div>
+            <div class="uk-width-2-3@m">
+              <%= form.date_field :due_date, id: :invoice_supplier_due_date, :value=> (form.object.due_date.present? ? form.object.due_date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Tax</div>
+            <div class="uk-width-1-2@m select_taxes">
+              <%= hidden_field_tag "invoice_supplier[tax_id]", (form.object.supplier.present? ? form.object.tax_id : ""), :class=>"tax_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "tax_id", field_value: (form.object.tax.present? ? form.object.tax_id : ""), kind: params[:q] %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">T.O.P</div>
+            <div class="uk-width-3-4@m">
+              <div class="uk-flex">
+                <%= form.text_field :top_day, id: :invoice_supplier_top_day, :class=> "uk-input uk-form-small select_top_day uk-width-1-4" %>
+            
+                <div class="select_term_of_payments uk-width-3-4">
+                  <%= form.select :term_of_payment_id, options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, form.object.term_of_payment_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-small", :required=> true} if @term_of_payments.present? %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Tax Rates</div>
+            <div class="uk-width-1-2@m select_tax_rates">
+              <% if form_kind == 'edit' %>
+                <%= text_field_tag "tax_rates", "Rp. #{number_with_precision(form.object.tax_rate.currency_value, precision: 0, delimiter: ".", separator: ",")}", class: "uk-input uk-form-width-medium uk-form-small" , :disabled=> true %>
+              <% else %>
+                <%= form.select :tax_rate_id, options_for_select(@tax_rates.map{|c| ["Rp. #{number_with_precision(c.currency_value, precision: 0, delimiter: ".", separator: ",")}", c.id ]}, form.object.tax_rate_id), {:prompt => " -- select -- "}, {class: "uk-input uk-form-width-medium uk-form-small", :required=> true} if @tax_rates.present? %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Sub Total</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :subtotal, id: :invoice_supplier_subtotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PPN Total</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :ppntotal, id: :invoice_supplier_ppntotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PPH Total</div>
+            <div class="uk-width-2-3@m">
+              <div class="uk-flex">
+                <%= form.number_field :pphpercent, id: :pphpercent, :value => (form.object.pphtotal.to_f/form.object.subtotal.to_f)*100, :class=> "uk-input uk-form-width-medium uk-form-small uk-text-right", :onchange=> "change_pph_percent(this, '"+params[:controller].to_s+"');", :min=> 0, :max=> 100, :step=> :any %>
+                <%= form.number_field :pphtotal, id: :invoice_supplier_pphtotal, :value => form.object.pphtotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :onchange=> "change_pph_total(this, '"+params[:controller].to_s+"');", :min=> 0, step: :any %>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Down Payment</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :dptotal, id: :invoice_supplier_dptotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :onchange=> "change_down_payment(this, '"+params[:controller].to_s+"');", :min=> 0 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Grand Total</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :grandtotal, id: :invoice_supplier_grandtotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-grid uk-margin-small">
+    <div class="uk-width-1-3@m">Attachment</div>
+    <div class="uk-width-2-3@m attachments">
+      <table class="uk-table uk-table-striped">
+        <thead>
+          <tr>
+            <th>File Upload</th>
+          </tr>
+        </thead>   
+        <tbody>
+          <% @record_files.each do |record_file| %>
+            <%= hidden_field_tag 'record_file[][id]', record_file.id %>
+            <% case record_file.ext.downcase %>
+            <% when '.png','.jpg','.jpeg','.jfif','.svg','.webp' %>
+              <tr>
+                <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 100px"/></a></td>
+                <td>status: <%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+              </tr>
+            <% else %>
+              <tr>
+                <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a></td>
+                <td>status: <%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+              </tr>
+            <% end %>
+          <% end if @record_files.present? %>
+          <tr>
+            <td><%= file_field_tag 'file[][attachment]', :class=>'btn btn-default btn-sm', :multiple=>true %></td>
+          </tr>
+        </tbody> 
+      </table>  
+    </div>
+  </div>
+
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-2-4@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-auto button-grn-modal" title ="Penerimaan Barang Material">
+              <a class='uk-button uk-button-primary uk-button-small' href='#grn-sections' uk-toggle>GRN: Material</a>
+            </div>
+            <div class="uk-width-auto button-prn-modal" title ="Penerimaan Barang Product">
+              <a class='uk-button uk-button-primary uk-button-small' href='#prn-sections' uk-toggle>GRN: Product</a>
+            </div>
+            <div class="uk-width-auto button-gen-modal" title ="Penerimaan Barang Jasa">
+              <a class='uk-button uk-button-primary uk-button-small' href='#gen-sections' uk-toggle>GRN: Services</a>
+            </div>
+            <div class="uk-width-auto button-con-modal" title ="Penerimaan Barang Consumables">
+              <a class='uk-button uk-button-primary uk-button-small' href='#con-sections' uk-toggle>GRN: Consumables</a>
+            </div>
+            <div class="uk-width-auto button-equ-modal" title ="Penerimaan Barang Equipemnt">
+              <a class='uk-button uk-button-primary uk-button-small' href='#equ-sections' uk-toggle>GRN: Equipments</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+
+      <a class="note_for_user"></a>
+      <div class="uk-width-1-1@m">
+
+        <table class="uk-table uk-table-small uk-table-striped uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>GRN Number</th>
+            <th>GRN Date</th>
+            <th>PO Number</th>
+            <th>Material Code</th>
+            <th>Material Name</th>
+            <th>Batch Number</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+          <% c=0 %>
+          <% if @invoice_supplier_items.present? %>
+            <% @invoice_supplier_items.each do |item| %>
+              <% part = nil %>
+              <% doc_receiving = nil %>
+              <% doc_receiving_item = nil %>
+              <% batch_number = nil %>
+              <% if item.material_receiving.present? %>
+                <% kind          = 'material' %>
+                <% doc_receiving = item.material_receiving %>
+                <% doc_receiving_item = item.material_receiving_item %>
+                <% batch_number = @material_batch_number.where(:material_receiving_item_id=> item.material_receiving_item_id).map { |e| e.number }.join(", ") if @material_batch_number.present? %>
+                <% part = item.material %>
+              <% elsif item.product_receiving.present? %>
+                <% kind          = 'product' %>
+                <% doc_receiving = item.product_receiving %>
+                <% doc_receiving_item = item.product_receiving_item %>
+                <% batch_number = @product_batch_number.where(:product_receiving_item_id=> item.product_receiving_item_id).map { |e| e.number }.join(", ") if @product_batch_number.present? %>
+                <% part = item.product %>
+              <% elsif item.general_receiving.present? %>
+                <% kind          = 'general' %>
+                <% doc_receiving = item.general_receiving %>
+                <% doc_receiving_item = item.general_receiving_item %>
+                <% batch_number = @general_batch_number.where(:general_receiving_item_id=> item.general_receiving_item_id).map { |e| e.number }.join(", ") if @general_batch_number.present? %>
+                <% part = item.general %>
+              <% elsif item.consumable_receiving.present? %>
+                <% kind          = 'consumable' %>
+                <% doc_receiving = item.consumable_receiving %>
+                <% doc_receiving_item = item.consumable_receiving_item %>
+                <% batch_number = @consumable_batch_number.where(:consumable_receiving_item_id=> item.consumable_receiving_item_id).map { |e| e.number }.join(", ") if @consumable_batch_number.present? %>
+                <% part = item.consumable %>
+              <% elsif item.equipment_receiving.present? %>
+                <% kind          = 'equipment' %>
+                <% doc_receiving = item.equipment_receiving %>
+                <% doc_receiving_item = item.equipment_receiving_item %>
+                <% batch_number = @equipment_batch_number.where(:equipment_receiving_item_id=> item.equipment_receiving_item_id).map { |e| e.number }.join(", ") if @equipment_batch_number.present? %>
+                <% part = item.equipment %>
+              <% end %>
+              <tr>
+                <td class="counter">
+                  <%= c+=1%>
+                  <%= hidden_field_tag 'new_record_item[][material_id]', (kind == 'material' ? part.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][material_receiving_id]', (kind == 'material' ? doc_receiving.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][material_receiving_item_id]', (kind == 'material' ? doc_receiving_item.id : nil) %>
+
+                  <%= hidden_field_tag 'new_record_item[][product_id]', (kind == 'product' ? part.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][product_receiving_id]', (kind == 'product' ? doc_receiving.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][product_receiving_item_id]', (kind == 'product' ? doc_receiving_item.id : nil) %>
+
+                  <%= hidden_field_tag 'new_record_item[][general_id]', (kind == 'general' ? part.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][general_receiving_id]', (kind == 'general' ? doc_receiving.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][general_receiving_item_id]', (kind == 'general' ? doc_receiving_item.id : nil) %>
+
+                  <%= hidden_field_tag 'new_record_item[][consumable_id]', (kind == 'consumable' ? part.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][consumable_receiving_id]', (kind == 'consumable' ? doc_receiving.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][consumable_receiving_item_id]', (kind == 'consumable' ? doc_receiving_item.id : nil) %>
+
+                  <%= hidden_field_tag 'new_record_item[][equipment_id]', (kind == 'equipment' ? part.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][equipment_receiving_id]', (kind == 'equipment' ? doc_receiving.id : nil) %>
+                  <%= hidden_field_tag 'new_record_item[][equipment_receiving_item_id]', (kind == 'equipment' ? doc_receiving_item.id : nil) %>
+
+                  <%= hidden_field_tag 'new_record_item[][purchase_order_supplier_id]', item.purchase_order_supplier_id %>
+                  <%= hidden_field_tag 'new_record_item[][purchase_order_supplier_item_id]', item.purchase_order_supplier_item_id %>
+                  <%= hidden_field_tag 'new_record_item[][quantity]', item.quantity, {:class=> "hidden_quantity#{c}"} %>
+                  <%= hidden_field_tag 'new_record_item[][total]', item.total, {:class=> "hidden_total#{c} subtotal_item"} %>
+                </td>
+                <td><%= doc_receiving.number if doc_receiving.present? %></td>
+                <td><%= doc_receiving.date if doc_receiving.present? %></td>
+                <td><%= item.purchase_order_supplier.number if item.purchase_order_supplier.present? %></td>
+                <td><%= (part.part_id if part.present?) %></td>
+                <td><%= (part.name if part.present?) %></td>
+                <td><%= batch_number %></td>
+                <td><%= (part.unit.name if part.present? and part.unit.present?)%></td>
+                <td class="uk-text-right">
+                  <%= number_with_precision(item.quantity, precision: 2, delimiter: ".", separator: ",") %>
+                </td>
+                <td class="uk-width-small">
+                  <%= number_field_tag 'new_record_item[][unit_price]', item.unit_price, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "change_unit_price(this, '"+params[:controller].to_s+"', '"+c.to_s+"');"} %>
+                </td>
+                <td class="uk-text-right total<%= c %>">
+                  <%= number_with_precision(item.total, precision: 0, delimiter: ".", separator: ",") %>
+                </td>
+                <td>
+                  <%= select_tag "new_record_item[][status]", options_for_select(['active','deleted'],
+                    item.status) , { :class=>'uk-input uk-form-small'} %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="10">Tidak ada Data!</td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="grn-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">GRN Material</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_material_receivings">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>GRN Number</td>
+            <td>GRN Date</td>
+            <td>PO Number</td>
+          </tr>
+          <% c = 0 %>
+          <% @material_receivings.each do |grn| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td>
+                <input class="uk-checkbox select_material_receiving_id" type="checkbox" <%= (invoice_supplier.id.to_i > 0 ? (grn.invoice_supplier_id.to_i == @invoice_supplier.id.to_i ? "checked" : nil) : nil ) if @invoice_supplier.present? %> material_receiving_id="<%= grn.id %>" receiving_date="<%= grn.date %>" tax_id="<%= grn.purchase_order_supplier.tax_id if grn.purchase_order_supplier.present? %>"></td>
+              <td><%= grn.number %></td>
+              <td><%= grn.date %></td>
+              <td><%= grn.purchase_order_supplier.number if grn.purchase_order_supplier.present? %></td>
+            </tr>
+          <% end if @material_receivings.present? %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_material_receiving_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+  <div id="prn-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">GRN Product</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_product_receivings">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>PRN Number</td>
+            <td>PRN Date</td>
+            <td>PO Number</td>
+          </tr>
+          <% c = 0 %>
+          <% @product_receivings.each do |prn| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td>
+                <input class="uk-checkbox select_product_receiving_id" type="checkbox" <%= (invoice_supplier.id.to_i > 0 ? (prn.invoice_supplier_id.to_i == @invoice_supplier.id.to_i ? "checked" : nil) : nil ) if @invoice_supplier.present? %> product_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+              <td><%= prn.number %></td>
+              <td><%= prn.date %></td>
+              <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+            </tr>
+          <% end if @product_receivings.present? %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_product_receiving_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+  <div id="gen-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">GRN Services</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_general_receivings">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>Doc Number</td>
+            <td>Doc Date</td>
+            <td>PO Number</td>
+          </tr>
+          <% c = 0 %>
+          <% @general_receivings.each do |prn| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td>
+                <input class="uk-checkbox select_general_receiving_id" type="checkbox" <%= (invoice_supplier.id.to_i > 0 ? (prn.invoice_supplier_id.to_i == @invoice_supplier.id.to_i ? "checked" : nil) : nil ) if @invoice_supplier.present? %> general_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+              <td><%= prn.number %></td>
+              <td><%= prn.date %></td>
+              <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+            </tr>
+          <% end if @general_receivings.present? %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_general_receiving_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+  <div id="con-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">GRN Consumables</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_consumable_receivings">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>Doc Number</td>
+            <td>Doc Date</td>
+            <td>PO Number</td>
+          </tr>
+          <% c = 0 %>
+          <% @consumable_receivings.each do |prn| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td>
+                <input class="uk-checkbox select_consumable_receiving_id" type="checkbox" <%= (invoice_supplier.id.to_i > 0 ? (prn.invoice_supplier_id.to_i == @invoice_supplier.id.to_i ? "checked" : nil) : nil ) if @invoice_supplier.present? %> consumable_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+              <td><%= prn.number %></td>
+              <td><%= prn.date %></td>
+              <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+            </tr>
+          <% end if @consumable_receivings.present? %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_consumable_receiving_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+  <div id="equ-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">GRN Equipments</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_equipment_receivings">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>Doc Number</td>
+            <td>Doc Date</td>
+            <td>PO Number</td>
+          </tr>
+          <% c = 0 %>
+          <% @equipment_receivings.each do |prn| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td>
+                <input class="uk-checkbox select_equipment_receiving_id" type="checkbox" <%= (invoice_supplier.id.to_i > 0 ? (prn.invoice_supplier_id.to_i == @invoice_supplier.id.to_i ? "checked" : nil) : nil ) if @invoice_supplier.present? %> equipment_receiving_id="<%= prn.id %>" receiving_date="<%= prn.date %>" tax_id="<%= prn.purchase_order_supplier.tax_id %>"></td>
+              <td><%= prn.number %></td>
+              <td><%= prn.date %></td>
+              <td><%= prn.purchase_order_supplier.number if prn.purchase_order_supplier.present? %></td>
+            </tr>
+          <% end if @equipment_receivings.present? %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_equipment_receiving_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', invoice_suppliers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

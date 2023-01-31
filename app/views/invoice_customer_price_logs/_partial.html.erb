@@ -1,0 +1,63 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+    <thead class="bg-primary">
+      <tr>
+        <th>#</th>
+        <th>
+          <%= check_box_tag 'list_approve_all', nil, false, :onchange=>"app3_multiple_select_all('#{params[:controller].to_s}')" %>
+          <%= link_to 'Approve', 'javascript:;', {class: "uk-button uk-button-small uk-button-primary", :id=> 'approve_selected'} %>
+        </th>
+        <th>Status</th>
+        <th>Invoice Number</th>
+        <th>DO Number</th>
+        <th>SO Number</th>
+        <th>Batch Number</th>
+        <th>Product</th>
+        <th>Old Price</th>
+        <th>New Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @invoice_customer_price_logs.each do |invoice_customer_price_log| %>
+        <% product      = invoice_customer_price_log.invoice_customer_item.product %>
+        <% invoice      = invoice_customer_price_log.invoice_customer %>
+        <% invoice_item = invoice_customer_price_log.invoice_customer_item %>
+        <% do_item      = invoice_item.delivery_order_item %>
+        <% so_item      = invoice_item.sales_order_item %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td>
+            <%= check_box_tag 'list_approve[][invoice_customer_id]', 1, false, {:log_id=> invoice_customer_price_log.id, :invoice_item_id=> invoice_item.id, :invoice_id=> invoice.id, :class=> 'list_approve_selected'} if invoice_customer_price_log.status == 'active' %></td>
+          <td><%= invoice_customer_price_log.status %></td>
+          <td>
+            <%= link_to "#{invoice.number}", invoice_customer_path(invoice.id), {target: :_blank} %>
+          </td>
+          <td>
+            <%= link_to "#{do_item.delivery_order.number}", delivery_order_path(do_item.delivery_order_id), {target: :_blank} %>
+          </td>
+          <td>
+            <%= link_to "#{so_item.sales_order.number}", sales_order_path(so_item.sales_order_id), {target: :_blank} %>
+          </td>
+          <td><%= invoice_customer_price_log.invoice_customer_item.product_batch_number.number %></td>
+          <td>
+            <div uk-grid>
+              <div class="uk-text-left uk-text-bold" title="Product Part ID"><%= product.part_id %></div>
+              <div class="uk-text-right" title="Product Type"><%= product.product_type.name %></div>
+            </div>
+            <div class="uk-text-lighter" title="Product Name"><%= product.name %></div>              
+          </td>
+          <td>
+            <%= number_with_precision(invoice_customer_price_log.old_price, precision: 4, delimiter: ".", separator: ",") %>
+          </td>
+          <td>
+            <%= number_with_precision(invoice_customer_price_log.new_price, precision: 4, delimiter: ".", separator: ",") %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

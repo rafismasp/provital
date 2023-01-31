@@ -1,0 +1,2 @@
+class DomBank < ApplicationRecord
+end

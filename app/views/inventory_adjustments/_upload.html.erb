@@ -1,0 +1,43 @@
+<div id="modal-upload" uk-modal>
+  <div class="uk-modal-dialog">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+      <h4 class="uk-modal-title">Upload <%= controller_name.humanize %></h4>
+    </div>
+
+
+      <div class="uk-card-body">
+        <%#= form_with(model: inventory_adjustment, local: true, class: "uk-form-horizontal", :action=> "import_inventory_adjustment", :job=>params[:job], multipart: true) do |form| %>
+        <%= form_tag("/inventory_adjustments/import", multipart: true) do %>
+          <%= hidden_field_tag 'inventory_adjustment[created_by]', current_user.id %>
+          <%= hidden_field_tag 'inventory_adjustment[created_at]', DateTime.now() %>
+
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-2@m">
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-6@m">Upload File</div>
+                    <div class="uk-width-1-5@m">
+                      <%= file_field_tag 'upload[file]', :class=>'btn btn-default btn-sm' %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <p uk-margin>
+            <a class="uk-button uk-button-default uk-modal-close uk-button-small">Back</a>
+            <%#= link_to 'Save', upload_inventory_adjustment_path(), class: "uk-button uk-button-primary uk-button-small", data: { disable_with: "Please wait..." } %>
+
+            <%= submit_tag "Upload", class: "uk-button uk-button-primary uk-button-small" %>
+          </p>
+
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>
+

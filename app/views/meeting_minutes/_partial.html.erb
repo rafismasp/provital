@@ -1,0 +1,39 @@
+<% case params[:partial] %>
+<% when "add_pic" %>
+  <div class="<%= "select_pic_#{params[:btnc]}" %>">
+    <%= select_tag "new_record_item[][pic#{params[:btnc]}]", options_for_select(@users.collect { |e| [e.email, e.id]}) , { :include_blank => "-- PIC #{params[:btnc]} --", :class=>'uk-select uk-form-width-medium uk-form-small'} if @users.present? %>  
+    <%= link_to "", "javascript:;", 
+      {:onclick=>"$('.select_pic_"+params[:btnc].to_s+"').hide();
+        $('#new_record_item__pic"+params[:btnc].to_s+" option:selected').prop('selected', false);", :'uk-icon'=>"icon: trash"} %>
+  </div>
+<% when 'add_attendence' %>
+  <tr>
+    <td align=right width=22px class='counter'><%= params[:c] %></td>
+    <td>
+      <%= select_tag 'new_attendence[][user_id]', options_for_select(@users.collect { |e| [e.email, e.id]}) , { :include_blank => '-- Pilih  --', :class=> "uk-select uk-form-width-medium uk-form-small"} if @users.present?%>
+      <%= hidden_field_tag 'new_attendence[][created_by]',session[:id], {:size=>'15px'} %>
+    </td>
+    <td align='center'>
+      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :'uk-icon'=>"icon: trash", :class=>"uk-button uk-button-danger uk-button-small"} %>
+    </td>
+  </tr> 
+<% when 'add_meeting_minute_item' %>
+  <tr id=trid"<%= params[:c] %>" valign=top><td align=right width=22px class='counter'><%= params[:c] %></td>
+    <td>
+    	<%= text_area_tag 'new_record_item[][description]',nil, {:rows=>'5', :placeholder=> 'description', :class=>"uk-textarea uk-form-width-medium uk-form-small meeting_minute_item_description#{params[:c]}"} %>
+    </td>
+    <td><%= text_area_tag 'new_record_item[][action]',nil, {:rows=>'5', :placeholder=> 'action', :class=>"uk-textarea uk-form-width-medium uk-form-small meeting_minute_item_action#{params[:c]}"} %></td>
+    <td><%= date_field_tag 'new_record_item[][due_date]',nil, {:class=>"uk-input uk-form-width-medium uk-form-small"} %>
+	    <td class='tdpic<%= params[:c] %>'>
+	      <div class="select_pic_1">
+	        <%= select_tag 'new_record_item[][pic1]', options_for_select(@users.collect { |e| [e.email, e.id]}) , { :include_blank => '-- PIC 1 --', :class=>'uk-select uk-form-width-medium uk-form-small'} if @users.present?%>
+	      </div>
+	    </td>
+	    <td add_pic_counter = "<%= params[:c] %>" counter=1><%= link_to '+', 'javascript:;', class:'uk-button uk-button-primary uk-button-small add_pic',
+	    :onclick=> "add_pic_meeting_minute_item(this, '"+params[:controller].to_s+"')" %>
+      </td>
+	  </td>
+    <td></td>
+    <td align='center' width=30px><%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :'uk-icon'=>"icon: trash", :class=>"uk-button uk-button-danger uk-button-small"} %></td>
+  </tr>
+<% end %>

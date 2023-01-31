@@ -1,0 +1,169 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', shop_floor_order_sterilizations_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-2@m">
+					        <div class="uk-margin-small">
+					          <div class="uk-grid">
+					            <div class="uk-width-1-6@m">No.</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= text_field_tag :number, @shop_floor_order_sterilization.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					            <div class="uk-width-1-6@m">Date</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= date_field_tag :date, @shop_floor_order_sterilization.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					          </div>
+					        </div>
+
+					      </div>
+					      <div class="uk-width-1-2@m">
+					        <div class="uk-grid">
+				            <div class="uk-width-1-6@m">Remarks</div>
+				            <div class="uk-width-4-5@m">
+                  		<%= text_field_tag :remarks, (@shop_floor_order_sterilization.remarks), :class=> "uk-input uk-form-small", :disabled=> true %>
+                  	</div>
+                  </div>
+					      </div>
+					    </div>
+					  </div>
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-2@m">
+					        <div class="uk-grid">
+            				<div class="uk-width-1-6@m" title="Sterilization Batch Number">SBN</div>
+				            <div class="uk-width-1-3@m">
+                			<%= text_field_tag :sterilization_batch_number, @shop_floor_order_sterilization.sterilization_batch_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+				            </div>
+				            <div class="uk-width-1-6@m">Kind</div>
+				            <div class="uk-width-1-3@m">
+                  		<%= text_field_tag :po_number, (@shop_floor_order_sterilization.kind), :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+				            </div>
+					        </div>
+					      </div>
+					    </div>
+					  </div>
+					  <hr>
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-1@m">
+					        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+					          <tr>
+					            <th>#</th>
+					            <th>Order Number</th>
+					            <th>Batch Number</th>
+					            <th>Product Code</th>
+					            <th>Product Name</th>
+					            <th>Type</th>
+					            <th>Unit</th>
+					            <th>Quantity</th>
+					            <th>Remarks</th>
+					          </tr>
+					          <% c=0 %>
+					          
+					          <% @shop_floor_order_sterilization_items.each do |shop_floor_order_sterilization_item| %>
+					          	<% part = nil %>
+						          <% if shop_floor_order_sterilization_item.product.present? %>
+						          	<% part = shop_floor_order_sterilization_item.product %>
+						          <% end %>
+					            
+					            <tr>
+					              <td class="counter"><%= c+=1%></td>
+					              <td>
+					                <% batch_number = shop_floor_order_sterilization_item.product_batch_number %>
+					                <% if batch_number.present? %>
+						                <% if batch_number.shop_floor_order_item.present? %>
+						                  <%= batch_number.shop_floor_order_item.shop_floor_order.number %>
+						                <% else %>
+						                  <% if batch_number.sterilization_product_receiving_item.present? %>
+						                    <%= batch_number.sterilization_product_receiving_item.sterilization_product_receiving.number %>
+						                  <% end %>
+						                <% end %>
+						              <% end %>
+					              </td>
+					              <td>
+					                <%= shop_floor_order_sterilization_item.product_batch_number.number if shop_floor_order_sterilization_item.product_batch_number.present? %>
+					              </td>
+					              <td><%= (part.present? ? part.part_id : nil) %></td>
+					              <td><%= (part.present? ? part.name : nil) %></td>
+					              <td><%= (part.present? ? part.type_name : nil) %></td>
+					              <td><%= (part.present? ? part.unit_name : nil) %></td>
+					              <td class="uk-text-right"><%= number_with_precision(shop_floor_order_sterilization_item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+					              </td>
+					              <td><%= shop_floor_order_sterilization_item.remarks %></td>
+					            </tr>
+					          <% end if @shop_floor_order_sterilization_items.present? %>
+					        </table>
+					      </div>
+					    </div>
+					  </div>
+					  <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @shop_floor_order_sterilization.status == 'new' or @shop_floor_order_sterilization.status == 'canceled1' %>
+                        <%= link_to approve_shop_floor_order_sterilization_path(@shop_floor_order_sterilization, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @shop_floor_order_sterilization.status == 'approved1' or @shop_floor_order_sterilization.status == 'canceled2' %>
+                        <%= link_to approve_shop_floor_order_sterilization_path(@shop_floor_order_sterilization, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_shop_floor_order_sterilization_path(@shop_floor_order_sterilization, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @shop_floor_order_sterilization.status == 'approved2' or @shop_floor_order_sterilization.status == 'canceled3' %>   
+                        <%= link_to approve_shop_floor_order_sterilization_path(@shop_floor_order_sterilization, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_shop_floor_order_sterilization_path(@shop_floor_order_sterilization, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_shop_floor_order_sterilization_path(@shop_floor_order_sterilization, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @shop_floor_order_sterilization.status %>
+                      <% when 'approved3' %>
+                        <%= link_to print_shop_floor_order_sterilization_path(@shop_floor_order_sterilization), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', shop_floor_order_sterilizations_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', shop_floor_order_sterilizations_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_shop_floor_order_sterilization_path(@shop_floor_order_sterilization), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

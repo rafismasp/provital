@@ -1,0 +1,44 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_product_category" %>
+  <%= select_tag "product[product_sub_category_id]", options_for_select(@product_sub_categories.collect { |e| ["#{e.code} - #{e.name}", e.id, {:'product_category_id'=> e.product_category_id}]}) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-small',
+          :onchange=> "change_product_sub_category(this, '"+params[:controller].to_s+"');"} %>  
+<% when "change_product_sub_category" %>
+  <%= select_tag "product[product_type_id]", options_for_select(@product_types.collect { |e| ["#{e.code} - #{e.brand} - #{e.name}", e.id, {:'product_category_id'=> e.product_sub_category.product_category_id, :'product_sub_category_id'=> e.product_sub_category_id}]}) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-small',
+          :onchange=> "change_product_type(this, '"+params[:controller].to_s+"');" } %>  
+<% when "change_product_type" %>
+	<%= text_field_tag "product[part_id]", product_code(params[:product_category_id], params[:product_sub_category_id], params[:product_type_id]), {:class=> 'uk-input uk-form-small', :readonly=> true} %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Product Code</th>
+        <th>Product Name</th>
+        <th>ID NIE</th>
+        <th>NIE ED</th>
+        <th>Unit</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c= @c.present? ? @c : 0 %>
+      <% @products.each do |product| %>
+        <tr uk-tooltip="title: <%= row_tooltip(product) %>; pos: top-left">
+          <td><%= c+=1 %></td>
+          <td><%= product.part_id %></td>
+          <td class="uk-width-auto"><%= product.name %></td>
+          <td><%= product.nie_number %></td>
+          <td><%= product.nie_expired_date %></td>
+          <td><%= product.unit.name if product.unit.present? %></td>
+          <td class="uk-width-auto"><%= link_to 'Show', product %></td>
+          <td class="uk-width-auto"><%= link_to 'Edit', edit_product_path(product) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>
+
+ 
+ 

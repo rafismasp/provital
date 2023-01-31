@@ -1,0 +1,224 @@
+
+<%= form_with(model: supplier, local: true, class: "uk-form-horizontal") do |form| %>
+  <% if supplier.errors.any? %>
+    <% alert = "<h4> #{pluralize(supplier.errors.count, 'error')} prohibited this supplier from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% supplier.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end %>
+  
+  <div class="uk-grid">
+    <div class="uk-width-1-2@m">
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-3@m">Name</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :name, id: :supplier_name, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-3@m">Supplier Code</div>
+          <div class="uk-width-1-3@m">
+            <%= text_field_tag "number", (@supplier.present? ? @supplier.number : nil), {:class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+          </div>
+          <div class="uk-width-1-3@m">
+            <%= form.date_field :registered_at, id: :supplier_registered_at, :class=> "uk-input uk-form-width-large uk-form-small" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+    <li class="uk-active"><a href="#">General</a></li>
+    <li><a href="#">Bank</a></li>
+  </ul>
+  <ul id="tab-content" class="uk-switcher">
+    <li>    
+      <div class="uk-grid">
+        <div class="uk-width-1-2@m">
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">Currency</div>
+              <div class="uk-width-1-5@m">
+                <%= form.select :currency_id, options_for_select(@currencies.map{|c| [c.name, c.id ]}, form.object.currency_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small"} if @currencies.present? %>
+              </div>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">Type of Tax</div>
+              <div class="uk-width-1-3@m">
+                <%= form.select :tax_id, options_for_select(@taxes.map{|c| [c.name, c.id ]}, form.object.tax_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small"} if @taxes.present? %>
+              </div>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">Terms of Payment</div>
+              <div class="uk-width-2-3@m"> 
+                <div class="uk-flex"> 
+                  <%= form.text_field :top_day, id: :supplier_top_day, :class=> "uk-input uk-form-small uk-width-1-4", :required=> true %>
+              
+                  <%= form.select :term_of_payment_id, options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, form.object.term_of_payment_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-small uk-width-3-4", :required=> true} if @term_of_payments.present? %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">Business Desc.</div>
+              <div class="uk-width-2-3@m">
+                <%= form.text_field :business_description, id: :supplier_business_description, :class=> "uk-input uk-form-width-large uk-form-small" %>
+              </div>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">PIC</div>
+              <div class="uk-width-1-3@m">
+                <%= form.text_field :pic, id: :supplier_pic, :class=> "uk-input uk-form-width-large uk-form-small" %>
+              </div>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">Telephone</div>
+              <div class="uk-width-1-3@m">
+                <%= form.text_field :telephone, id: :supplier_telephone, :class=> "uk-input uk-form-width-large uk-form-small" %>
+              </div>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">E-mail</div>
+              <div class="uk-width-2-3@m">
+                <%= form.text_field :email, id: :supplier_email, :class=> "uk-input uk-form-width-large uk-form-small" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">remarks</div>
+              <div class="uk-width-1-2@m">
+                <%= form.text_field :remarks, id: :supplier_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="uk-margin-small">
+            <div class="uk-grid">
+              <div class="uk-width-1-3@m">Address</div>
+              <div class="uk-width-2-3@m">
+                <%= form.text_area :address, id: :supplier_address, :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 5 %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li>
+      
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">
+            <div class="flex">
+              <%= link_to 'Add', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="uk-margin-small">
+
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1@m">
+            <div class="uk-overflow-auto" id="bank_item">
+              <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+                <tr>
+                  <th>No.</th>
+                  <th>Nama Rekening</th>
+                  <th>Nama Bank</th>
+                  <th>No. Rekening</th>
+                  <th>Tipe Penerima</th>
+                  <th title="Alamat email bagian finance">Alamat Email</th>
+                  <th>Jenis Penduduk</th>
+                  <th>Negara</th>
+                  <th>Curr</th>
+                  <th>Hapus</th>
+                </tr>
+                <% c=0 %>
+
+                <% @supplier.supplier_banks.each do |bank| %>
+                  <tr>
+                    <td class="counter uk-text-right"><%= c+=1%>
+                        <%= hidden_field_tag "bank[][id]", bank.id %></td>
+                    <td><%= text_field_tag 'bank[][account_holder]', bank.account_holder, {:class=>"uk-form-width-medium uk-input uk-form-small", :style=> "width: 250px;"} %></td>
+                    <td>
+                      <%= hidden_field_tag "bank[][dom_bank_id]", bank.dom_bank_id, :class=>"dom_bank_id#{c}" %>
+                      <%= render 'layouts/form_item', c: c, field_name: "dom_bank_id", field_value: "#{bank.dom_bank.bank_name if bank.dom_bank.present?}" %>
+                    </td>
+                    <td><%= text_field_tag 'bank[][account_number]', bank.account_number, {:class=>"uk-form-width-medium uk-input uk-form-small"} %></td>
+                    <td>
+                      <%= select_tag "bank[][receiver_type]", options_for_select(['Individual / Perorangan','Perushaan / Company','Pemerintah / Goverment'],
+                        bank.receiver_type) , { :class=>'uk-form-width-medium uk-select uk-form-small'} %>
+                    </td>
+                    <td><%= text_field_tag 'bank[][email]', bank.email, {:class=>"uk-form-width-medium uk-input uk-form-small"} %></td>
+                    <td>
+                      <%= select_tag "bank[][residence_type]", options_for_select(['Residence','Non Residence'],
+                        bank.residence_type) , { :class=>'uk-form-width-medium uk-select uk-form-small'} %>
+                    </td>
+                    <td>
+                      <%= hidden_field_tag "bank[][country_code_id]", bank.country_code_id, :class=>"country_code_id#{c}" %>
+                      <%= render 'layouts/form_item', c: c, field_name: "country_code_id", field_value: "#{bank.country_code.name if bank.country_code.present?}" %>
+                    </td>
+                    <td>
+                      <%= select_tag "bank[][currency_id]", options_for_select(@currencies.collect { |e| [ e.name, e.id]},
+                        bank.currency_id) , { :class=>'uk-form-width-medium uk-select uk-form-small'} %>
+                    </td>
+                    <td>
+                      <%= select_tag "bank[][status]", options_for_select([['Active','active'],['Delete','suspend']],
+                        bank.status) , { :class=>'uk-select uk-form-small'} %>
+                    </td>
+                  </tr>
+                <% end if @supplier.supplier_banks.present? %>
+
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+  <hr>
+  <div class="uk-grid">
+    <div class="uk-width-1-2@m">
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-3@m">Status</div>
+          <div class="uk-width-2-3@m">
+            <%= form.select :status, options_for_select(['active','suspend'], form.object.status), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-small uk-form-small"} %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', suppliers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

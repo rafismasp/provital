@@ -1,0 +1,52 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    
+    <!-- panel -->
+    <div class="uk-width-1-1@l">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto">
+              <%= link_to 'ADD', new_user_permission_path, class: "uk-button uk-button-primary uk-button-small" %>
+              <%= link_to 'DUPLICATE', duplicate_user_permissions_path, class: "uk-button uk-button-primary uk-button-small" %>
+            </div>
+            <div class="uk-width-auto"><h4><%= params[:controller] %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-hover uk-table-divider">   
+              <thead class="bg-primary">
+                <tr>
+                  <th>#</th>
+                  <th>Username</th>
+                  <th>Nama</th>
+                  <th>E-Mail</th>
+                  <th>Department</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% c=0 %>
+                <% @users.each do |user| %>
+                  <tr data-link="/user_permissions/<%= user.id %>" ondblclick="show_form(this)">
+                    <td><%= c+=1%></td>
+                    <td><%= user.username %></td>
+                    <td><%= user.first_name %> <%= user.last_name %></td>
+                    <td><%= user.email %></td>
+                    <td><%= user.department.name if user.department.present? %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /panel -->
+
+  </div>
+  
+</div>

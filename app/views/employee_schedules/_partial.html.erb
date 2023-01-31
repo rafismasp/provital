@@ -1,0 +1,180 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_employee' %>
+  <% case field %>
+  <% when 'show' %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+      <thead class="bg-primary">
+        <tr>
+          <th class="uk-text-middle">DATE</th>  
+          <th class="uk-text-middle uk-text-center">DAY NAME</th>
+          <th class="uk-text-middle uk-text-center">CODE</th>
+          <th class="uk-text-middle uk-text-center">SCHEDULE IN</th>
+          <th class="uk-text-middle uk-text-center">SCHEDULE OUT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @employee_schedule_items.each do |employee_schedule_item| %>
+          <%
+            day_name = "#{ employee_schedule_item.date.strftime('%A')}".downcase 
+            schedule_att_in  = (day_name.present? ? (employee_schedule_item.schedule["#{day_name}_in"] if employee_schedule_item.present? and employee_schedule_item.schedule.present?) : nil)
+            schedule_att_out = (day_name.present? ? (employee_schedule_item.schedule["#{day_name}_out"] if employee_schedule_item.present? and employee_schedule_item.schedule.present?) : nil)
+          %>
+          <tr>
+            <td><%= employee_schedule_item.date %></td>
+            <td><%= day_name %></td>
+            <td><%= employee_schedule_item.schedule.code if employee_schedule_item.schedule.present? %></td>
+            <td><%= schedule_att_in.present? ? schedule_att_in.to_datetime.strftime("%H:%M:%S") : nil %></td>
+            <td><%= schedule_att_out.present? ? schedule_att_out.to_datetime.strftime("%H:%M:%S") : nil %></td>
+          </tr>
+        <% end if @employee_schedule_items.present? %>
+      </tbody>
+    </table>
+  <% when 'employee_nik' %>
+    <%= text_field_tag 'employee_nik', (params[:employee_nik].present? ? params[:employee_nik] : @employee.nik), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% when 'department_name' %>
+    <%= text_field_tag 'department_name', (params[:department_name].present? ? params[:department_name] : @employee.department.name if @employee.department.present?), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% when 'employee_pin' %>
+
+    <%= text_field_tag 'employee_pin', (@attendance_user.present? ? @attendance_user.id_number : nil), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% when 'select_dept' %>
+    <%= select_tag "select_department", options_for_select(@departments.map { |e| [e.name, e.id] }, (params[:department_id]) ), :include_blank=>'-- All Department --', :class=>"uk-button uk-button-default uk-text-left select_dept", :onchange=>"change_department(this, '"+params[:controller].to_s+"')" %>
+  <% when 'work_schedule' %>
+    <%= text_field_tag 'employee_work_schedule', (params[:work_schedule].present? ? params[:work_schedule] : @employee.work_schedule), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+      <thead class="bg-primary">
+        <tr>
+          <th class="uk-text-center ">No</th>
+          <th  class="uk-text-center ">NAME</th>
+          <th  class="uk-text-center ">DEPARTMENT</th>
+          <% dt = [] %>
+          <% @period_begin.upto(@period_end) do |r| %>
+            <th class="uk-text-center">
+              <%= r.strftime('%d') %>
+              <% dt << r.strftime('%d').to_s %>
+            </th>
+          <% end %>
+          <th class="uk-text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=1 %>
+        <% @employee_schedules.each do |employee_schedule| %>
+          <tr uk-tooltip="title: <%= row_tooltip(employee_schedule) %>; pos: top-left">
+            <td><%= c %></td>
+            <td><%= employee_schedule.employee.name if employee_schedule.present? %></td>
+            <td><%= employee_schedule.employee.department.name if employee_schedule.present? and employee_schedule.employee.department.present? %></td>
+            <td><%= employee_schedule.day21 %></td>
+            <td><%= employee_schedule.day22 %></td>
+            <td><%= employee_schedule.day23 %></td>
+            <td><%= employee_schedule.day24 %></td>
+            <td><%= employee_schedule.day25 %></td>
+            <td><%= employee_schedule.day26 %></td>
+            <td><%= employee_schedule.day27 %></td>
+            <td><%= employee_schedule.day28 %></td>
+            <% if dt.include? '29'%>
+              <td><%= employee_schedule.day29 %></td>
+            <% end %>
+            <% if dt.include? '30'%>
+              <td><%= employee_schedule.day30 %></td>
+            <% end %>
+            <% if dt.include? '31'%>
+              <td><%= employee_schedule.day31 %></td>
+            <% end %>
+            <td><%= employee_schedule.day01 %></td>
+            <td><%= employee_schedule.day02 %></td>
+            <td><%= employee_schedule.day03 %></td>
+            <td><%= employee_schedule.day04 %></td>
+            <td><%= employee_schedule.day05 %></td>
+            <td><%= employee_schedule.day06 %></td>
+            <td><%= employee_schedule.day07 %></td>
+            <td><%= employee_schedule.day08 %></td>
+            <td><%= employee_schedule.day09 %></td>
+            <td><%= employee_schedule.day10 %></td>
+            <td><%= employee_schedule.day11 %></td>
+            <td><%= employee_schedule.day12 %></td>
+            <td><%= employee_schedule.day13 %></td>
+            <td><%= employee_schedule.day14 %></td>
+            <td><%= employee_schedule.day15 %></td>
+            <td><%= employee_schedule.day16 %></td>
+            <td><%= employee_schedule.day17 %></td>
+            <td><%= employee_schedule.day18 %></td>
+            <td><%= employee_schedule.day19 %></td>
+            <td><%= employee_schedule.day20 %></td>
+            <td><%= link_to 'Show', employee_schedule_path(:id=>employee_schedule.employee_id, :period=>params[:period], :view_kind=>'') %></td>
+          </tr>
+          <% c+=1 %>
+        <% end if @employee_schedules.present? %>
+      </tbody>
+    </table>
+  <% end %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+    <thead class="bg-primary">
+      <tr>
+        <th class="uk-text-center ">No</th>
+        <th  class="uk-text-center ">NAME</th>
+        <th  class="uk-text-center ">DEPARTMENT</th>
+        <% dt = [] %>
+        <% @period_begin.upto(@period_end) do |r| %>
+          <th class="uk-text-center">
+            <%= r.strftime('%d') %>
+            <% dt << r.strftime('%d').to_s %>
+          </th>
+        <% end %>
+        <th class="uk-text-center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=1 %>
+      <% @employee_schedules.each do |employee_schedule| %>
+        <tr uk-tooltip="title: <%= row_tooltip(employee_schedule) %>; pos: top-left">
+          <td><%= c %></td>
+          <td><%= employee_schedule.employee.name if employee_schedule.present? %></td>
+          <td><%= employee_schedule.employee.department.name if employee_schedule.present? and employee_schedule.employee.department.present? %></td>
+          <td><%= employee_schedule.day21 %></td>
+          <td><%= employee_schedule.day22 %></td>
+          <td><%= employee_schedule.day23 %></td>
+          <td><%= employee_schedule.day24 %></td>
+          <td><%= employee_schedule.day25 %></td>
+          <td><%= employee_schedule.day26 %></td>
+          <td><%= employee_schedule.day27 %></td>
+          <td><%= employee_schedule.day28 %></td>
+          <% if dt.include? '29'%>
+            <td><%= employee_schedule.day29 %></td>
+          <% end %>
+          <% if dt.include? '30'%>
+            <td><%= employee_schedule.day30 %></td>
+          <% end %>
+          <% if dt.include? '31'%>
+            <td><%= employee_schedule.day31 %></td>
+          <% end %>
+          <td><%= employee_schedule.day01 %></td>
+          <td><%= employee_schedule.day02 %></td>
+          <td><%= employee_schedule.day03 %></td>
+          <td><%= employee_schedule.day04 %></td>
+          <td><%= employee_schedule.day05 %></td>
+          <td><%= employee_schedule.day06 %></td>
+          <td><%= employee_schedule.day07 %></td>
+          <td><%= employee_schedule.day08 %></td>
+          <td><%= employee_schedule.day09 %></td>
+          <td><%= employee_schedule.day10 %></td>
+          <td><%= employee_schedule.day11 %></td>
+          <td><%= employee_schedule.day12 %></td>
+          <td><%= employee_schedule.day13 %></td>
+          <td><%= employee_schedule.day14 %></td>
+          <td><%= employee_schedule.day15 %></td>
+          <td><%= employee_schedule.day16 %></td>
+          <td><%= employee_schedule.day17 %></td>
+          <td><%= employee_schedule.day18 %></td>
+          <td><%= employee_schedule.day19 %></td>
+          <td><%= employee_schedule.day20 %></td>
+          <td><%= link_to 'Show', employee_schedule_path(:id=>employee_schedule.employee_id, :period=>params[:period], :view_kind=>'', :job=>'show') %></td>
+        </tr>
+        <% c += 1%>
+      <% end if @employee_schedules.present?%> 
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

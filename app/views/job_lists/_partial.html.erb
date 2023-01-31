@@ -1,0 +1,11 @@
+<% case params[:partial] %>
+<% when 'change_interval' %>	
+  <% case params[:interval] %>
+  <% when "weekly" %>
+    <%= select_tag "job_list[weekly_day]", options_for_select(['Monday','Sunday','Tuesday','Wednesday','Thursday','Friday','Saturday']), :required=>true,:class=>"form-control", :prompt=>"--Pilih--" %>
+  <% when "monthly" %>
+   <%= number_field_tag "job_list[monthly_date]", (@job_list.monthly_date if @job_list.present?), :class=> "form-control", :max=> 31 %>
+  <% when "yearly" %>
+    <%= select_tag "job_list[yearly_month]", options_for_select(['January','February','March','April','May','June','July','August','September','October','November','December']), :required=>true,:class=>"form-control", :prompt=>"--Pilih--" %>
+  <% end %>
+<% end %>

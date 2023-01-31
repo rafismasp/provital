@@ -1,0 +1,82 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@l">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', job_lists_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+					<form class="uk-form-horizontal">
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Category</label>
+				    	<div class="uk-form-controls">
+            		<%= text_field_tag :job_category, (@job_list.job_category.name if @job_list.job_category.present?), :class=> "uk-select uk-form-small", :disabled=> true %>
+				   		</div>
+					  </div>
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Interval</label>
+				    	<div class="uk-form-controls">
+            		<%= text_field_tag :interval, @job_list.interval, :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+							  <% case @job_list.interval %>
+							  <% when "weekly" %>
+		            	<%= text_field_tag :weekly_day, @job_list.weekly_day, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=> true %>
+							  <% when "monthly" %>
+		            	<%= text_field_tag :monthly_date, @job_list.monthly_date, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=> true %>
+							  <% when "yearly" %>
+		            	<%= text_field_tag :yearly_month, @job_list.yearly_month, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=> true %>
+							  <% end %>
+				   		</div>
+					  </div>
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Department</label>
+				    	<div class="uk-form-controls">
+            		<%= text_field_tag :department, (@job_list.department.name if @job_list.department.present?), :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+            	</div>
+            </div>
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">User</label>
+				    	<div class="uk-form-controls">
+            		<%= text_field_tag :user, (@job_list.user.email if @job_list.user.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            	</div>
+            </div>
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Job Name</label>
+				    	<div class="uk-form-controls">
+		      			<%= text_field_tag :job_name, @job_list.name, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            	</div>
+            </div>
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Description</label>
+				    	<div class="uk-form-controls">
+		      			<%= text_area_tag :description, @job_list.description, :class=> "uk-textarea uk-form-width-large uk-form-small", :disabled=> true, :rows=> 5 %>
+            	</div>
+            </div>
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Time Required</label>
+				    	<div class="uk-form-controls">
+		      			<%= text_field_tag :time_required, @job_list.time_required, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=> true %>
+            	</div>
+            </div>
+					  <div class=" uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Status</label>
+				    	<div class="uk-form-controls">
+		      			<%= text_field_tag :status, @job_list.status, :class=> "uk-input uk-form-width-small uk-form-small", :disabled=> true %>
+            	</div>
+            </div>
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', job_lists_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_job_list_path(@job_list), class: "uk-button uk-button-primary uk-button-small" %>
+						</p>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

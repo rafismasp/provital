@@ -1,0 +1,60 @@
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    
+    <!-- panel -->
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4><%= feature("name").humanize %></h4></div>
+          </div>
+          <hr class="uk-margin-small">
+
+          <nav class="uk-navbar-container uk-navbar-transparent" uk-navbar>
+            <div class="uk-navbar-left">
+              <div class="uk-padding-small">
+                <%= link_to 'ADD', new_list_internal_bank_account_path(), class: "uk-button uk-button-primary uk-button-small" %>
+              </div>
+              <div class="uk-padding-small">
+                <a class="uk-button uk-button-default uk-button-small" href="#modal-sections" uk-toggle>Filter</a>
+              </div>
+              <!-- 
+              <div class="uk-padding-small">
+                <%#= date_field_tag 'date_begin', session[:date_begin], class: "uk-input uk-form-small" %>
+              </div>
+              <div class="uk-padding-small">
+                <%#= date_field_tag 'date_end', session[:date_end], class: "uk-input uk-form-small" %>
+              </div>
+              <div class="uk-padding-small">
+                <%#= link_to 'javascript:;', class: "uk-button uk-button-small uk-button-primary", :view_kind=> params[:view_kind],
+                :onclick=> "search_by_date(this, '"+params[:controller].to_s+"')" do  %>
+                  <span data-uk-icon="icon: search"></span>
+                <%# end %>
+              </div> -->
+                
+            </div>
+            <div class="uk-navbar-right">
+              <div class="uk-padding-small">
+                <%#= select_tag "select_view_kind", options_for_select(['header','item'], params[:view_kind]), :class=>"uk-select uk-form-width-small uk-form-small",
+                :onchange=> "select_view_kind(this, '"+params[:controller].to_s+"')" %>
+              </div>
+              <div class="uk-padding-small">
+                <%= link_to 'Export', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                :onclick=> "export_report(this, '"+params[:controller].to_s+"')" %>
+              </div>
+            </div>
+          </nav>
+
+        </div>
+        <div class="uk-card-body">
+          <div class="uk-overflow-auto" id="index_content">
+            <%= render 'partial' %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /panel -->
+    <%= render 'layouts/filter' %>
+  </div>
+  
+</div>

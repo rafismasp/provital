@@ -1,0 +1,33 @@
+<div id="modal-sections" uk-modal>
+  <div class="uk-modal-dialog">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+      <h4 class="uk-modal-title">Filter <%= controller_name.humanize %></h4>
+    </div>
+    <div class="uk-modal-body">
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Column</div>
+          <div class="uk-width-2-3@m">
+            <%= select_tag "filter_column_name", options_for_select(@option_filters), :class=>"uk-select uk-form-width-large uk-form-small", :prompt=>"--select--", :q=> params[:q], :q1=> params[:q1], :q2=> params[:q2], :onchange=> "filter_select_column(this, '"+params[:controller].to_s+"')" if @option_filters.present? %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Value</div>
+          <div class="uk-width-2-3@m" id="filter_detail">
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+      <%= link_to 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :q=> params[:q], :q1=> params[:q1], :q2=> params[:q2],
+      :onclick=> "filter_select(this, '"+params[:controller].to_s+"')" do  %>
+        Search
+      <% end %>
+    </div>
+  </div>
+</div>

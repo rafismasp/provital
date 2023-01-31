@@ -1,0 +1,104 @@
+
+<%= form_with(model: direct_labor_price, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if direct_labor_price.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(direct_labor_price.errors.count, "error") %> prohibited this direct_labor_price from being saved:</h2>
+
+      <ul>
+      <% direct_labor_price.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-5@m">Product</div>
+      <div class="uk-width-1-2@m">
+        <%= form.hidden_field :product_id, id: :direct_labor_price_product_id, :class=> "product_id1 uk-input uk-form-small" %>
+        <%= render 'layouts/form_item', c: 1, field_name: "product_id", field_value: (form.object.product.present? ? form.object.product.name : "") %>            
+      </div>
+      <div class="uk-width-1-4@m">
+        <%= text_field_tag "part_id", (form.object.product.present? ? form.object.product.part_id : ""), :class=>"part_id1 uk-input uk-form-width-medium uk-form-small", :disabled=> true %>           
+      </div>
+    </div>
+
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-5@m">Price</div>
+      <div class="uk-width-1-4@m">
+        <%= form.number_field :unit_price, id: :direct_labor_price_unit_price, :class=> "uk-input uk-form-small" %>
+        
+      </div>
+      <div class="uk-width-1-4@m">
+        <%= form.select :currency_id, options_for_select(@currencies.map{|c| [c.name, c.id ]}, form.object.currency_id), {:include_blank => true}, {class: "uk-select uk-form-small"} if @currencies.present? %>        
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :id=> "add_item", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Aktivitas</th>
+            <th>Target</th>
+            <th>Upah</th>
+            <th>Harga Borongan</th>
+            <th>Rasio</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @direct_labor_price.direct_labor_price_details.each do |item| %>
+            <%= hidden_field_tag 'record_item[][id]', item.id %>
+            <tr>
+              <td class="counter uk-text-right"><%= c+=1%></td>
+              <td>
+                <%= text_field_tag 'record_item[][activity_name]', item.activity_name, {:class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= number_field_tag 'record_item[][target_quantity_perday]', item.target_quantity_perday, {:step=> "any", :class=>"target_quantity_perday#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "
+                $('.unit_price"+c.to_s+"').val( $('.pay_perday"+c.to_s+"').val( ) / $('.target_quantity_perday"+c.to_s+"').val( ))
+                "} %> / Hari
+              </td>
+              <td>
+                <%= number_field_tag 'record_item[][pay_perday]', item.pay_perday, {:step=> "any", :class=>"pay_perday#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :onchange=> "
+                $('.unit_price"+c.to_s+"').val( $('.pay_perday"+c.to_s+"').val( ) / $('.target_quantity_perday"+c.to_s+"').val( ))
+                "} %> / Hari
+              </td>
+              <td>
+                <%= number_field_tag 'record_item[][unit_price]', item.unit_price, {:step=> "any", :class=>"unit_price#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= number_field_tag 'record_item[][ratio]', item.ratio, {:min=> 1, :class=>"unit_price#{c} uk-input uk-text-right", :style=> "width: 50px;"} %>
+              </td>
+              <td>
+                <%= select_tag "record_item[][status]", options_for_select(['active','deleted'],
+                  item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @direct_labor_price.direct_labor_price_details.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', direct_labor_prices_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

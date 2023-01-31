@@ -1,0 +1,2 @@
+class DeliveryCar < ApplicationRecord
+end

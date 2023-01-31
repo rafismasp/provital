@@ -1,0 +1,160 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@l">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', job_lists_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }, class: "uk-form-horizontal") do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+
+            <div class=" uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-width-1-4@m">
+                    <% if current_user.avatar.url.present? %>
+                      <%= image_tag(current_user.avatar.url, :width=>"100px") %>
+                    <% end if current_user.avatar.present? %>
+                  </div>
+                  <div class="uk-width-1-2@m">
+                    <%= f.file_field :avatar, :class=> "form-control" %>
+                    <%= f.hidden_field :avatar_cache %>
+                    <% if current_user.avatar.url.present? %>
+                      <hr>
+                      <%= f.label :remove_avatar do %>
+                        <%= f.check_box :remove_avatar %> Remove
+                      <% end %>
+                    <% end if current_user.avatar.present? %>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m uk-background-muted">Signature
+                  <%= image_tag("/uploads/signature/#{current_user.id}/#{current_user.signature}") %>
+                </div>
+              </div>
+            </div>
+            <hr class="uk-margin-small">
+            <div class=" uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <%= f.label :username, class: "uk-form-label uk-width-small" %>
+                  <div class="uk-form-controls">
+                    <%= f.text_field :username, autofocus: true, :class=> "uk-input uk-form-small" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class=" uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <%= f.label :email, class: "uk-form-label uk-width-small" %>
+                  <div class="uk-form-controls">
+                <%= f.email_field :email, autofocus: true, autocomplete: "email", :class=> "uk-input uk-form-small" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class=" uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <%= f.label :first_name, class: "uk-form-label uk-width-small" %>
+                  <div class="uk-form-controls">
+                    <%= f.text_field :first_name, autofocus: true, :class=> "uk-input uk-form-small" %>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <%= f.label :last_name, class: "uk-form-label uk-width-small" %>
+                  <div class="uk-form-controls">
+                    <%= f.text_field :last_name, autofocus: true, :class=> "uk-input uk-form-small" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class=" uk-margin-small">
+              <%= f.label :department, class: "uk-form-label uk-width-small" %>
+              <div class="uk-form-controls">
+                <%= f.collection_select :department_id, Department.all,:id,:name, {}, include_blank: true, class: "uk-select uk-form-small" %>
+              </div>
+            </div>
+            <div class=" uk-margin-small">
+              <%= f.label :employee_section, class: "uk-form-label uk-width-small" %>
+              <div class="uk-form-controls">
+                <%= f.collection_select :employee_section_id, EmployeeSection.all,:id,:name, {}, include_blank: true, class: "uk-select uk-form-small" %>
+              </div>
+            </div>
+
+            <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+              <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+            <% end %>
+            <div class=" uk-margin-small">
+              <%= f.label :password, class: "uk-form-label uk-width-small" %>
+              <i>(leave blank if you don't want to change it)</i><br />
+              <%= f.password_field :password, autocomplete: "new-password", :class=> "uk-input uk-form-small" %>
+              <% if @minimum_password_length %>
+                <br />
+                <em><%= @minimum_password_length %> characters minimum</em>
+              <% end %>
+            </div>
+            <div class="uk-margin-small">
+              <%= f.label :password_confirmation, class: "uk-form-label uk-width-small" %><br />
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", :class=> "uk-input uk-form-small" %>
+            </div>
+            <div class="uk-margin-small">
+              <%= f.label :current_password, class: "uk-form-label uk-width-small" %> <i>(we need your current password to confirm your changes)</i><br />
+              <%= f.password_field :current_password, autocomplete: "current-password", :class=> "uk-input uk-form-small" %>
+            </div>
+
+            <hr> 
+            <div class="uk-grid uk-grid-medium  " data-uk-grid>
+              <div class="uk-width-1-4@m">
+              </div>
+              <div class="uk-width-1-4@m"></div>
+              <div class="uk-width-1-4@m">
+                <%= f.submit "Update", class: "uk-button uk-button-primary uk-width-1-1"  %>
+              </div>
+              <div class="uk-width-1-4@l">
+                <%= link_to "Back", :back, class: "uk-button uk-button-secondary uk-width-1-1" %>
+              </div>
+            </div>
+          <% end %>
+
+        </div>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Your Signature</h4></div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form id="UploadForm" name="UploadForm" action="/upload_signature">
+            <input type="hidden" name="anotherinputfield" value="some value" />
+          </form>
+          <div class="uk-container uk-container-expand">        
+            <div class="uk-grid uk-grid-medium  uk-margin-small" data-uk-grid>
+              <div class="wrapper" style="background: #f0f0f0">
+                <canvas id="signature-pad" class="signature-pad " width=400 height=200></canvas>
+              </div>
+              <div>
+                <button id="save" class="uk-button uk-button-primary">Save</button>
+                <button id="clear" class="uk-button uk-button-secondary">Clear</button>
+              </div>
+            </div>
+          </div>
+          <%= javascript_include_tag 'signature_pad.umd.min.js' %>
+          <%= javascript_include_tag 'signature_pad.js' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,334 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', invoice_customer_price_logs_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <ul uk-tab class="uk-margin-small">
+              <li class="uk-active"><a href="#">General</a></li>
+              <li><a href="#">Bank Account</a></li>
+              <li><a href="#">Date of Receipt</a></li>
+            </ul>
+
+            <ul class="uk-switcher uk-margin">
+              <li>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Customer</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "customer_name", (@invoice_customer_price_log.customer.present? ? @invoice_customer_price_log.customer.name : ""), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Invoice Number</div>
+                          <div class="uk-width-1-2@m">
+                            <%= text_field_tag "number", @invoice_customer_price_log.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true, :placeholder=> "generate automatically" %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Payment Terms</div>
+                          <div class="uk-width-2-3@m">
+                            <div class="uk-flex">
+                              <%= text_field_tag "top_day", (@invoice_customer_price_log.present? ? @invoice_customer_price_log.top_day : 0), :class=> "uk-input uk-form-small uk-width-1-4", :disabled=> true %>
+                              <%= text_field_tag "top_kind", (@invoice_customer_price_log.term_of_payment.present? ? @invoice_customer_price_log.term_of_payment.name : nil), :class=> "uk-input uk-form-small uk-width-3-4", :disabled=> true %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">No. E-Faktur</div>
+                          <div class="uk-width-2-3@m">
+                            <% if @invoice_customer_price_log.customer_tax_invoice.present? %>
+                              <%= text_field_tag "efaktur_number", (@invoice_customer_price_log.customer_tax_invoice.number), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                            <% else %>
+                              <%= text_field_tag "efaktur_number", (@invoice_customer_price_log.efaktur_number if @invoice_customer_price_log.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-margin-medium">
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Invoice Date</div>
+                          <div class="uk-width-1-2@m">
+                            <%= date_field_tag "date", @invoice_customer_price_log.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true%>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Due Date</div>
+                          <div class="uk-width-1-2@m">
+                            <%= date_field_tag "due_date", @invoice_customer_price_log.due_date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Remarks</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "remarks", @invoice_customer_price_log.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-3@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Sub Total</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "subtotal", number_with_precision(@invoice_customer_price_log.subtotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Discount</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "discount", number_with_precision(@invoice_customer_price_log.discount, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">PPN Total</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "ppntotal", number_with_precision(@invoice_customer_price_log.ppntotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-3@m">Grand Total</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "grandtotal", number_with_precision(@invoice_customer_price_log.grandtotal, precision: 0, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Currency</div>
+                          <div class="uk-width-1-5@m">
+                            <%= text_field_tag "currency", (@invoice_customer_price_log.company_payment_receiving.present? ? @invoice_customer_price_log.company_payment_receiving.currency.name : ""), {:class=> "uk-input uk-form-small", :disabled=> true} %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-2@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Bank Name</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "bank_name", (@invoice_customer_price_log.company_payment_receiving.present? ? @invoice_customer_price_log.company_payment_receiving.bank_name : ""), {:class=> "uk-input uk-form-small", :disabled=> true} %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Bank Account</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag "bank_account", (@invoice_customer_price_log.company_payment_receiving.present? ? @invoice_customer_price_log.company_payment_receiving.bank_account : ""), {:class=> "uk-input uk-form-small", :disabled=> true} %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Company Name</div>
+                          <div class="uk-width-2-3@m">
+                            <%= text_field_tag "an", (@invoice_customer_price_log.company_profile.present? ? @invoice_customer_price_log.company_profile.name : ""), {:class=> "uk-input uk-form-small", :disabled=> true} %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-4@m">Signature</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag "signature", (@invoice_customer_price_log.company_payment_receiving.present? ? @invoice_customer_price_log.company_payment_receiving.signature : ""), {:class=> "uk-input uk-form-small", :disabled=> true} %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>      
+              </li>
+              <li>      
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">Received by</div>
+                          <div class="uk-width-1-3@m">
+                            <%= text_field_tag "received_name", @invoice_customer_price_log.received_name, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <div class="uk-grid">
+                          <div class="uk-width-1-5@m">Received at</div>
+                          <div class="uk-width-1-3@m">
+                            <%= date_field_tag "received_at", @invoice_customer_price_log.received_at, :class=> "uk-input uk-form-small", :disabled=> true %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <hr class="uk-margin-small">
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+                    <tr>
+                      <th>#</th>
+                      <th>DO Number</th>
+                      <th>PO Number</th>
+                      <th>Product Code</th>
+                      <th>Product Name</th>
+                      <th>Product Type</th>
+                      <th>Batch Number</th>
+                      <th>Unit</th>
+                      <th>Quantity</th>
+                      <th>Discount</th>
+                      <th>Unit Price</th>
+                      <th>Subtotal</th>
+                    </tr>
+                    <% c=0 %>
+                    <% @invoice_customer_price_log_items.each do |invoice_customer_price_log_item| %>
+                      <%= hidden_field_tag 'invoice_customer_price_log_item[][id]', invoice_customer_price_log_item.id %>
+                      <%= hidden_field_tag 'invoice_customer_price_log_item[][sales_order_item_id]', invoice_customer_price_log_item.sales_order_item_id %>
+                      <%= hidden_field_tag 'invoice_customer_price_log_item[][delivery_order_item_id]', invoice_customer_price_log_item.delivery_order_item_id %>
+                      <%= hidden_field_tag 'invoice_customer_price_log_item[][product_id]', invoice_customer_price_log_item.product_id %>
+                      <tr>
+                        <td class="counter"><%= c+=1%></td>
+                        <td><%= invoice_customer_price_log_item.delivery_order_item.delivery_order.number %></td>
+                        <td><%= invoice_customer_price_log_item.sales_order_item.sales_order.po_number %></td>
+                        <td><%= invoice_customer_price_log_item.product.part_id %></td>
+                        <td><%= invoice_customer_price_log_item.product.name %></td>
+                        <td><%= invoice_customer_price_log_item.product.type_name %></td>
+                        <td>
+                          <%= (invoice_customer_price_log_item.product_batch_number.present? ? invoice_customer_price_log_item.product_batch_number.number : nil) %>
+                        </td>
+                        <td class="uk-text-center"><%= invoice_customer_price_log_item.product.unit_name %></td>
+                       
+                        <td class="uk-text-right">
+                          <%= number_with_precision(invoice_customer_price_log_item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+                        </td>
+                        <td class="uk-text-right"><%= invoice_customer_price_log_item.sales_order_item.discount %> %</td>
+                        <td class="uk-text-right">
+                          <%= number_with_precision(invoice_customer_price_log_item.unit_price, precision: 0, delimiter: ".", separator: ",") %>
+                        </td>
+                        <td class="uk-text-right">
+                          <%= number_with_precision(invoice_customer_price_log_item.total_price, precision: 0, delimiter: ".", separator: ",") %>
+                        </td>
+                      </tr>
+                    <% end if @invoice_customer_price_log_items.present? %>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-3-4@m uk-margin-remove">
+                      <%= form_tooltip(@invoice_customer_price_log) %>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="uk-grid">
+                    <div class="uk-width-3-4@m">
+                      <% if @invoice_customer_price_log.status == 'new' or @invoice_customer_price_log.status == 'canceled1' %>
+                        <%= link_to approve_invoice_customer_price_log_path(@invoice_customer_price_log, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @invoice_customer_price_log.status == 'approved1' or @invoice_customer_price_log.status == 'canceled2' %>
+                        <%= link_to approve_invoice_customer_price_log_path(@invoice_customer_price_log, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_invoice_customer_price_log_path(@invoice_customer_price_log, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @invoice_customer_price_log.status == 'approved2' or @invoice_customer_price_log.status == 'canceled3' %>   
+                        <%= link_to approve_invoice_customer_price_log_path(@invoice_customer_price_log, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_invoice_customer_price_log_path(@invoice_customer_price_log, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_invoice_customer_price_log_path(@invoice_customer_price_log, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                      
+                      <% if @invoice_customer_price_log.status == 'approved3' %>
+                        <%= link_to print_invoice_customer_price_log_path(@invoice_customer_price_log, :print_kind=> "print"), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+
+                        <%= link_to print_invoice_customer_price_log_path(@invoice_customer_price_log, :print_kind=> "attachment2"), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Attachment2</button>
+                        <% end %>
+                        <%= link_to print_invoice_customer_price_log_path(@invoice_customer_price_log, :print_kind=> "attachment1"), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Attachment1</button>
+                        <% end %>
+                      <% end %>
+
+                    </div>
+                    <div class="uk-width-1-4@m">
+                      <%= link_to 'Back', invoice_customer_price_logs_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <%= link_to 'Edit', edit_invoice_customer_price_log_path(@invoice_customer_price_log), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,205 @@
+
+<%= form_with(model: cash_submission, local: true, class: "uk-form-horizontal", :multipart => true) do |form| %>
+
+  <% if cash_submission.errors.any? %>
+    <% alert = "<h4> #{pluralize(cash_submission.errors.count, 'error')} prohibited this cash_submission from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% cash_submission.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end if cash_submission.present? %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <!-- Left -->
+      <div class="uk-width-1-3@m">
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m"> Number</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :number, id: :cash_submission_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically", :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Date</div>
+          <div class="uk-width-2-3@m">
+            <%= form.date_field :date, id: :cash_submission_date, :class=> "uk-input uk-form-small",:min=>(DateTime.now), :required=> true, :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Department</div>
+          <div class="uk-width-2-3@m">
+            <%= form.collection_select :department_id, @departments, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-small", :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Date Needed</div>
+          <div class="uk-width-2-3@m routine_cost_form">
+            <%= form.date_field :date_needed, id: :cash_submission_date_needed, :class=> "uk-input uk-form-small",:min=>(DateTime.now), :required=> true, :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Description</div>
+          <div class="uk-width-2-3@m routine_cost_form">
+            <%= form.text_area :description, id: :cash_submission_description, rows: 4, :class=> "uk-textarea uk-form-width-large uk-form-small", :style=>"line-height: normal !important;" %>
+          </div>
+        </div>
+
+      </div>
+      <!-- End Left -->
+
+      <!-- Right -->
+      <div class="uk-width-1-3@m">
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Amount</div>
+          <div class="uk-width-2-3@m" style="display: flex;">
+            <%= form.collection_select :currency_id, @currencies, :id,:name, {}, class: "uk-select uk-form-small", :style=> "width:60px;" %>
+            <%= form.number_field :amount, id: :cash_submission_amount, :step=>"any", :class=> "uk-input uk-form-width-large uk-form-small"%>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Payment Method</div>
+          <div class="uk-width-2-3@m">
+            <%= form.select :payment_method, options_for_select([["Cash","cash"],["Transfer","transfer"]], (form.object.payment_method if form.object.present?)), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=>"select_payment_method(this, '"+params[:controller].to_s+"')"} %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Receiver Name</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :receiver_name, id: :cash_submission_receiver_name, :class=> "uk-input uk-form-width-large uk-form-small"%>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Bank Name</div>
+          <div class="uk-width-2-3@m bank_name_form">
+            <% if form.object.present? and form.object.payment_method == 'transfer' %>
+              <%= select_tag "cash_submission[bank_name]", options_for_select(@bank_lists, form.object.bank_name), { :include_blank => ('-- Select Bank --'), :required=>true, :class=> "uk-select uk-form-width-large uk-form-small", :id=>"cash_submission_bank_name"}   %> 
+            <% else %>
+              <%= text_field_tag "cash_submission[bank_name]", "-", class: "uk-input uk-form-small", :readonly=> true %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Bank Number</div>
+          <div class="uk-width-2-3@m bank_number_form">
+            <% if form.object.present? and form.object.payment_method == 'transfer' %>
+              <%= text_field_tag "cash_submission[bank_number]", "#{(form.object.bank_number if form.object.present?)}", class: "uk-input uk-form-small" %>
+            <% else %>
+              <%= text_field_tag "cash_submission[bank_number]", "-", class: "uk-input uk-form-small", :readonly=> true %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Email</div>
+          <div class="uk-width-2-3@m">
+            <%= form.hidden_field :email_notification, id: :cash_submission_email_notification, :value=>current_user.email, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=>true %>
+            <%= text_field_tag "email_show", current_user.email, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=>true %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Attachment</div>
+          <div class="uk-width-2-3@m select_taxes">
+            <table class="uk-table uk-table-striped">
+              <thead>
+                <tr>
+                  <th>File Upload</th>
+                </tr>
+              </thead>   
+              <tbody>
+                <% @record_files.each do |record_file| %>
+                  <%= hidden_field_tag 'record_file[][id]', record_file.id %>
+                  <% case record_file.ext.downcase %>
+                  <% when '.png','.jpg','.jpeg','.jfif','.svg','.webp' %>
+                    <tr>
+                      <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 200px"/></a></td>
+                      <td><%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+                    </tr>
+                  <% else %>
+                    <tr>
+                      <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a></td>
+                      <td><%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+                    </tr>
+                  <% end %>
+                <% end if @record_files.present? %>
+                <tr>
+                  <td><%= file_field_tag 'file[][attachment]', :class=>'btn btn-default btn-sm', :multiple=>true %></td>
+                </tr>
+              </tbody> 
+            </table>  
+          </div>
+        </div>
+        
+      </div>
+      <!-- End Right -->
+    </div>
+  </div>
+
+  <% case current_user.department_id %>
+  <% when 5,2 %>
+    <hr class="uk-margin-small">
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <!-- Left -->
+        <div class="uk-width-1-3@m">
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-3@m">Voucher Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :voucher_number, id: :cash_submission_voucher_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-3@m">Closing Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :closing_number, id: :cash_submission_closing_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+
+        </div>
+        <!-- End Left -->
+
+        <!-- Right -->
+        <div class="uk-width-1-3@m">
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-3@m">Transfer Date</div>
+            <div class="uk-width-2-3@m">
+              <%= form.date_field :transfer_date, id: :cash_submission_transfer_date, :class=> "uk-input uk-form-small", :disabled=>(params[:action]=="edit" ? true : false) %>
+            </div>
+          </div>
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-3@m">Closing Date</div>
+            <div class="uk-width-2-3@m">
+              <%= form.date_field :closing_date, id: :cash_submission_closing_date, :class=> "uk-input uk-form-small", :disabled=>(params[:action]=="edit" ? true : false) %>
+            </div>
+          </div>
+        </div>
+        <!-- End Right -->
+      </div>
+    </div>
+    
+  <% end %>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', cash_submissions_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

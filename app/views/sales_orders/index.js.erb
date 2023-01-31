@@ -1,0 +1,18 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_item' %>
+	$('#sales_order_service_type_lab').css('pointer-events','none');
+	$('.service_type_non_str').css('pointer-events','none');
+	$('.service_type_str').css('pointer-events','none');
+	$('#item tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% when 'change_customer' %>
+	$('.select_term_of_payments').html("<%= escape_javascript(render 'partial', {field:'term_of_payment_id'}) %>");
+	$('.select_top_day').val("<%= params[:select_top_day] %>");
+	$('.select_taxes').html("<%= escape_javascript(render 'partial', {field:'tax_id'}) %>");
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

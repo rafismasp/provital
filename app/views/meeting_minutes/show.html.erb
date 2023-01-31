@@ -1,0 +1,108 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@l">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', meeting_minutes_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+
+					<form class="uk-form-horizontal">
+					  <div class="uk-margin-small">
+					  	<div class="uk-inline">
+							  <span class="uk-form-icon" uk-icon="icon: user"></span>
+								<%= text_field_tag :subject, @meeting_minute.subject, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true, :placeholder=> "Subject" %>
+							</div>
+					  	<div class="uk-inline">
+							  <span class="uk-form-icon" uk-icon="icon: calendar"></span>
+	            	<%= text_field_tag :date, @meeting_minute.date, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true, :placeholder=> "Date"  %>
+	            </div>
+					  	<div class="uk-inline">
+							  <span class="uk-form-icon" uk-icon="icon: location"></span>
+		            <%= text_field_tag :venue, @meeting_minute.venue, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true, :placeholder=> "Venue"  %>
+	            </div>
+					  	<div class="uk-inline">
+							  <span class="uk-form-icon" uk-icon="icon: file-text"></span>
+		            	<%= text_field_tag :note, @meeting_minute.note, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true, :placeholder=> "note"  %>
+	            </div>
+						</div>
+
+					  <div class="uk-margin-small">
+					    <label class="uk-form-label uk-width-small" for="form-horizontal-text">Attendences</label>
+					  </div>
+					  <div class="uk-margin-small">
+				    	<div class="uk-form-controls">
+		            <% @meeting_minute_attendences.each do |attendence|%>
+		            	<span class="uk-padding-small label uk-alert-<%= attendence.status == 'approved' ? 'success' : 'default' %>"><%= attendence.user.email if attendence.user.present? %></span>
+		            <% end %>
+		          </div>
+		        </div>
+		        <br>
+					  <div class="uk-margin-small">
+				    	<label class="uk-form-label uk-width-small" for="form-horizontal-text">Meeting Points: </label>
+          		<table class="uk-table uk-table-small uk-table-hover uk-table-divider">   
+			          <thead class="bg-primary">
+			            <tr>
+			              <th>#</th>
+			              <th>Description</th>
+			              <th>Action</th>
+			              <th>Due Date</th>
+			              <th>PIC</th>
+			            </tr>
+			          </thead>
+			          <tbody><%c=0%>
+			            <% @meeting_minute_items.each do |item|%>
+			            	<tr>
+			            		<td><%=c+=1%></td>
+			            		<td><%= item.description %></td>
+			            		<td><%= item.action %></td>
+			            		<td><%= item.due_date %></td>
+			            		<td>		            			
+				                <%="<span class='padding-sm label label-default'>#{item.account_pic1.email if item.account_pic1.present?}</span>".html_safe if item.pic1.present? %>
+				                <%="<span class='padding-sm label label-default'>#{item.account_pic2.email if item.account_pic2.present?}</span>".html_safe if item.pic2.present? %>
+				                <%="<span class='padding-sm label label-default'>#{item.account_pic3.email if item.account_pic3.present?}</span>".html_safe if item.pic3.present? %>
+				                <%="<span class='padding-sm label label-default'>#{item.account_pic4.email if item.account_pic4.present?}</span>".html_safe if item.pic4.present? %>
+				                <%="<span class='padding-sm label label-default'>#{item.account_pic5.email if item.account_pic5.present?}</span>".html_safe if item.pic5.present? %>
+			            		</td>
+					            <td>
+					              <% (1..5).each do |i| %>
+					                <% if item["pic#{i}"].present? %>
+					                  <a title="<%= item.job_note(i) %>">
+					                    <% case item.job_status(i) %>
+					                    <% when 'done' %>
+					                      <span class="uk-margin-small-right" uk-icon="check"></span>
+					                    <% when 'failed', 'canceled' %>
+                      					<span class="uk-margin-small-right" uk-icon="close"></span>
+					                    <% else %>
+					                      -
+					                    <% end %>
+					                    <%= item.job_status(i) %>
+					                  </a>
+					                  <p>
+					                <% end %>
+					              <% end %>
+					            </td>
+			            	</tr>
+			            <% end %>
+			          </tbody>
+			        </table>
+				    </div>
+
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', meeting_minutes_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_meeting_minute_path(@meeting_minute), class: "uk-button uk-button-primary uk-button-small" %>
+						</p>
+		      </form>
+
+	      </div>
+			</div>
+		</div>
+	</div>
+</div>

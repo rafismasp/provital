@@ -1,0 +1,206 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', direct_labors_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-2-3@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-5@m">Number</div>
+                    <div class="uk-width-1-4@m">
+                      <%= text_field_tag :number, @direct_labor.number, :class=> "uk-input uk-form-small", :disabled=> true %>
+                    </div>
+                    <div class="uk-width-1-5@m">Date</div>
+                    <div class="uk-width-1-4@m">
+                      <%= date_field_tag :date, @direct_labor.date, :class=> "uk-input uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-2-3@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-5@m">PIC</div>
+                    <div class="uk-width-1-4@m">
+                      <%= text_field_tag :pic, (@direct_labor.direct_labor_worker.name if @direct_labor.direct_labor_worker.present?), :class=> "uk-input uk-form-small", :disabled=> true%>
+                    </div>
+                    <div class="uk-width-1-5@m">Remarks</div>
+                    <div class="uk-width-1-4@m">
+                      <%= text_field_tag :remarks, @direct_labor.remarks, :class=> "uk-input uk-form-small", :disabled=> true%>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1 uk-overflow-auto">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">                 
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Batch Number</th>
+                        <th>Part Code</th>
+                        <th>Part Name</th>
+                        <th>Part Type</th>
+                        <th>Unit</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Remarks</th>
+                      </tr>
+                    </thead>
+                    <tbody>            
+                      <% c=0 %>
+                      <% if @direct_labor_items.present? %>
+                        <% @direct_labor_items.each do |direct_labor_item| %>
+                          <% part = direct_labor_item.product %>
+                          <tr>
+                            <td class="counter">
+                              <%= c+=1%>
+                            </td>
+                            <td class="uk-width-small">
+                              <%= direct_labor_item.product_batch_number.number %>
+                            </td>
+                            <td class="uk-width-small">
+                              <%= (part.part_id if part.present?) %>
+                            </td>
+                            <td class="uk-width-medium">
+                              <%= (part.name if part.present?) %>
+                            </td>
+                            <td class="uk-width-small">
+                              <%= (part.type_name if part.present?) %>
+                            </td>
+                            <td class="uk-width-small uk-text-center">
+                              <%= (part.unit_name if part.present?) %>
+                            </td>
+                            <td class="uk-width-small uk-text-right">
+                              <%= number_with_precision(direct_labor_item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td class="uk-width-small uk-text-right">
+                              <%= number_with_precision(direct_labor_item.unit_price, precision: 0, delimiter: ".", separator: ",") %>
+                            </td>
+                            <td class="uk-width-medium">
+                              <%= direct_labor_item.remarks %>
+                            </td>
+                            <td>                              
+                              <%= link_to "hide","javascript:;", {:id=> "hide_row#{c}", :onclick=> "$('#detail_row#{c}').hide();$('#hide_row#{c}').hide(); $('#show_row#{c}').show();", :style=> "display: none;"} %>
+                              <%= link_to "show","javascript:;", {:id=> "show_row#{c}", :onclick=> "$('#detail_row#{c}').show(); $('#show_row#{c}').hide(); $('#hide_row#{c}').show();"} %>
+                            </td>
+                          </tr>
+                          <tr id="detail_row<%= c %>" style="display: none;">
+                            <td>
+                            </td>
+                            <td colspan="10">                              
+                              <div class="divTable">
+                                <div class="divTableBody">
+                                  <div class="divTableRow">
+                                    <div class="divTableCell">Jam Kerja</div>
+                                    <div class="divTableCell">Code</div>
+                                    <div class="divTableCell">Hasil Aktual</div>
+                                    <div class="divTableCell">Harga/pcs</div>
+                                    <div class="divTableCell">Total</div>
+                                  </div>
+                                  <% begin_h = "08:00" %>
+                                  <% (1..9).each do |c| %>
+                                    <div class="divTableRow">
+                                      <div class="divTableCell"><%= begin_h %> - <%= begin_h = (begin_h.to_time+1.hours).strftime("%H:%M") %> (<%= c %> H)</div>
+                                      <div class="divTableCell">
+                                        <%= select_tag "activity_h#{c}", options_for_select(@direct_labor_price_details.where(:direct_labor_price_id=> direct_labor_item.direct_labor_price_id).map { |e| [e.activity_name, e.id, {:'price'=> e.unit_price}] },
+                                          direct_labor_item["activity_h#{c}"] ) , { :class=>"#{params[:c]}activity_h#{c} uk-select uk-form-small uk-form-width-small", :prompt => "Please select", :disabled=> true } %>
+                                      </div>
+                                      <div class="divTableCell">
+                                        <%= number_field_tag "quantity_h#{c}", direct_labor_item["quantity_h#{c}"], {:class=>"#{params[:c]}quantity_hour #{params[:c]}quantity_h#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true } %>
+                                      </div>
+                                      <div class="divTableCell">
+                                        <%= number_field_tag "price_h#{c}", direct_labor_item["price_h#{c}"], {:step=> :any, :class=>"#{params[:c]}price_h#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+                                      </div>
+                                      <div class="divTableCell">
+                                        <%= number_field_tag "total_h#{c}", direct_labor_item["total_h#{c}"], {:step=> :any, :class=>"#{params[:c]}total_hour #{params[:c]}total_h#{c} uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+                                      </div>
+                                    </div>
+                                  <% end %>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        <% end %>
+                      <% else %>
+                        <tr>
+                          <td colspan="10">Tidak ada Data!</td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+  
+            <hr>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @direct_labor.status == 'new' or @direct_labor.status == 'canceled1' %>
+                        <%= link_to approve_direct_labor_path(@direct_labor, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @direct_labor.status == 'approved1' or @direct_labor.status == 'canceled2' %>
+                        <%= link_to approve_direct_labor_path(@direct_labor, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_direct_labor_path(@direct_labor, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @direct_labor.status == 'approved2' or @direct_labor.status == 'canceled3' %>   
+                        <%= link_to approve_direct_labor_path(@direct_labor, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_direct_labor_path(@direct_labor, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_direct_labor_path(@direct_labor, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @direct_labor.status %>
+                      <% when 'approved3' %>
+                        <%= link_to print_direct_labor_path(@direct_labor), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', direct_labors_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', direct_labors_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_direct_labor_path(@direct_labor), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+    <body class="login uk-cover-container uk-background-secondary uk-flex uk-flex-center uk-flex-middle uk-height-viewport uk-overflow-hidden uk-light" data-uk-height-viewport>
+    <!-- overlay -->
+    <div class="uk-position-cover uk-overlay-primary"></div>
+    <!-- /overlay -->
+    <div class="uk-position-bottom-center uk-position-small uk-visible@m uk-position-z-index">
+      <span class="uk-text-small uk-text-muted">© <%= DateTime.now().strftime("%Y") %> PT. Techno Indonesia - <a href="https://techno.co.id">IT Dept.</a> | Built with <a href="http://getuikit.com" title="Visit UIkit 3 site" target="_blank" data-uk-tooltip><span data-uk-icon="uikit"></span></a></span>
+    </div>
+    <div class="uk-width-medium uk-padding-small uk-position-z-index" uk-scrollspy="cls: uk-animation-fade">
+      
+      <div class="uk-text-center uk-margin">
+        <!-- <h2>Provital Perdana</h2> -->
+        <%= image_tag "logo.png", :class=> "custom-logo", :alt=> "Provital Perdana" %>
+        <%#= image_tag "login-logo.svg", :class=> "", :alt=> "" %>
+      </div>
+
+      <!-- login -->      
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), class: 'toggle-class') do |f| %>
+        <fieldset class="uk-fieldset">
+          <div class="uk-margin-small">
+            <div class="uk-inline uk-width-1-1">
+              <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: user"></span>
+              <%= f.text_field :username, autofocus: true, class: "uk-input uk-border-pill", placeholder: "Username" %>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-inline uk-width-1-1">
+              <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: lock"></span>
+              <%= f.password_field :password, autocomplete: "current-password", class: "uk-input uk-border-pill", placeholder: "Password" %>
+            </div>
+          </div>
+
+          <% if devise_mapping.rememberable? %>
+            <div class="uk-margin-small">
+              <%= f.check_box :remember_me, class: 'uk-checkbox' %>
+              <%= f.label :remember_me %>
+            </div>
+          <% end %>
+          <div class="uk-margin-bottom">
+            <%= button_tag(type: "submit", class: "uk-button uk-button-primary uk-border-pill uk-width-1-1", title: "Login", "data-disable-with" => "<i class='fa fa-spinner fa-spin'></i> please wait...".html_safe  ) do %>
+              Login
+            <% end %>
+          </div>
+        </fieldset>
+          
+      <% end %>
+
+      <%= render "users/shared/links" %>
+
+      <!-- /login -->
+    </div>
+    
+  </body>

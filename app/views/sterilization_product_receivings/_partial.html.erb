@@ -1,0 +1,121 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_customer' %>
+  <%= options_for_select(@sales_orders.map{|c| [c.po_number, c.id ]} ) %>
+<% when 'change_sales_order' %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>Product Code</th>
+      <th>Product Name</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Remarks</th>
+      <th>Remove</th>
+    </tr>
+    <% c=0 %>
+    <% if @sales_order_items.present? %>
+      <% @sales_order_items.each do |item| %>
+        <% if item.is_outstanding_spr? %>
+          <tr id=trid"<%= c %>" valign=top><td align=right width=22px class='counter'><%= c+=1 %></td>
+            <td>
+              <%= text_field_tag 'part_id', item.product.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+            </td>
+            <td>
+              <%= hidden_field_tag "new_record_item[][product_id]", item.product_id %>
+              <%= hidden_field_tag "new_record_item[][sales_order_item_id]", item.id %>
+              <%= text_field_tag 'part_name', item.product.name, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+                
+            </td>
+            <td>
+              <%= text_field_tag 'batch_number',nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true, :placeholder=> "Auto"} %>
+            </td>
+            <td>
+              <%= text_field_tag 'unit_name', item.product.unit.name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+            </td>
+
+            <td>
+              <%= number_field_tag 'new_record_item[][quantity]', item.outstanding_sterilization_product_receivings, {:min=> 0, :max=> item.outstanding_sterilization_product_receivings.to_f, :placeholder=> 'quantity', :class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+            </td>
+            <td>
+              <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+            </td>
+            <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    <% else %>
+      Tidak ada SO
+    <% end %>
+  </table>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Doc. Number</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Batch Number</th>
+            <th>Unit</th>
+            <th>Qty</th>
+            <th>Outstanding</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>   
+          <% @sterilization_product_receivings.each do |item| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td><%= (item.sterilization_product_receiving.present? ? item.sterilization_product_receiving.number : nil) %></td>
+              <td><%= (item.product.present? ? item.product.part_id : nil) %></td>
+              <td><%= (item.product.present? ? item.product.name : nil) %></td>
+              <td><%= @product_batch_number.where(:sterilization_product_receiving_item_id=> item.id).map { |e| e.number }.join(", ") if @product_batch_number.present? %></td>
+              <td><%= (item.product.present? ? item.product.unit.name : nil) %></td>
+              <td><%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td><%= number_with_precision(item.outstanding, precision: 0, delimiter: ".", separator: ",") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Customer Name</th>
+            <th>PO Number</th>
+            <th>Remarks</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>   
+          <% @sterilization_product_receivings.each do |sterilization_product_receiving| %>
+            <tr uk-tooltip="title: <%= row_tooltip(sterilization_product_receiving) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= sterilization_product_receiving.status %></td>
+              <td><%= sterilization_product_receiving.number %></td>
+              <td><%= sterilization_product_receiving.date %></td>
+              <td><%= sterilization_product_receiving.sales_order.customer.name if sterilization_product_receiving.sales_order.present? and sterilization_product_receiving.sales_order.customer.present? %></td>
+              <td><%= sterilization_product_receiving.sales_order.po_number if sterilization_product_receiving.sales_order.present? %></td>
+              <td><%= sterilization_product_receiving.remarks %></td>
+              <td class="uk-width-auto"><%= link_to 'Show', sterilization_product_receiving_path(:id=> sterilization_product_receiving.id, :q=> params[:q]) %></td>
+              <td class="uk-width-auto"><%= link_to 'Edit', edit_sterilization_product_receiving_path(sterilization_product_receiving, :q=> params[:q]) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% end %>
+<% end %>

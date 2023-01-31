@@ -1,0 +1,29 @@
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>">
+              <% title = "Edit: #{feature("name")}" %>
+              <% case @payment_customer.invoice_kind %>
+              <% when 'invoice' %>
+                <% title += " by Invoice" %>
+              <% when 'proforma' %>
+                <% title += " by Proforma Invoices" %>
+              <% end %>
+              <%= "<h4>#{title}</h4>".html_safe %>
+            </div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', payment_customers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="uk-card-body">
+          <%= render 'form', payment_customer: @payment_customer, form_kind: "edit", invoice_kind: @payment_customer.invoice_kind %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

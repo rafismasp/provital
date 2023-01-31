@@ -1,0 +1,110 @@
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <%= link_to "Show PDF Placeholders Coordinates", "javascrip:;", {:onClick=> "showCoordinates()", :class=> "uk-button uk-button-primary uk-button-small"} %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m" id="pdfManager" style="display:none">                  
+                  <div class="uk-margin-small">
+                    <div class="uk-grid" id="selectorContainer">  
+                      <div class="uk-width-1-1@m">              
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div style="width: 250px;" id="parametriContainerRoot">
+                              <div id="parametriContainer">
+                                <% @pdf_coordinate_items.each do |item| %>  
+                                  <%= hidden_field_tag "pdf_coordinate_item[][id]", item.id %> 
+                                  <div class="drag-drop dropped-out" 
+                                    data-id="-1" data-page="0" 
+                                    data-toggle="<%= item.pdf_value %>" data-value="<%= item.pdf_value %>" 
+                                    data-x="<%= item.html_position_x %>" data-y="<%= item.html_position_y %>" 
+                                    style="transform: translate(<%= item.html_position_x %>px, <%= item.html_position_y %>px); display:block; position: absolute;">
+                                    <span class="circle"></span>
+                                    <span class="description">
+                                      <%= item.pdf_description %>
+                                    </span>
+                                  </div>
+                                <% end if @pdf_coordinate_items.present? %>
+                              </div>
+                            </div>
+                            <div class="uk-padding-remove">
+                              <div id="pageContainer" class="pdfViewer singlePageView dropzone nopadding" style="background-color:transparent">
+                                  <canvas id="the-canvas" style="border:1px  solid black"></canvas>
+                              </div>
+                              
+                            </div>
+                          </div>
+                        </div>          
+                        <div class="uk-margin-small">
+                          <div class="uk-grid">
+                            <div id="parametriContainerPagination"></div>
+                          </div>
+                        </div>
+                        <hr class="uk-margin-small">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+<!-- parameters showed on the left sidebar -->
+<input id="parameters" type="hidden" value='[
+{"idParameter":1,"description":"Logo","value":"logo","nota":null},
+{"idParameter":2,"description":"Header Title 1","value":"htitle1","nota":null},
+{"idParameter":3,"description":"Header Title 2","value":"htitle2","nota":null},
+{"idParameter":4,"description":"Header Title 3","value":"htitle3","nota":null},
+{"idParameter":5,"description":"Header Title 4","value":"htitle4","nota":null},
+{"idParameter":6,"description":"Header Title 5","value":"htitle5","nota":null},
+{"idParameter":7,"description":"Header Title 6","value":"htitle6","nota":null},
+
+{"idParameter":8,"description":"Header Field 1","value":"hfield1","nota":null},
+{"idParameter":9,"description":"Header Field 2","value":"hfield2","nota":null},
+{"idParameter":10,"description":"Header Field 3","value":"hfield3","nota":null},
+{"idParameter":11,"description":"Header Field 4","value":"hfield4","nota":null},
+{"idParameter":12,"description":"Header Field 5","value":"hfield5","nota":null},
+{"idParameter":13,"description":"Header Field 6","value":"hfield6","nota":null},
+{"idParameter":14,"description":"Sign 1","value":"sign1","nota":null},
+{"idParameter":15,"description":"Sign 2","value":"sign2","nota":null},
+{"idParameter":16,"description":"Sign 3","value":"sign3","nota":null}
+]' />
+
+<table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item_coordinate">
+  <tr>
+    <td>Description</td>
+    <td>Position X</td>
+    <td>Position Y</td>
+    <td>Value</td>
+  </tr>
+  <% @pdf_coordinate_items.each do |item| %>
+    <tr>
+      <td>
+        <%= hidden_field_tag "record_item[][id]", item.id %> 
+        <%= text_field_tag "record_item[][pdf_description]",  item.pdf_description, {:class=>"uk-input uk-form-width-medium uk-form-small"}  %> 
+      </td>
+      <td><%= item.pdf_position_x %></td>
+      <td><%= item.pdf_position_y %></td>
+      <td><%= item.pdf_value %></td>
+    </tr>
+  <% end if @pdf_coordinate_items.present? %>
+</table>
+
+<!-- Below the pdf base 64 rapresentation -->
+<input id="pdfBase64" type="hidden" value="<%= @base_64 %>">
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.9/interact.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js"></script>
+	
+          <%= javascript_include_tag 'pdf_coordinates.js' %>
+
+
+
+

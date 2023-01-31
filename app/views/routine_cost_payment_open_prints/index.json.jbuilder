@@ -1,0 +1,1 @@
+json.array! @routine_cost_payment_open_prints, partial: "routine_cost_payment_open_prints/routine_cost_payment_open_print", as: :routine_cost_payment_open_print

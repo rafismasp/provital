@@ -1,0 +1,68 @@
+
+<%= form_with(model: spreadsheet_report, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if spreadsheet_report.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(spreadsheet_report.errors.count, "error") %> prohibited this spreadsheet_report from being saved:</h2>
+
+      <ul>
+      <% spreadsheet_report.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Name</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :name, id: :spreadsheet_report_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Feature Lists</div>
+      <div class="uk-width-3-4@m">
+        <%= form.select :permission_base_id, options_for_select(@feature_lists.map{|c| [c.name, c.id ]}, form.object.permission_base_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_feature_list(this, '"+params[:controller].to_s+"')"} if @feature_lists.present? %>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>Order Number</th>
+            <th>Field Name</th>
+            <th>Status</th>
+          </tr>
+          <% c=0 %>
+          <% @spreadsheet_contents.each do |spreadsheet_content| %>
+            <tr>
+              <td>
+                <%= hidden_field_tag "spreadsheet_content[][id]", spreadsheet_content.id, {:class=>'uk-input uk-form-width-small uk-form-small'}%>
+                <%= text_field_tag "spreadsheet_content[][sequence_number]", spreadsheet_content.sequence_number, {:class=>'uk-input uk-form-width-small uk-form-small'}%></td>
+              <td><%= text_field_tag "column_name", spreadsheet_content.name, {:class=>'uk-input uk-form-width-medium uk-form-small', :disabled=> true} %></td>
+              <td>
+                <%= select_tag "spreadsheet_content[][status]", options_for_select(['active','deleted'],
+                  spreadsheet_content.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @spreadsheet_contents.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', spreadsheet_reports_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

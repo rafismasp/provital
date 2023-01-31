@@ -1,0 +1,84 @@
+<%= stylesheet_link_tag 'hrd' %>
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', schedules_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">NAMA</div>
+                      <div class="uk-width-1-5@m">
+                        <%= text_field_tag :code, @schedule.code, :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">STATUS</div>
+                      <div class="uk-width-1-5@m">
+                        <%= text_field_tag :status, @schedule.status, :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Note</div>
+                      <div class="uk-width-3-4@m">
+                        <%= text_area_tag :description, @schedule.description, :class=> "uk-textarea uk-input uk-form-small", :disabled=> true  %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m" id="item">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">          
+                    <tr>
+                      <th class="uk-text-middle">DAY</th>  
+                      <th class="uk-text-middle uk-text-center">IN</th>
+                      <th class="uk-text-middle uk-text-center">OUT</th>
+                    </tr>
+                    <tr>
+                      <% day = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"] %>
+                      <% day.each do |d| %>
+                        <tr>
+                          <td><%= d.upcase %></td>
+                          <td><%= time_field_tag "#{d}_in", (@schedule["#{d}_in"].present? ? @schedule["#{d}_in"].strftime("%H:%M:%S") : nil), :class=> "uk-input uk-form-small", :disabled=>true %></td>
+                          <td><%= time_field_tag "#{d}_out", (@schedule["#{d}_out"].present? ? @schedule["#{d}_out"].strftime("%H:%M:%S") : nil), :class=> "uk-input uk-form-small", :disabled=>true %></td>
+                        </tr>
+                      <% end %>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <%= link_to 'Back', schedules_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <%= link_to 'Edit', edit_schedule_path(@schedule, :job => 'edit'), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

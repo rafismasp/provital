@@ -1,0 +1,73 @@
+
+		<aside id="left-col" class="uk-light uk-visible@m" >
+			<div class="left-logo uk-flex uk-flex-middle uk-background-default">						
+        <a href="/">
+        	<%= image_tag "logo.png", :class=> "custom-logo", :alt=> "Provital Perdana" %>
+					<%#= image_tag "dashboard-logo.svg", :class=> "custom-logo", :alt=> "" %>
+        </a>
+			</div>
+			<div class="left-content-box  content-box-dark">		
+        <% if current_user.avatar.url.present? %>
+					<%= image_tag current_user.avatar.url, :class=> "uk-border-circle profile-img", :alt=> "" %>
+        <% else %>
+					<%= image_tag "user.svg", :class=> "uk-border-circle profile-img", :alt=> "" %>
+        <% end %>
+				
+				<div class="uk-position-relative uk-text-center uk-display-block">
+			    
+					<h4 class="uk-text-center uk-margin-remove-vertical text-light">
+			    	<a href="#" class="uk-text-center" data-uk-icon="icon: triangle-down; ratio: 0.7">		
+							<% if current_user.present? %>
+								<%= current_user.first_name %>
+							<% else %>
+								John Doe
+							<% end %>
+						</a>
+					</h4>
+			    <!-- user dropdown -->
+			    <div class="uk-dropdown user-drop" data-uk-dropdown="mode: click; pos: bottom-center; animation: uk-animation-slide-bottom-small; duration: 150">
+			    	<ul class="uk-nav uk-dropdown-nav uk-text-left">
+							<li>
+	        			<%= link_to edit_user_registration_path do %>
+                  <span data-uk-icon="icon: image"></span> Profile
+                <% end %>
+                <%= link_to master_files_path(:myaccount=>current_user.id) do %>
+                  <span data-uk-icon="icon: file-text"></span> Master File
+                <% end %>
+							<li class="uk-nav-divider"></li>
+							<li><a href="/users/sign_out"><span data-uk-icon="icon: sign-out"></span> Sign Out</a></li>
+				    </ul>
+			    </div>
+			    <!-- /user dropdown -->
+				</div>
+
+		    <a href="#" class="uk-text-small uk-text-muted uk-display-block uk-text-center">				    	
+					<% if current_user.present? %>
+						<%= current_user.department.name if current_user.department.present? %>
+					<% else %>
+						Admin
+					<% end %>
+		    </a>
+			</div>
+			
+			<div class="left-nav-wrap">
+				<%= render 'layouts/menu' %>				
+			</div>
+			<div class="bar-bottom">
+				<ul class="uk-subnav uk-flex uk-flex-center uk-child-width-1-5" data-uk-grid>
+					<li>
+						<a href="/" class="uk-icon-link" data-uk-icon="icon: home" title="Home" data-uk-tooltip></a>
+					</li>
+					<li>
+						<!-- <a href="#" class="uk-icon-link" data-uk-icon="icon: settings" title="Settings" data-uk-tooltip></a> -->
+					</li>
+					<li>
+						<!-- <a href="#" class="uk-icon-link" data-uk-icon="icon: social"  title="Social" data-uk-tooltip></a> -->
+					</li>
+					
+					<li>
+						<a href="/users/sign_out" class="uk-icon-link" data-uk-tooltip="Sign out" data-uk-icon="icon: sign-out"></a>
+					</li>
+				</ul>
+			</div>
+		</aside>

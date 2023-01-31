@@ -1,0 +1,322 @@
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %> <b><%= @voucher_payment.kind.upcase %></b></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', voucher_payments_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <!-- Left -->
+                  <div class="uk-width-1-3@m">
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">No. Voucher</div>
+                      <div class="uk-width-2-3@m">
+                        <%#= text_field_tag :number, id: :voucher_payment_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically", :disabled=>(params[:action]=="edit" ? true : false) %>
+                        <!-- Disabled Number SUCI 22122021 -->
+                        <%= text_field_tag :number, (@voucher_payment.number if @voucher_payment.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=>true%>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Tanggal</div>
+                      <div class="uk-width-2-3@m">
+                        <%= date_field_tag :date, (@voucher_payment.date if @voucher_payment.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=>true%>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Tanggal Pembayaran</div>
+                      <div class="uk-width-2-3@m">
+                        <%= date_field_tag :payment_date, (@voucher_payment.payment_date if @voucher_payment.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=>true%>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Currency</div>
+                      <div class="uk-width-2-3@m">
+                        <%#= select_tag "voucher_payment[currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, (@voucher_payment.present? ? @voucher_payment.currency_id : 1)), {class: "list_internal_bank_account_id uk-select uk-form-width-small uk-form-small", :required=> true} if @currencies.present? %>
+                        <%= text_field_tag "name",(@voucher_payment.currency.present? ? @voucher_payment.currency.name : ""), {:class=>"currency_id#{params[:c]} uk-input uk-form-width-small uk-form-small", :disabled=> true} %>
+
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Bank Pengirim</div>
+                      <div class="uk-width-2-3@m">
+                        <%= hidden_field_tag "voucher_payment[list_internal_bank_account_id]", (@voucher_payment.list_internal_bank_account_id.present? ? @voucher_payment.list_internal_bank_account_id : ""), :class=>"list_internal_bank_account_id uk-input uk-form-small", :required=> true %>
+                        <%= render 'layouts/form_item', field_name: "list_internal_bank_account_id", field_value: (@voucher_payment.list_internal_bank_account_id.present? ? @voucher_payment.list_internal_bank_account.number_account : "") %>
+                      </div>
+                    </div>
+                    
+                  </div>
+                <!-- End Left -->
+
+                <!-- center -->
+                  <div class="uk-width-1-3@m">
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Nama Penerima</div>
+                      <div class="uk-width-2-3@m">
+                        <%= hidden_field_tag "list_external_bank_account_id", (@voucher_payment.list_external_bank_account_id.present? ? @voucher_payment.list_external_bank_account_id : ""), :class=>"list_external_bank_account_id uk-input uk-form-small", :required=> true %>
+                        <%= render 'layouts/form_item', field_name: "list_external_bank_account_id", field_value: (@voucher_payment.list_external_bank_account_id.present? ? @voucher_payment.list_external_bank_account.name_account : "") , :disabled=> true%>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Bank Penerima</div>
+                      <div class="uk-width-2-3@m">
+                        <%= hidden_field_tag "voucher_payment[list_external_bank_account_id]", (@voucher_payment.list_external_bank_account_id.present? ? @voucher_payment.list_external_bank_account_id : ""), :class=>"list_external_bank_account_id uk-input uk-form-small" %>
+                        <%= text_field_tag "bank_name",(@voucher_payment.list_external_bank_account_id.present? ? @voucher_payment.list_external_bank_account.dom_bank.bank_name : ""), {:class=>"dom_bank_id uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+                      </div>
+                    </div>
+
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Rekening Penerima</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag "number_account",(@voucher_payment.list_external_bank_account_id.present? ? @voucher_payment.list_external_bank_account.number_account : ""), {:class=>"number_account uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+                        
+                      </div>
+                    </div>
+                    <br>
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Remarks</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_area_tag :remarks, (@voucher_payment.remarks if @voucher_payment.present?), rows: 6, :class=> "uk-textarea uk-form-width-large uk-form-small", :style=>"line-height: normal !important;" %>
+                      </div>
+                    </div>
+                  </div>
+                <!-- End center -->
+
+                <!-- right -->
+                  <div class="uk-width-1-3@m">
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Sub Total</div>
+                        <div class="uk-width-2-3@m">
+                        <%= text_field_tag :sub_total, number_with_precision(@voucher_payment.sub_total.to_f, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' , :disabled=> true%>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">PPN Total</div>
+                        <div class="uk-width-2-3@m" style="display: flex;">
+                          <%= select_tag :tax_id, options_for_select([["Non PPN",1],["PPN 10%",2],["PPN 11%",5],["PPN 1%",4]],(@voucher_payment.tax_id)), { :class=>"uk-select uk-form-width-small uk-form-small", :style=>"width:150px;", :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')"} %>
+                          <%= text_field_tag :ppn_total, number_with_precision(@voucher_payment.ppn_total.to_f, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :min=> 0 , :disabled=> true%>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">PPH Total</div>
+                        <div class="uk-width-2-3@m">
+                          <div class="uk-flex">
+                            <%= number_field_tag :pph_percent, (@voucher_payment.pph_percent.present? ? @voucher_payment.pph_percent : 0).to_f, :class=> "uk-input uk-form-width-small uk-form-small uk-text-right", :min=> 0, :max=> 100, :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')", :step=>"any" , :disabled=> true%>
+                            <%= text_field_tag :pph_total, number_with_precision(@voucher_payment.pph_total.to_f, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :min=> 0, step: :any, :readonly=>true , :disabled=> true%>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small">
+                      <div class="uk-grid">
+                        <div class="uk-width-1-3@m">Potongan Lainnya</div>
+                        <div class="uk-width-2-3@m">
+                          <%= text_field_tag :other_cut_fee, number_with_precision(@voucher_payment.other_cut_fee.to_f, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :min=> 0, :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')" , :disabled=> true%>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="uk-grid uk-margin-small">
+                      <div class="uk-width-1-3@m">Total Amount</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :grand_total, number_with_precision(@voucher_payment.grand_total.to_f, precision: 2, delimiter: ".", separator: ","), :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' , :disabled=> true%>
+                      </div>
+                    </div>
+                  </div>
+                <!-- End right -->
+
+                <%case @voucher_payment.kind %>
+                 <% when "pettycash"%>
+                    <hr class="uk-margin-small">
+                    <div class="uk-width-1-1 uk-overflow-auto"><br><hr class="uk-margin-small">
+                      <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">                 
+                        <thead>
+                          <tr>
+                            <th class="uk-text-middle">#</th>
+                            <th class="uk-text-middle uk-text-center">Dept</th>
+                            <th class="uk-text-middle uk-text-center">No. BPK</th>
+                            <th class="uk-text-middle uk-text-center">Jenis Biaya</th>
+                            <th class="uk-text-middle uk-text-center">No. Coa</th>
+                            <th class="uk-text-middle uk-text-center">Keterangan Biaya</th>
+                            <!-- <th class="uk-text-middle uk-text-center">Diperuntukan</th> -->
+                            <th class="uk-text-middle uk-text-center">Nominal</th>
+                          </tr>
+                        </thead>
+                        <tbody>            
+                          <% c=0 %>
+                          <% if @voucher_payment_items.present? %>
+                            <% @voucher_payment_items.each do |voucher_payment_item| %>
+                              <tr>
+                                <td class="counter">
+                                  <%= c+=1%>
+                                </td>
+                                <td>
+                                  <%= (voucher_payment_item.routine_cost_payment.department.name if voucher_payment_item.routine_cost_payment) %>
+                                  <%= (voucher_payment_item.proof_cash_expenditure.department.name if voucher_payment_item.proof_cash_expenditure_item_id) %>
+                                  <%= (voucher_payment_item.cash_settlement.department.name if voucher_payment_item.cash_settlement_item_id) %>
+                                </td>
+                                <td>
+                                  <%= (voucher_payment_item.routine_cost_payment.number if voucher_payment_item.routine_cost_payment_item_id) %>
+                                  <%= (voucher_payment_item.proof_cash_expenditure.number if voucher_payment_item.proof_cash_expenditure_item_id) %>
+                                  <%= (voucher_payment_item.cash_settlement.number if voucher_payment_item.cash_settlement_item_id) %>
+                                </td>
+                                <td><%= text_field_tag 'record_item[][cost_type]', voucher_payment_item.cost_type, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                                <td><%= text_field_tag 'record_item[][coa_number]', voucher_payment_item.coa_number, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                                <td><%= text_field_tag 'record_item[][cost_detail]', voucher_payment_item.cost_detail, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                                <!-- <td><%#= text_field_tag 'record_item[][cost_for]', voucher_payment_item.cost_for, {:class=>"uk-input uk-form-small", :disabled=>true} %></td> -->
+                                <td><%= text_field_tag 'record_item[][nominal]',number_with_precision(voucher_payment_item.nominal, precision: 2, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-small uk-text-right", :disabled=>true} %></td>
+                              </tr>
+                            <% end %>
+                              <tr>
+                                <td colspan="6"><center><b>Grand Total</b></center></td>
+                                <td align="right"><%= number_with_precision(@voucher_payment.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+                              </tr>
+                          <% else %>
+                            <tr>
+                              <td colspan="10">Tidak ada Data!</td>
+                            </tr>
+                            <thead>
+                              <tr>
+                                <td colspan="6"><center><b>Grand Total</b></center></td>
+                                <td align="right"><%= number_with_precision(@voucher_payment.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+                              </tr>
+                            </thead>
+                          <% end %>
+                        </tbody>
+                      </table>
+                    </div>
+                 <% when "general"%>
+
+                    <hr class="uk-margin-small">
+                    <div class="uk-width-1-1 uk-overflow-auto"><br><hr class="uk-margin-small">
+                      <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">                 
+                        <thead>
+                          <tr>
+                            <th class="uk-text-middle">#</th>
+                            <th class="uk-text-middle uk-text-center">Nama Coa</th>
+                            <th class="uk-text-middle uk-text-center">No. Coa</th>
+                            <th class="uk-text-middle uk-text-center">Keterangan Biaya</th>
+                            <!-- <th class="uk-text-middle uk-text-center">Diperuntukan</th> -->
+                            <th class="uk-text-middle uk-text-center">Nominal</th>
+                          </tr>
+                        </thead>
+                        <tbody>            
+                          <% c=0 %>
+                          <% if @voucher_payment_items.present? %>
+                            <% @voucher_payment_items.each do |voucher_payment_item| %>
+                              <tr>
+                                <td class="counter">
+                                  <%= c+=1%>
+                                </td>
+                                <td><%= text_field_tag 'record_item[][cost_type]', voucher_payment_item.cost_type, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                                <td><%= text_field_tag 'record_item[][coa_number]', voucher_payment_item.coa_number, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                                <td><%= text_field_tag 'record_item[][cost_detail]', voucher_payment_item.cost_detail, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                                <!-- <td><%#= text_field_tag 'record_item[][cost_for]', voucher_payment_item.cost_for, {:class=>"uk-input uk-form-small", :disabled=>true} %></td> -->
+                                <td><%= text_field_tag 'record_item[][nominal]',number_with_precision(voucher_payment_item.nominal, precision: 2, delimiter: ".", separator: ","), {:class=>"uk-input uk-form-small uk-text-right", :disabled=>true} %></td>
+                              </tr>
+                            <% end %>
+                              <tr>
+                                <td colspan="4"><center><b>Grand Total</b></center></td>
+                                <td align="right"><%= number_with_precision(@voucher_payment.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+                              </tr>
+                          <% else %>
+                            <tr>
+                              <td colspan="10">Tidak ada Data!</td>
+                            </tr>
+                            <thead>
+                              <tr>
+                                <td colspan="4"><center><b>Grand Total</b></center></td>
+                                <td align="right"><%= number_with_precision(@voucher_payment.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+                              </tr>
+                          </thead>
+                          <% end %>
+                        </tbody>
+                      </table>
+                    </div>
+                 <% end %>
+              </div>
+            </div>
+            <hr>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @voucher_payment.status == 'new' or @voucher_payment.status == 'canceled1' %>
+                        <%= link_to approve_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @voucher_payment.status == 'approved1' or @voucher_payment.status == 'canceled2' %>
+                        <%= link_to approve_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @voucher_payment.status == 'approved2' or @voucher_payment.status == 'canceled3' %>   
+                        <%= link_to approve_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>   
+                      <% elsif @voucher_payment.status == 'void' %>
+                        Status: Void              
+                      <% else %>
+                        <%= link_to approve_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @voucher_payment.status %>
+                      <% when 'void' %>
+                        <%= link_to 'Back', voucher_payments_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% when 'approved3','canceled3','approved2' %>
+                        <%= link_to 'Back', voucher_payments_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to print_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :kind=> @voucher_payment.kind), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <% case @voucher_payment.kind %>
+                        <% when "pettycash" %>
+                            <%= link_to print_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :print_kind=> "petty"), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                            <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Lampiran</button>
+                            <% end %>
+                        <% end %>
+                      <% else %>
+                        <%= link_to 'Back', voucher_payments_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :kind=> @voucher_payment.kind), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                        <%= link_to approve_voucher_payment_path(@voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'void'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be void. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Void</button>
+                        <% end if @voucher_payment.status != 'void' %> 
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

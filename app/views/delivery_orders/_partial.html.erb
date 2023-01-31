@@ -1,0 +1,152 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_picking_slip' %>  
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>Product Code</th>
+      <th>Product Name</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Remarks</th>
+      <th>Remove</th>
+    </tr>
+    <% c=0 %>
+    <% @picking_slip_items.each do |item| %>
+      <tr id="trid<%= c %>" valign=top><td align=right width=22px class='counter'><%= c+=1 %></td>
+        <td>
+          <%= text_field_tag 'part_id', item.product.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+        </td>
+        <td>
+          <%= hidden_field_tag "new_record_item[][product_batch_number_id]", item.product_batch_number_id %>
+          <%= hidden_field_tag "new_record_item[][product_id]", item.product_id %>
+          <%= hidden_field_tag "new_record_item[][sales_order_item_id]", item.sales_order_item_id %>
+          <%= hidden_field_tag "new_record_item[][picking_slip_item_id]", item.id %>
+          <%= text_field_tag 'part_name', item.product.name, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+            
+        </td>
+        <td>
+          <%= text_field_tag 'batch_number', (item.product_batch_number.present? ? item.product_batch_number.number : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag 'unit_name', item.product.unit.name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+        </td>
+
+        <td>
+          <%= number_field_tag 'new_record_item[][quantity]', item.quantity, {:min=> 0, :max=> item.quantity, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+        </td>
+        <td>
+          <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+        </td>
+        <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+      </tr>
+    <% end if @picking_slip_items.present? %>
+  </table>
+<% when 'change_customer' %>
+  <% if @picking_slips.present? %>
+    <%= select_tag "delivery_order[picking_slip_id]", options_for_select(@picking_slips.map { |e| [e.number, e.id, {:sales_order_id=> e.sales_order_id, :po_number=> e.sales_order.po_number, :month_delivery=> e.sales_order.month_delivery} ] }), :class=>"uk-select uk-form-width-large uk-form-small", :prompt=>"--select--" %>
+  <% else %>
+    <%= text_field_tag "picking_slip_id", nil, {:disabled=> true, class: "uk-select uk-form-width-large uk-form-small"} %>
+  <% end %>
+<% when 'add_item' %>
+  <tr id="trid<%= params[:c] %>" valign=top><td align=right width=22px class='counter'><%= params[:c] %></td>
+    <td>
+      <%= select_tag "new_record_item[][product_id]", options_for_select(@products.collect { |e| [e.name, e.id, 
+        {:'part_id'=> e.part_id, :'unit_name' => (e.unit.name if e.unit.present?), :'part_model'=> e.part_model }]}) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-width-medium uk-form-small',
+        :onchange=> "change_product_id(this, '"+params[:controller].to_s+"', '"+params[:c].to_s+"');"} if @products.present? %>  </td>
+    
+    <td>
+      <%= text_field_tag 'part_id',nil, {:class=>"part_id#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'part_model',nil, {:class=>"part_model#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'unit_name',nil, {:class=>"unit_name#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+    </td>
+
+    <td>
+      <%= number_field_tag 'new_record_item[][quantity]',nil, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+    </td>
+    <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+  </tr>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Batch Number</th>
+          <th>Product Code</th>
+          <th>Product Name</th>
+          <th>Product Type</th>
+          <th>Quantity</th>
+          <th>Remarks Item</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @delivery_orders.each do |item| %>
+          <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+            <td><%= @c+=1 %></td>
+            <td><%= item.delivery_order.status %></td>
+            <td><%= item.delivery_order.number %></td>
+            <td><%= item.product_batch_number.number if item.product_batch_number.present? %></td>
+            <td><%= item.product.part_id %></td>
+            <td><%= item.product.name %></td>
+            <td><%= item.product.type_name %></td>
+            <td class="uk-text-right">
+              <%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+            </td>
+            <td><%= item.remarks %></td>
+            <td><%= link_to 'Show', item.delivery_order %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Customer</th>
+          <th>DO Number</th>
+          <th>Date</th>
+          <th>Invoice Number</th>
+          <th>PO Number</th>
+          <th>Vehicle Number</th>
+          <th>Driver Name</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @delivery_orders.each do |delivery_order| %>
+          <tr uk-tooltip="title: <%= row_tooltip(delivery_order) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= delivery_order.status %></td>
+            <td><%= delivery_order.customer.name if delivery_order.customer.present? %></td>
+            <td><%= delivery_order.number %></td>
+            <td><%= delivery_order.date %></td>
+            <td><%= delivery_order.invoice_customer.number if delivery_order.invoice_customer.present? %></td>
+            <td><%= delivery_order.sales_order.po_number if delivery_order.sales_order.present? %></td>
+            <td><%= delivery_order.vehicle_number %></td>
+            <td><%= delivery_order.vehicle_driver_name %></td>
+            <td><%= link_to 'Show', delivery_order %></td>
+            <td><%= link_to 'Edit', edit_delivery_order_path(delivery_order) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

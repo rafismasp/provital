@@ -1,0 +1,60 @@
+<%= form_with(model: general, local: true, class: "uk-form-horizontal") do |form| %>
+  <% if general.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(general.errors.count, "error") %> prohibited this general from being saved:</h2>
+
+      <ul>
+      <% general.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Internal Part ID</div>
+      <div class="uk-width-1-2@m">       
+        <%= form.text_field :part_id, id: :general_part_id, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Part Name</div>
+      <div class="uk-width-3-4@m">     
+        <%= form.text_field :name, id: :general_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Part Model</div>
+      <div class="uk-width-1-2@m">       
+        <%= form.text_field :part_model, id: :general_part_model, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Unit</div>
+      <div class="uk-width-1-3@m">     
+        <%= form.collection_select :unit_id, @units,:id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Color</div>
+      <div class="uk-width-1-3@m">       
+        <%= form.collection_select :color_id, @colors,:id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', generals_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+<% end %>

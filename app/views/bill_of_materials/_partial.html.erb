@@ -1,0 +1,58 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'add_item' %>
+  <tr id="trid<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-right'><%= params[:c] %></td>
+    <td class="uk-width-medium">
+      <%= hidden_field_tag "new_record_item[][material_id]", nil, :class=>"material_id#{params[:c]} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+      <%= render 'layouts/form_item', c: params[:c], field_name: "material_id", field_value: "" %>
+    </td>
+    
+    <td class="uk-width-small">
+      <%= text_field_tag 'part_id',nil, {:class=>"part_id#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+
+    <td class="uk-width-small">
+      <%= number_field_tag 'new_record_item[][standard_quantity]',nil, {:step=> "any", :class=>"standard_quantity#{params[:c]} uk-input uk-form-small uk-text-right", :required=> true, :onchange=> "change_bom_quantity(this, '#{params[:c]}');"} %>
+    </td>
+    <td class="uk-width-small">
+      <%= number_field_tag 'new_record_item[][allowance]', 0, {:placeholder=> '%', :class=>"allowance#{params[:c]} uk-input uk-form-small uk-text-right", :required=> true, :step=> "any", :onchange=> "change_bom_quantity(this, '#{params[:c]}');"} %>
+    </td>
+    <td class="uk-width-small">
+      <%= number_field_tag 'new_record_item[][quantity]',nil, {:step=> "any", :class=>"quantity#{params[:c]} uk-input uk-form-small uk-text-right", :required=> true, :readonly=> true} %>
+    </td>
+    <td class="uk-width-small">
+      <%= text_field_tag 'unit_name',nil, {:class=>"unit_name#{params[:c]} uk-input uk-form-small uk-text-center", :disabled=> true} %>
+    </td>
+    <td class="uk-width-medium">
+      <%= text_field_tag 'new_record_item[][remarks]',nil, {:class=>"uk-input uk-form-small uk-text-right"} %>
+    </td>
+    <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+  </tr>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Product Code</th>
+        <th>Product Name</th>
+        <th>Product Type</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c= @c.present? ? @c : 0 %>
+      <% @bill_of_materials.each do |bill_of_material| %>
+        <tr uk-tooltip="title: <%= row_tooltip(bill_of_material) %>; pos: top-left">
+          <td><%= c+=1 %></td>
+          <td><%= bill_of_material.product.part_id if bill_of_material.product.present? %></td>
+          <td><%= bill_of_material.product.name if bill_of_material.product.present? %></td>
+          <td><%= bill_of_material.product.type_name if bill_of_material.product.present? %></td>
+          <td class="uk-width-auto"><%= link_to 'Show', bill_of_material %></td>
+          <td class="uk-width-auto"><%= link_to 'Edit', edit_bill_of_material_path(bill_of_material) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

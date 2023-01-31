@@ -1,0 +1,136 @@
+<%= stylesheet_link_tag 'hrd' %>
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', employee_schedules_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+              <%= hidden_field_tag 'select_view_kind', params[:view_kind] %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-5@m uk-width-1-3@l">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">NAMA</div>
+                      <div class="uk-width-expand@m">
+                        <%= hidden_field_tag "employee_id", (params[:employee_id].present? ? params[:employee_id] : @employee_schedule.employee_id), :class=>"employee_id uk-button uk-button-default uk-text-left uk-input uk-form-small"%>
+                        <%= render 'layouts/form_item', field_name: "employee_id", field_value: (params[:employee_name].present? ?  params[:employee_name] : @employee_schedule.employee.name), :onchange=>"change_employee(this, '"+params[:controller].to_s+"')"  %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-3-5@m uk-width-2-3@l">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">PIN</div>
+                      <div class="uk-width-expand@m employee_pin">
+                        <%= text_field_tag 'employee_pin', (params[:employee_pin].present? ? params[:employee_pin] : @attendance_user.id_number), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+                      </div>
+                      <div class="uk-width-1-5@m">Work Schedule</div>
+                      <div class="uk-width-expand@m work_schedule">
+                        <%= text_field_tag 'employee_work_schedule', (params[:employee_work_schedule].present? ? params[:employee_work_schedule] : @employee_schedule.employee.work_schedule), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-5@m uk-width-1-3@l">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">PERIODE</div>
+                      <div class="uk-width-expand@m">
+                        <%= select_tag "periode_yyyy", options_for_select(2019.."#{DateTime.now()+1.years}".to_date.strftime("%Y").to_i, (params[:period].present? ? params[:period].to_s[0,4] : DateTime.now().strftime("%Y") )), {:include_blank=>'-- Pilih --', :class=>"uk-button uk-button-default uk-text-left", :onchange=>"change_period_yyyy(this, '"+params[:controller].to_s+"')"} %>
+                        <%= select_tag "periode_mm", options_for_select([
+                            ["21 Jan - 20 Feb","01"],
+                            ["21 Feb - 20 Mar","02"],
+                            ["21 Mar - 20 Apr","03"],
+                            ["21 Apr - 20 Mei","04"],
+                            ["21 Mei - 20 Jun","05"],
+                            ["21 Jun - 20 Jul","06"],
+                            ["21 Jul - 20 Aug","07"],
+                            ["21 Aug - 20 Sep","08"],
+                            ["21 Sep - 20 Oct","09"],
+                            ["21 Oct - 20 Nov","10"],
+                            ["21 Nov - 20 Dec","11"],
+                            ["21 Dec - 20 Jan","12"]
+                            ] , (params[:period].to_s[4,2] if params[:period].present?)), {:include_blank=>'-- Pilih --', :class=>"uk-button uk-button-default uk-text-left", :onchange=>"change_period_yymm(this, '"+params[:controller].to_s+"')"} %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-3-5@m uk-width-2-3@l">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-5@m">NIK</div>
+                      <div class="uk-width-expand@m nik">
+                        <%= text_field_tag 'employee_nik', (params[:employee_nik].present? ? params[:employee_nik] : @employee_schedule.employee.nik), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+                      </div>
+                      <div class="uk-width-1-5@m">Department</div>
+                      <div class="uk-width-expand@m department_name">
+                        <%= text_field_tag 'department_name', (params[:department_name].present? ? params[:department_name] : @employee_schedule.employee.department.name), :class=>"uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m" id="item">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">          
+                    <tr>
+                      <th class="uk-text-middle">DATE</th>  
+                      <th class="uk-text-middle uk-text-center">DAY NAME</th>
+                      <th class="uk-text-middle uk-text-center">CODE</th>
+                      <th class="uk-text-middle uk-text-center">SCHEDULE IN</th>
+                      <th class="uk-text-middle uk-text-center">SCHEDULE OUT</th>
+                    </tr>
+
+                    <% @employee_schedule_items.each do |employee_schedule_item| %>
+                      <%
+                        day_name = "#{ employee_schedule_item.date.strftime('%A')}".downcase 
+                        schedule_att_in  = (day_name.present? ? (employee_schedule_item.schedule["#{day_name}_in"] if employee_schedule_item.present? and employee_schedule_item.schedule.present?) : nil)
+                        schedule_att_out = (day_name.present? ? (employee_schedule_item.schedule["#{day_name}_out"] if employee_schedule_item.present? and employee_schedule_item.schedule.present?) : nil)
+                      %>
+                      <tr>
+                        <td><%= employee_schedule_item.date %></td>
+                        <td><%= day_name %></td>
+                        <td><%= employee_schedule_item.schedule.code if employee_schedule_item.schedule.present? %></td>
+                        <td><%= schedule_att_in.present? ? schedule_att_in.to_datetime.strftime("%H:%M:%S") : nil %></td>
+                        <td><%= schedule_att_out.present? ? schedule_att_out.to_datetime.strftime("%H:%M:%S") : nil %></td>
+                      </tr>
+                    <% end if @employee_schedule_items.present? %>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <%= link_to 'Back', employee_schedules_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

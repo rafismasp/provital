@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ERP - Provital Perdana</title>
+    <%= favicon_link_tag 'favicon.png', type: 'image/png' %>
+
+    <meta content="erp.tri-saudara.com" name="description" />
+    <meta content="IT Dept" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta content="#22262e" name="theme-color">
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= csrf_meta_tags %>
+  </head>
+
+  <body>
+
+    <% if user_signed_in? %>      
+      <%= render 'layouts/header' %>
+      <%= render 'layouts/leftbar' %>
+      <div id="content" data-uk-height-viewport="expand: true">
+        <%= yield %>
+      </div>
+      <%= render 'layouts/offcanvas' %>
+    <% else %>
+      <%= yield %>
+    <% end %>
+
+    <script type="text/javascript">
+
+      <% if alert.present? %>
+        UIkit.notification({
+          message: '<%= alert %>', status: 'warning', pos: 'bottom-right', timeout: 10000
+        });
+      <% end %>
+      <% if notice.present? %>
+        UIkit.notification({
+          message: "<%= notice.to_s.html_safe %>", status: 'success', pos: 'bottom-right', timeout: 10000
+        });
+      <% end %>
+    </script>
+  </body>
+</html>

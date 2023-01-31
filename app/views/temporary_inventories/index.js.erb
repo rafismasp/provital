@@ -1,0 +1,19 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_inventory_kind' %>
+	$('#inventory_part_name').html("<%= escape_javascript(render 'partial') %>");
+<% when 'stock_card' %>
+	<% if @inventory.present? %>
+		$('#content').html("<%= escape_javascript(render 'partial') %>");
+	<% else %>
+    UIkit.notification({
+      message: 'not found', status: 'warning', pos: 'bottom-right', timeout: 10000
+    });
+	<% end %>
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

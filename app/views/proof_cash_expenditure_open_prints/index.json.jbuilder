@@ -1,0 +1,1 @@
+json.array! @proof_cash_expenditure_open_prints, partial: "proof_cash_expenditure_open_prints/proof_cash_expenditure_open_print", as: :proof_cash_expenditure_open_print

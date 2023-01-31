@@ -1,0 +1,47 @@
+
+<%= form_with(model: employee_section, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if employee_section.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(employee_section.errors.count, "error") %> prohibited this employee_section from being saved:</h2>
+
+      <ul>
+      <% employee_section.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Department</div>
+      <div class="uk-width-1-2@m">
+        <%= form.select :department_id, options_for_select(@departments.map{|c| [c.name, c.id ]}, form.object.department_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-small" } if @departments.present? %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Code</div>
+      <div class="uk-width-1-5@m">
+        <%= form.text_field :code, id: :employee_section_code, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Name</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :name, id: :employee_section_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', employee_sections_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

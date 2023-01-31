@@ -1,0 +1,32 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Currency</th>
+          <th>Value</th>
+          <th colspan="2">Period</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @tax_rates.each do |tax_rate| %>
+          <tr uk-tooltip="title: <%= row_tooltip(tax_rate) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= tax_rate.currency.name if tax_rate.currency.present? %></td>
+            <td>Rp. <%= number_with_precision(tax_rate.currency_value, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td><%= tax_rate.begin_date %></td>
+            <td><%= tax_rate.end_date %></td>
+            <td><%= link_to 'Show', tax_rate %></td>
+            <td><%= link_to 'Edit', edit_tax_rate_path(tax_rate)%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

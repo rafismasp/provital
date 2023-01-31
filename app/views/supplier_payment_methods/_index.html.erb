@@ -1,0 +1,48 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    
+    <!-- panel -->
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto">
+              <%= link_to 'ADD', new_supplier_payment_method_path, class: "uk-button uk-button-primary uk-button-small" %>
+            </div>
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4><%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+              <thead class="bg-primary">
+                <tr>
+                  <th>#</th>
+                  <th>Nama</th>
+                  <th colspan="2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% c=0 %>
+                <% @supplier_payment_methods.each do |supplier_payment_method| %>
+                  <tr>
+                    <td><%= c+=1 %></td>
+                    <td class="uk-width-large"><%= supplier_payment_method.name %></td>
+                    <td class="uk-width-auto"><%= link_to 'Show', supplier_payment_method %></td>
+                    <td class="uk-width-auto"><%= link_to 'Edit', edit_supplier_payment_method_path(supplier_payment_method) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /panel -->
+
+  </div>
+  
+</div>

@@ -1,0 +1,48 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    
+    <!-- panel -->
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto">
+              <%= link_to 'ADD', new_unit_path, class: "uk-button uk-button-primary uk-button-small" %>
+            </div>
+            <div class="uk-width-auto"><h4><%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+              <thead class="bg-primary">
+                <tr>
+                  <th>#</th>
+                  <th>Nama</th>
+                  <th colspan="2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% c=0 %>        
+                <% @units.each do |unit| %>
+                  <tr>
+                    <td><%= c+= 1 %></td>
+                    <td class="uk-width-large"><%= unit.name %></td>
+                    <td class="uk-width-auto"><%= link_to 'Show', unit %></td>
+                    <td class="uk-width-auto"><%= link_to 'Edit', edit_unit_path(unit) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /panel -->
+
+  </div>
+  
+</div>

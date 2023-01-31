@@ -1,0 +1,22 @@
+<%= form_with(model: delivery_car, local: true) do |form| %>
+  <% if delivery_car.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(delivery_car.errors.count, "error") %> prohibited this delivery_car from being saved:</h2>
+
+      <ul>
+      <% delivery_car.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, id: :delivery_car_name %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

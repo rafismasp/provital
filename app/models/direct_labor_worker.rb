@@ -1,0 +1,2 @@
+class DirectLaborWorker < ApplicationRecord
+end

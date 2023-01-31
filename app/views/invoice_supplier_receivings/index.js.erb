@@ -1,0 +1,11 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_supplier' %>
+<% when 'add_item' %>
+	$('#item tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

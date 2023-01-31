@@ -1,0 +1,62 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_inventory_kind' %>  
+  <%= hidden_field_tag "#{params[:select_inventory_kind]}_id", nil, :class=>"#{params[:select_inventory_kind]}_id1 part", :prompt=>"--select--"%>
+  <%= render 'layouts/form_item', c: 1, field_name: "#{params[:select_inventory_kind]}_id", field_value: nil%>
+<% when 'stock_card' %>
+  <%= render 'form' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-animation-shake">                 
+    <thead class="bg-primary">
+      <tr>
+        <th>#</th>
+        <th>Periode</th>
+        <th>Part ID</th>
+        <th>Part Name</th>
+        <th>Unit</th>
+        <th>Begin stock</th>
+        <th>Trans in</th>
+        <th>Trans out</th>
+        <th>End stock</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @inventories.each do |inventory| %>
+        <% part = nil %>
+        <% select_inventory_kind = params[:select_inventory_kind] %>
+        <% if inventory.product.present? %>
+          <% part = inventory.product %>
+          <% select_inventory_kind = 'product_id' %>
+        <% elsif inventory.material.present? %>
+          <% part = inventory.material %>
+          <% select_inventory_kind = 'material_id' %>
+        <% elsif inventory.general.present? %>
+          <% part = inventory.general %>
+          <% select_inventory_kind = 'general_id' %>
+        <% elsif inventory.consumable.present? %>
+          <% part = inventory.consumable %>
+          <% select_inventory_kind = 'consumable_id' %>
+        <% elsif inventory.equipment.present? %>
+          <% part = inventory.equipment %>
+          <% select_inventory_kind = 'equipment_id' %>
+        <% end %>
+        <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td><%= Date::MONTHNAMES[inventory.periode.last(2).to_i] %> <%= inventory.periode.first(4) %></td>
+          <td><%= part.part_id if part.present? %></td>
+          <td><%= part.name if part.present? %></td>
+          <td><%= unit_name %></td>
+          <td class="uk-text-right"><%= number_with_precision(inventory.begin_stock, precision: ( inventory.begin_stock.to_f % 1 == 0 ? 0 : 2 ), delimiter: ".", separator: ",") %></td>
+          <td class="uk-text-right"><%= number_with_precision(inventory.trans_in, precision: ( inventory.trans_in.to_f % 1 == 0 ? 0 : 2 ), delimiter: ".", separator: ",") %></td>
+          <td class="uk-text-right"><%= number_with_precision(inventory.trans_out, precision: ( inventory.trans_out.to_f % 1 == 0 ? 0 : 2 ), delimiter: ".", separator: ",") %></td>
+          <td class="uk-text-right"><%= number_with_precision(inventory.end_stock, precision: ( inventory.end_stock.to_f % 1 == 0 ? 0 : 2 ), delimiter: ".", separator: ",") %></td>
+          <td><%= link_to 'Kartu Stock', temporary_inventory_path(:id=> inventory.id, :select_inventory_kind=> select_inventory_kind) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

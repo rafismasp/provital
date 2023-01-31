@@ -1,0 +1,216 @@
+<%= stylesheet_link_tag 'hrd' %>
+<%= form_with(model: employee_absence, local: true, class: "uk-form-horizontal", :job=>params[:job]) do |form| %>
+  <%= hidden_field_tag 'job', (params[:job]) %>
+  <% if employee_absence.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(employee_absence.errors.count, "error") %> prohibited this employee_absence from being saved:</h2>
+
+      <ul>
+      <% employee_absence.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">NAMA</div>
+            <div class="uk-width-1-3@m">
+              <% if params[:job]=='edit' %>
+                <%= text_field_tag 'employee_absence[employee_id]', (form.object.employee.present? ? form.object.employee.name : ""), :class=>"employee_id uk-input uk-form-width-medium uk-form-small", :disabled=>true %>
+              <% else %>
+                <%= hidden_field_tag "employee_absence[employee_id]", (form.object.employee.present? ? form.object.employee_id : ""), :class=>"employee_id uk-input uk-form-width-medium uk-form-small" %>
+                <%= render 'layouts/form_item', field_name: "employee_id", field_value: (form.object.employee.present? ? form.object.employee.name : ""), :disabled=>(params[:job]=='edit' ? true : false) %>
+              <% end %>
+            </div>
+            <div class="uk-width-1-6@m">NIK</div>
+            <div class="uk-width-1-3@m employee_nik">
+              <% if params[:job]=='edit' %>
+                <%= text_field_tag "employee_nik", (form.object.employee.present? ? form.object.employee.nik : ""), :class=>"uk-input uk-form-width-medium uk-form-small", :readonly=>true %>
+              <% else %>
+                <%= text_field_tag "employee_nik", (params[:employee_nik]), :class=>"uk-input uk-form-width-medium uk-form-small", :readonly=>true %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Type</div>
+            <div class="uk-width-expand@m">
+              <%= form.select :employee_absence_type_id, options_for_select(@absence_types.map{|c| [c.name, c.id, {:'max'=> c.max_day, :'special'=>c.special, :'attachment_required'=> c.attachment_required}]}, (params[:job]=="edit" ? form.object.employee_absence_type_id : nil)), {:include_blank=>'-- Select Presence Type --'}, {:class=> "uk-select uk-form-width-large uk-form-small select_absence_type", :required=>true, :onchange=> "select_absence_type(this, '"+params[:controller].to_s+"');" }  %>
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Date Begin</div>
+            <div class="uk-width-1-3@m">
+              <%= form.date_field :begin_date, id: :employee_absence_begin_date, :value=> (form.object.begin_date.present? ? form.object.begin_date : nil), :required=>true, :class=> "begin_date uk-input uk-form-small", :onchange=>"change_begin_date(this, '"+params[:controller].to_s+"');" %>
+            </div>
+            <div class="uk-width-1-6@m">Date End</div>
+            <div class="uk-width-1-3@m">
+              <%= form.date_field :end_date, id: :employee_absence_end_date, :value=> (form.object.end_date.present? ? form.object.end_date : nil), :required=>true, :class=> "end_date uk-input uk-form-small", :onchange=> "change_end_date(this, '"+params[:controller].to_s+"');" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Total Day</div>
+            <div class="uk-width-1-5@m total_day">
+              <%= text_field_tag "days", (params[:job]=='edit' ? "#{form.object.day} hari" :  params[:days]), :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true %>
+              <%= hidden_field_tag "employee_absence[day]", (form.object.day.present? ? form.object.day : 0), {:readonly=>true, :class=>"form-control input-sm"} %>
+            </div>
+            <div class="uk-width-1-4@m notif_max_day"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Note</div>
+            <div class="uk-width-3-4@m">
+              <%= form.text_area :description, id: :employee_absence_description, :class=> "uk-textarea uk-input uk-form-small", :rows=> 5 %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Attachment</div>
+            <div class="uk-width-1-3@m">
+              <table class="uk-table uk-table-striped">
+                <tbody>
+                  <tr>
+                    <td>
+                      <% form.file_field :file, :class=>'upload', :multiple=>true %>
+                      <% if params[:job]=="new"%>
+                        <%= file_field_tag 'file[][attachment]', accept: 'image/jpg, image/jpeg, image/png', :class=>"employee_absence_file", :multiple=>true, :required=>true, :style=>'display:none;' %>
+                      <% else %>
+                        <% if @employee_files.present? %>
+                          <%= hidden_field_tag "attachment", @employee_files.id %>
+                          <a target="_blank" href="/<%= @employee_files.path.gsub("public/", "") %>" class="uk-button uk-button-primary employee_file">Click To View</a> 
+                        <% end %> 
+                          <%= file_field_tag 'file[][attachment]', accept: 'image/jpg, image/jpeg, image/png', :class=>"employee_absence_file", :multiple=>true, :style=>(@employee_absence.employee_absence_type.attachment_required=='1' ? '' : 'display:none;') %>
+                      <% end %>
+                    </td>
+                  </tr>
+                </tbody> 
+              </table>  
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m" id="item">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">          
+          <tr>
+            <th class="uk-text-middle">No</th>  
+            <th class="uk-text-middle uk-text-center">Jenis Izin</th>
+            <th colspan="2" class="uk-text-middle uk-text-center">Periode</th>
+            <th class="uk-text-center">Jumlah Hari</th>
+          </tr>
+          <% c = 1%>
+          <% ct = izin = sakit = ci = 0 %>
+          <% case params[:job] %>
+          <% when 'edit' %>
+            <% if @absences.present? %>
+              <% @absences.each do |item| %>
+                <% libur = 0 %>
+
+                <% if libur == 0 %>
+                  <tr title="Keterangan: <%= item.description %>">
+                    <td><%=c%>.</td>
+                    <td><%=item.employee_absence_type.name if item.employee_absence_type_id.present?%></td>
+                    <td><%=item.begin_date%></td>
+                    <td><%=item.end_date%></td>
+                    <td align="right">
+                      <%= (item.end_date - item.begin_date).to_i+1 %>
+                    </td>
+                  </tr><% c+=1%><% ct += ((item.end_date - item.begin_date).to_i+1) %>
+                <% end %>
+              <% end  %>
+            <% end %>
+            <% @special_absences.each do |item| %>
+              <% libur = 0 %>
+
+              <% if libur == 0 %>
+                <tr title="Keterangan: <%= item.description %>">
+                  <td><%=c%>.</td>
+                  <td><%=item.employee_absence_type.name if item.employee_absence_type_id.present?%></td>
+                  <td><%=item.begin_date%></td>
+                  <td><%=item.end_date%></td>
+                  <td align="right"><%= (item.end_date - item.begin_date).to_i+1 %></td>
+                </tr><% c+=1%>
+
+                <% case item.employee_absence_type.code %>
+                <% when 'ITM' %>
+                  <% izin += (item.end_date - item.begin_date).to_i+1 %>
+                <% when 'IS' %>
+                  <% sakit += (item.end_date - item.begin_date).to_i+1 %>
+                <% else %>
+                  <% ci += (item.end_date - item.begin_date).to_i+1 %>
+                <% end %>
+              <% end %>
+            <% end if @special_absences.present? %>
+          <% end %>
+        </table>
+
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">          
+          <tr>
+            <th class="uk-text-middle">Cuti Terpakai</th>  
+            <th class="uk-text-middle uk-text-center">Sisa Cuti</th>
+            <th class="uk-text-middle uk-text-center">Izin</th>
+            <th class="uk-text-center">Sakit</th>
+            <th class="uk-text-center">Cuti Istimewa</th>
+          </tr>
+          <tr>
+            <% case params[:job] %>
+            <% when 'edit' %>
+              <td align="center" id="leave_total"><%= ct %></td>
+              <td align="center" id ="leave_os"><%= @os_leave %></td>
+              <td align="center" id="permit_total"><%= izin %></td>
+              <td align="center"><%= sakit %></td>
+              <td align="center"><%= ci %></td>
+            <% else %>
+              <td align="center" id="leave_total"><%= ct %></td>
+              <td align="center" id ="leave_os"><%= 0 %></td>
+              <td align="center" id="permit_total"><%= izin %></td>
+              <td align="center"><%= sakit %></td>
+              <td align="center"><%= ci %></td>
+            <% end %>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', employee_absences_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

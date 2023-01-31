@@ -1,0 +1,1 @@
+json.partial! "payment_request_suppliers/payment_request_supplier", payment_request_supplier: @payment_request_supplier

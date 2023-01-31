@@ -1,0 +1,231 @@
+
+<%= form_with(model: delivery_order, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if delivery_order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(delivery_order.errors.count, "error") %> prohibited this delivery_order from being saved:</h2>
+
+      <ul>
+      <% delivery_order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Customer</div>
+            <div class="uk-width-2-3@m">
+              <%= hidden_field_tag "delivery_order[customer_id]", (form.object.customer.present? ? form.object.customer_id : ""), :class=>"customer_id uk-input uk-form-width-medium uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "customer_id", field_value: (form.object.customer.present? ? form.object.customer.name : "") %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">DO Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :delivery_order_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :date, id: :delivery_order_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Remarks</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :remarks, id: :delivery_order_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Transforter</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :transforter_name, id: :delivery_order_transforter_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Vehicle number</div>
+            <div class="uk-width-1-2@m">
+              <%= form.text_field :vehicle_number, id: :delivery_order_vehicle_number, :class=> "uk-input uk-form-width-large uk-form-small", :placeholder=> "B 1234 FKB" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Driver Name</div>
+            <div class="uk-width-1-2@m">
+              <%= form.text_field :vehicle_driver_name, id: :delivery_order_vehicle_driver_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Picking Slip</div>
+            <div class="uk-width-1-3@m picking_slip_detail">
+              <% if @picking_slips.present? %>
+                <%= form.select :picking_slip_id, options_for_select(@picking_slips.map{|c| [c.number, c.id, {:sales_order_id=> c.sales_order_id, :po_number=> c.sales_order.po_number, :month_delivery=> c.sales_order.month_delivery} ]}, form.object.picking_slip_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small"}  %>
+              <% else %>
+                <%= text_field_tag "picking_slip_id", nil, {:disabled=> true, class: "uk-select uk-form-width-large uk-form-small"} %>
+              <% end %>
+            </div>
+            <div class="uk-width-1-4@m">
+              <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "change_picking_slip_id(this, '"+params[:controller].to_s+"');" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-2@m">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">PO Cus.</div>
+                <div class="uk-width-2-3@m">
+                  <%= form.hidden_field :sales_order_id, id: :delivery_order_sales_order_id, :class=> "uk-input uk-form-width-large uk-form-small sales_order_id" %>
+                  <%= text_field_tag "po_number", nil, {:class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true} %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-width-1-2@m">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <% select_year = form.object.sales_order.month_delivery.first(4) if form.object.sales_order.present? %>
+                  <% select_month = form.object.sales_order.month_delivery.last(2) if form.object.sales_order.present? %>
+                  <%= form.select :month_delivery_mm, [["", ''],["January", '01'], ["February", '02'], ["March", '03'], ["April", "04"], ["May", "05"], ["June", "06"], ["July", "07"], ["August", "08"], ["September", "09"], ["October", "10"], ["November", "11"], ["December", "12"]], {:selected=> select_month}, :class=> "uk-select uk-form-small", :disabled=> true %>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <%= form.select :month_delivery_yyyy, Date.today.year.. 3.years.from_now.year, {:selected=> select_year}, :class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Invoice Customer</div>
+            <div class="uk-width-1-3@m">
+              <%= text_field_tag :invoice_customer, (@delivery_order.invoice_customer.number if @delivery_order.invoice_customer.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">          
+          <tr>
+            <th>#</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Product Type</th>
+            <th>Batch Number</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @delivery_order_items.each do |delivery_order_item| %>
+            <%= hidden_field_tag 'delivery_order_item[][id]', delivery_order_item.id %>
+            <%= hidden_field_tag 'delivery_order_item[][sales_order_item_id]', delivery_order_item.sales_order_item_id %>
+            <%= hidden_field_tag 'delivery_order_item[][picking_slip_item_id]', delivery_order_item.picking_slip_item_id %>
+            <%= hidden_field_tag 'delivery_order_item[][product_id]', delivery_order_item.product_id %>
+            <tr>
+              <td class="counter"><%= c+=1%></td>
+              <td>
+                <%= text_field_tag 'part_id', delivery_order_item.product.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_name', delivery_order_item.product.name, {:class=>"part_name#{c} uk-input uk-form-width-medium uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'type_name', delivery_order_item.product.type_name, {:class=>"type_name#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'batch_number', (delivery_order_item.product_batch_number.present? ? delivery_order_item.product_batch_number.number : nil), {:class=>"part_model#{c} uk-input uk-form-width-small uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name',delivery_order_item.product.unit.name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+             
+              <td>
+                <%= number_field_tag 'delivery_order_item[][quantity]', delivery_order_item.quantity, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'delivery_order_item[][remarks]',delivery_order_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "delivery_order_item[][status]", options_for_select(['active','deleted'],
+                  delivery_order_item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @delivery_order_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', delivery_orders_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

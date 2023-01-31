@@ -1,0 +1,31 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+    <thead class="bg-primary">
+      <tr>
+        <th>#</th>
+        <th>Customer ID</th>
+        <th>Nama</th>
+        <th>PIC</th>
+        <th>E-mail</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @c = (@c.present? ? @c : 0) %>   
+      <% @customers.each do |customer| %>
+        <tr uk-tooltip="title: <%= row_tooltip(customer) %>; pos: top-left">
+          <td><%= @c+=1 %></td>
+          <td><%= customer.number %></td>
+          <td><%= customer.name %></td>
+          <td><%= CustomerContact.where(:customer_id=> customer.id).map { |e| [e.name] }.join(", ") %></td>
+          <td><%= CustomerContact.where(:customer_id=> customer.id).map { |e| [e.email] }.join(", ") %></td>
+          <td><%= link_to 'Show', customer %></td>
+          <td><%= link_to 'Edit', edit_customer_path(customer) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

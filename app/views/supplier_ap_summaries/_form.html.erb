@@ -1,0 +1,57 @@
+<%= form_tag('/supplier_ap_summaries', class: "uk-form-horizontal") do -%>
+
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="button-invoice-modal">
+          <a class='uk-button uk-button-primary uk-button-small' href='#invoice-sections' uk-toggle>Select Invoice</a>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m"></div>
+    </div>
+  </div>
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="record">
+    </table>
+  </div>
+
+  <div id="invoice-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">Invoice Suppliers</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>Index Number</td>
+          </tr>
+          <% c = 0 %>
+          <% @records.each do |record| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td><input class="uk-checkbox select_invoice_supplier_id" type="checkbox" invoice_supplier_id="<%= record.id %>"></td>
+              <td><%= record.index_number %></td>
+            </tr>
+          <% end if @records.present? %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_invoice_supplier_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', supplier_ap_summaries_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= submit_tag 'Save', class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end -%>

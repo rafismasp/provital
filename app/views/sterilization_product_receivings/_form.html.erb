@@ -1,0 +1,176 @@
+
+<%= form_with(model: sterilization_product_receiving, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if sterilization_product_receiving.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(sterilization_product_receiving.errors.count, "error") %> prohibited this sterilization_product_receiving from being saved:</h2>
+
+      <ul>
+      <% sterilization_product_receiving.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Number</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :number, id: :sterilization_product_receiving_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-6@m">Date</div>
+            <div class="uk-width-1-3@m">
+              <% if form.object.date.present? %>
+                <%= form.date_field :date, id: :sterilization_product_receiving_date, :value=> form.object.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true%>
+              <% else %>
+                <%= form.date_field :date, id: :sterilization_product_receiving_date, :value=> DateTime.now().strftime("%Y-%m-%d"), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">        
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">Remarks</div>
+          <div class="uk-width-4-5@m">
+            <%= form.text_field :remarks, id: :sterilization_product_receiving_remarks, :class=> "uk-input uk-form-width-large uk-form-small"%>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Customer</div>
+            <div class="uk-width-1-2@m">
+              
+              <%= hidden_field_tag "customer_id", (form.object.sales_order.present? ? form.object.sales_order.customer_id : ""), :class=>"customer_id uk-input uk-form-small" %>
+              <%= render 'layouts/form_item', c: nil, field_name: "customer_id", field_value: (form.object.sales_order.present? ? form.object.sales_order.customer.name : ""), kind: params[:q] %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">PO</div>
+            <div class="uk-width-auto">
+              
+              <% if @sales_orders.present? %>
+                <%= form.select :sales_order_id, options_for_select(@sales_orders.map{|c| [c.po_number, c.id ]}, form.object.sales_order_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small", :onchange=> "$('#add_item_sfo').attr('sales_order_id',$(this).find(':selected').val());"} %>
+                <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "change_sales_order_id(this, '"+params[:controller].to_s+"');" %>
+              <% else %>
+                Tidak ada PO Sterilisasi!
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Product Name</th>
+            <th>Product Code</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Batch number</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @sterilization_product_receiving_items.each do |sterilization_product_receiving_item| %>
+            <%= hidden_field_tag 'sterilization_product_receiving_item[][id]', sterilization_product_receiving_item.id %>
+            <%= hidden_field_tag 'sterilization_product_receiving_item[][product_id]', sterilization_product_receiving_item.product_id %>
+            <% part = nil %>
+            <% if sterilization_product_receiving_item.product.present? %>
+              <% part = sterilization_product_receiving_item.product %>
+            <% end %>
+            <% unit_name = (part.present? ? (part.unit.present? ? part.unit.name : nil) : nil) %>
+
+            <% if sterilization_product_receiving_item.edit_quantity == true %>
+              <tr>
+                <td class="counter uk-text-right"><%= c+=1%></td>
+                <td>
+
+                  <%#= hidden_field_tag "sterilization_product_receiving_item[][product_id]", sterilization_product_receiving_item.product_id, :class=>"product_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                  <%#= render 'layouts/form_item', c: c, field_name: "product_id", field_value: (sterilization_product_receiving_item.product.present? ? sterilization_product_receiving_item.product.name : nil) %>
+                  <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+
+                </td>
+               <td>
+                  <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+                </td>
+               
+                <td>
+                  <% if sterilization_product_receiving_item.quantity == sterilization_product_receiving_item.outstanding %>
+                    <%= number_field_tag 'sterilization_product_receiving_item[][quantity]', sterilization_product_receiving_item.quantity, {:placeholder=> 'quantity', :max=> sterilization_product_receiving_item.sales_order_item.outstanding_sterilization_product_receivings, :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+                  <% else %>
+                    <%= number_field_tag 'quantity', sterilization_product_receiving_item.quantity, {:class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true, :title=> "Tidak bisa diedit, SFO Sterilization External sudah dibuat"} %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= text_field_tag 'batch_number', @product_batch_number.where(:sterilization_product_receiving_item_id=> sterilization_product_receiving_item.id).map { |e| e.number }, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'sterilization_product_receiving_item[][remarks]',sterilization_product_receiving_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+                </td>
+                <td>
+                  <%= select_tag "sterilization_product_receiving_item[][status]", options_for_select(['active','deleted'],
+                    sterilization_product_receiving_item.status) , { :class=>'uk-select uk-form-small'} %>
+                </td>
+              </tr>
+            <% else %>
+              <tr title="sudah dibuatkan dokumen Semi Finish Good Receiving Notes">
+                <td class="counter uk-text-right"><%= c+=1%></td>
+                <td><%= part.name if part.present? %></td>
+                <td><%= part.part_id if part.present? %></td>
+                <td><%= part.unit_name if part.present? %></td>
+                <td class="uk-text-right">
+                  <%= number_with_precision(sterilization_product_receiving_item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+                </td>
+
+                <td>
+                  <%= @product_batch_number.where(:sterilization_product_receiving_item_id=> sterilization_product_receiving_item.id).map { |e| e.number }.join(", ") %>
+                </td>
+                <td><%= sterilization_product_receiving_item.remarks %></td>
+                <td></td>
+              </tr>
+            <% end %>
+          <% end if @sterilization_product_receiving_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', sterilization_product_receivings_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

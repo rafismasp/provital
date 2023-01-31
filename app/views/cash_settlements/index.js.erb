@@ -1,0 +1,71 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_bon' %>
+    $('.add_bon .uk-modal-body').html("<%= escape_javascript(render 'partial') %>");
+    UIkit.modal('.add_bon').show();
+<% when 'load_bon' %>
+
+  <% if params[:bon_count].to_i == 1 %>
+    $('.tbody_item').html("<%= escape_javascript(render 'partial') %>");
+  <% else %>
+    $('.tbody_item tr:last').after("<%= escape_javascript(render 'partial') %>");
+  <% end %>
+
+  if($(".files_base64").val() != ""){
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .bon_files").attr('base64',$(".files_base64").val())
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .save_bon_file").val($(".files_base64").val())
+  }else{
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .bon_files").remove()
+    $(".tbody_item tr[bon_count=<%= params[:bon_count] %>] .save_bon_file").remove()
+  }
+
+  var total_val = 0;
+  $(".tbody_item tr").each(function(index, tr){
+      if(typeof $(tr).find('#record_item__status').val() !== "undefined"){
+        if($(tr).find('#record_item__status').val()=="active"){
+          if(typeof $(tr).find('#record_item__amount').val() !== "undefined"){
+            total_val += parseFloat($(tr).find('#record_item__amount').val()) 
+          }
+        }
+      }
+
+    if(typeof $(tr).find('#cash_settlement_item__amount').val() !== "undefined"){
+      total_val += parseFloat($(tr).find('#cash_settlement_item__amount').val()) 
+    }
+  });
+  // alert(total_val)
+
+  $("#cash_settlement_expenditure_total").val(total_val);
+  $("#show_expenditure_total").val(Number((total_val).toFixed(2)).toLocaleString('id-ID'));
+
+  var settlement = Number($("#cash_settlement_expenditure_total").val())
+
+  if($("#cash_settlement_settlement_total").val()!=""){
+    var bon = Number($("#cash_settlement_settlement_total").val())
+    $("#cash_settlement_advantage").val(bon-settlement)
+    $("#show_advantage").val(Number((bon-settlement).toFixed(2)).toLocaleString('id-ID'))
+  }else{
+    $("#cash_settlement_advantage").val(0-settlement)
+    $("#show_advantage").val(Number((0-settlement).toFixed(2)).toLocaleString('id-ID'))
+  }
+
+  UIkit.modal('.add_bon').hide();
+<% when 'add_new_item' %>
+  <% if params[:count].to_i == 1 %>
+    $('.new_tbody_item').html("<%= escape_javascript(render 'partial') %>");
+  <% else %>
+    $('.new_tbody_item tr:last').after("<%= escape_javascript(render 'partial') %>");
+  <% end %>
+<% when 'select_routine_cost' %>
+  $('.tbody_item').html("<%= escape_javascript(render 'partial') %>");
+  routine_price_change()
+<% when 'change_department' %>
+  $('.cash_submission_form').html("<%= escape_javascript(render 'partial') %>");
+
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

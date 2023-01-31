@@ -1,0 +1,169 @@
+
+  <%= form_with(model: customer, local: true, class: "uk-form-horizontal") do |form| %>
+    <% if customer.errors.any? %>
+      <% alert = "<h4> #{pluralize(customer.errors.count, 'error')} prohibited this customer from being saved:</h4>" %>
+      <% alert += "<ul>" %>
+      <% customer.errors.full_messages.each do |message| %>
+        <% alert += "<li>#{message}</li>" %>
+      <% end %>
+      <% alert += "</ul>" %>
+
+      <script type="text/javascript">
+        UIkit.notification({
+          message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+        });
+      </script>
+    <% end %>
+
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-4@m">Name</div>
+        <div class="uk-width-3-4@m">
+          <%= form.text_field :name, id: :customer_name, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+        </div>
+      </div>
+    </div>
+
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-4@m">Number</div>
+        <div class="uk-width-1-4@m">
+          <%= form.text_field :number, id: :customer_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true %>
+        </div>
+      </div>
+    </div>
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-4@m">Currency</div>
+        <div class="uk-width-1-4@m">
+          <%= form.select :currency_id, options_for_select(@currencies.map{|c| [c.name, c.id ]}, form.object.currency_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-medium uk-form-small", :required=> true} if @currencies.present? %>
+        </div>
+      </div>
+    </div>
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-4@m">Terms of Payment</div>
+        <div class="uk-width-1-2@m">  
+          <div class="uk-flex">
+            <%= form.number_field :top_day, id: :customer_top_day, :class=> "uk-input uk-form-small", :style=> "width: 50px;" %>
+            <%= form.select :term_of_payment_id, options_for_select(@term_of_payments.map{|c| [c.name, c.id ]}, form.object.term_of_payment_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small"} if @term_of_payments.present? %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-4@m">Inv.Numbering</div>
+        <div class="uk-width-1-3@m">
+          <%= form.select :invoice_numbering_period, options_for_select( ['daily','3 day','weekly','2 week','monthly','delivery','po'], form.object.invoice_numbering_period), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small"} %>
+          
+        </div>
+      </div>
+    </div>
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-4@m">Type of Tax</div>
+        <div class="uk-width-1-2@m select_taxes">
+          <%= form.select :tax_id, options_for_select(@taxes.map{|c| [c.name, c.id ]}, form.object.tax_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-small"} if @taxes.present? %>
+        </div>
+      </div>
+    </div>
+    <div class="uk-margin-small">
+      <div class="uk-grid">
+        <div class="uk-width-1-4@m">Status</div>
+        <div class="uk-width-1-4@m">
+          <%= form.select :status, options_for_select( ['active','suspend'], form.object.status), {:prompt => " -- select -- "}, {class: "uk-select uk-form-small"} %>
+          
+        </div>
+      </div>
+    </div>
+    <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+      <li class="uk-active"><a href="#">Contact</a></li>
+      <li><a href="#">Address</a></li>
+    </ul>
+    <ul id="tab-content" class="uk-switcher">
+      <li>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Name</div>
+            <div class="uk-width-3-4@m">   
+              <%= text_field_tag "customer_contact[name]", (@customer_contact.name if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Telepon</div>
+            <div class="uk-width-3-4@m">   
+              <%= text_field_tag "customer_contact[telephone]", (@customer_contact.telephone if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Fax</div>
+            <div class="uk-width-3-4@m"> 
+              <%= text_field_tag "customer_contact[fax]", (@customer_contact.fax if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">E-mail</div>
+            <div class="uk-width-3-4@m">  
+              <%= email_field_tag "customer_contact[email]", (@customer_contact.email if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Webiste</div>
+            <div class="uk-width-3-4@m">  
+              <%= text_field_tag "customer_contact[website]", (@customer_contact.website if @customer_contact.present?), :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>    
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Office</div>
+            <div class="uk-width-3-4@m">   
+              <%= text_area_tag "customer_address[office]", (@customer_address.office if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">tax invoice</div>
+            <div class="uk-width-3-4@m"> 
+              <%= text_area_tag "customer_address[tax_invoice]", (@customer_address.tax_invoice if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Delivery 1</div>
+            <div class="uk-width-3-4@m"> 
+              <%= text_area_tag "customer_address[delivery1]", (@customer_address.delivery1 if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Delivery 2</div>
+            <div class="uk-width-3-4@m">
+              <%= text_area_tag "customer_address[delivery2]", (@customer_address.delivery2 if @customer_address.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :rows=> 3 %>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <hr>
+    <p uk-margin>
+      <%= link_to 'Back', customers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+      <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+    </p>
+
+  <% end %>

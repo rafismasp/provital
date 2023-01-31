@@ -1,0 +1,8 @@
+<% case params[:partial] %>
+<% when 'change_employee' %>
+	$('.employee_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_internship' %>
+	$('.intership_detail').html("<%= escape_javascript(render 'partial') %>");
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

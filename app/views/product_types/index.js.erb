@@ -1,0 +1,12 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when "change_product_category" %>
+	$(".product_sub_category").html("<%= escape_javascript(render 'partial') %>");
+	$(".product_code").html("<input class='uk-input uk-form-small' disabled>");
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

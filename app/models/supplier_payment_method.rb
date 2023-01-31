@@ -1,0 +1,2 @@
+class SupplierPaymentMethod < ApplicationRecord
+end

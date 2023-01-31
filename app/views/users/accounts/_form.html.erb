@@ -1,0 +1,111 @@
+
+<%= form_with(url: "/update-user/#{@user.id}", multipart: true, class: "uk-form-horizontal") do %>
+	
+  <%= hidden_field_tag :id, @user.id, :class=> "uk-input uk-form-width-large uk-form-small" %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user_accounts from being saved:</h2>
+
+      <ul>
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end if @user.present? %>
+
+  <div class=" uk-margin-small">
+    <div class="uk-width-1-4@l">
+      <% if @user.avatar.url.present? %>
+        <%= image_tag(@user.avatar.url, :width=>"100px") %>
+      <% end if @user.avatar.present? %>
+    </div>
+    <div class="uk-width-1-2@l">
+      <%= file_field_tag "user[avatar]", :class=> "form-control" %>
+      <%= hidden_field_tag "user[avatar_cache]" %>
+      <% if @user.avatar.url.present? %>
+        <hr>
+        <%= label_tag :remove_avatar do %>
+          <%= check_box_tag "user[remove_avatar]", @user.remove_avatar %> Remove
+        <% end %>
+      <% end if @user.avatar.present? %>
+    </div>
+  </div>
+
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">email</div>
+      <div class="uk-width-1-3@m">
+        <%= text_field_tag "user[email]", @user.email, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+  <div class=" uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">username</div>
+      <div class="uk-width-1-3@m">
+        <%= text_field_tag "user[username]", @user.username, :class=> "uk-input uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+  <div class=" uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">First Name</div>
+      <div class="uk-width-1-3@m">
+        <%= text_field_tag "user[first_name]", @user.first_name, :class=> "uk-input uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+	<div class=" uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Last Name</div>
+      <div class="uk-width-1-3@m">
+        <%= text_field_tag "user[last_name]", @user.last_name, :class=> "uk-input uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Company</div>
+      <div class="uk-width-1-3@m">
+        <%= select_tag "user[company_profile_id]", options_for_select(@company_profiles.map { |e| [e.name, e.id] }, @user.company_profile_id), :class=>"uk-select uk-form-small", :prompt=>"--select--"%>
+      </div>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Department</div>
+      <div class="uk-width-1-3@m">
+        <%= select_tag "user[department_id]", options_for_select(Department.all.map { |e| [e.name, e.id] }, @user.department_id), :class=>"uk-select uk-form-small", :prompt=>"--select--",
+                  :onchange=> "change_department(this, 'edit-user/"+@user.id.to_s+"');"%>
+      </div>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Section</div>
+      <div class="uk-width-1-3@m select_section">
+        <%= select_tag "user[employee_section_id]", options_for_select(@sections.map { |e| [e.name, e.id] }, @user.employee_section_id), :class=>"uk-select uk-form-small", :prompt=>"--select--"%>
+      </div>
+    </div>
+  </div>
+
+  <div class=" uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">status</div>
+      <div class="uk-width-1-3@m">
+				<%= select_tag "user[status]", options_for_select([['active'],['suspend']], @user.status), :class=>"uk-select uk-form-small", :prompt=>"--select--"%>
+			</div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', users_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= submit_tag "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

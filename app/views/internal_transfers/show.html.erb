@@ -1,0 +1,150 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', internal_transfers_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-2@m">
+					        <div class="uk-margin-small">
+					          <div class="uk-grid">
+					            <div class="uk-width-1-6@m">Number</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= text_field_tag :number, @internal_transfer.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					            <div class="uk-width-1-6@m">Date</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= date_field_tag :date, @internal_transfer.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					          </div>
+					        </div>
+					        <div class="uk-margin-small">
+					          <div class="uk-grid">
+					            <div class="uk-width-1-6@m">From</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= text_field_tag :transfer_from, @internal_transfer.transfer_from, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					            <div class="uk-width-1-6@m">To</div>
+					            <div class="uk-width-1-3@m">
+                  			<%= text_field_tag :transfer_to, @internal_transfer.transfer_to, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+					            </div>
+					          </div>
+					        </div>
+					      </div>
+					      <div class="uk-width-1-2@m">
+					        <div class="uk-grid">
+					          <div class="uk-width-1-6@m">Kind</div>
+					          <div class="uk-width-1-3@m">
+                  		<%= text_field_tag :transfer_kind, @internal_transfer.transfer_kind, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+					          </div>
+					        </div>
+					      </div>
+					    </div>
+					  </div>
+
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-1@m">
+					        <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+					          <tr>
+					            <th>#</th>
+					            <th>Part Name</th>
+					            <th>Internal Part ID</th>
+					            <th>Model</th>
+					            <th>Unit</th>
+					            <th>Quantity</th>
+					            <th>Remarks</th>
+					            <th>Remove</th>
+					          </tr>
+					          <% c=0 %>
+					          
+					          <% @internal_transfer_items.each do |internal_transfer_item| %>
+					          	<% part = nil %>
+						          <% if internal_transfer_item.product.present? %>
+						          	<% part = internal_transfer_item.product %>
+						          <% elsif internal_transfer_item.material.present? %>
+						          	<% part = internal_transfer_item.material %>
+						          <% end %>
+						          <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+					            
+					            <tr>
+					              <td class="counter"><%= c+=1%></td>
+					              <td>
+					                <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"uk-input uk-form-width-large uk-form-small", :disabled=> true} %>
+					              </td>
+					              <td>
+					                <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+					              </td>
+					              <td>
+					                <%= text_field_tag 'part_model', (part.present? ? part.part_model : nil), {:class=>"uk-input uk-form-small", :disabled=> true} %>
+					              </td>
+					              <td>
+					                <%= text_field_tag 'unit_name', unit_name, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+					              </td>
+					              <td>
+					                <%= text_field_tag 'quantity', internal_transfer_item.quantity, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+					              </td>
+					              <td>
+					                <%= text_field_tag 'remarks', internal_transfer_item.remarks, {:class=>"uk-input uk-form-small", :disabled=> true} %>
+					              </td>
+					            </tr>
+					          <% end if @internal_transfer_items.present? %>
+					        </table>
+					      </div>
+					    </div>
+					  </div>
+					  <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                	<% case @internal_transfer.status %>
+			            <% when 'new','canceled' %>
+			              <%= link_to approve_internal_transfer_path(@internal_transfer), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved. Proced?' } do %>
+			                <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve</button>
+			              <% end %>
+			            <% when 'approved' %>
+			              <%= link_to approve_internal_transfer_path(@internal_transfer), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+			                <button type="button" class="uk-button uk-button-secondary uk-button-small">Cancel Approve</button>
+			              <% end %>
+			            <% end %>
+
+			            <% case @internal_transfer.status %>
+			            <% when 'approved' %>
+			              <%= link_to print_internal_transfer_path(@internal_transfer), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+			                <button type="button" class="uk-button uk-button-primary uk-button-small">Print</button>
+			              <% end %>
+	                  <%= link_to 'Back', internal_transfers_path(
+	                  	:q=> @internal_transfer.transfer_kind, 
+	                  	:q1=> @internal_transfer.transfer_from, 
+	                  	:q2=> @internal_transfer.transfer_to
+	                  		), class: "uk-button uk-button-secondary uk-button-small" %>
+			            <% else %>
+	                  <%= link_to 'Back', internal_transfers_path(
+	                  	:q=> @internal_transfer.transfer_kind, 
+	                  	:q1=> @internal_transfer.transfer_from, 
+	                  	:q2=> @internal_transfer.transfer_to
+	                  		), class: "uk-button uk-button-secondary uk-button-small" %>
+	                  <%= link_to 'Edit', edit_internal_transfer_path(@internal_transfer, :q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-primary uk-button-small" %>
+			            <% end %>    
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

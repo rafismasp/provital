@@ -1,0 +1,179 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "add_item" %>
+  <tr id="trid<%= params[:c] %>" row_id="<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-left'><%= params[:c] %></td>
+    <td>
+      <%= text_field_tag 'new_record_item[][cost_type]',nil, {:class=>"cost_type#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-left", :required=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][coa_number]',nil, {:class=>"coa_number#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-left", :required=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][cost_detail]',nil, {:class=>"cost_detail#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-left", :required=> true} %>
+    </td>
+    <!-- <td>
+      <%#= text_field_tag 'new_record_item[][cost_for]',nil, {:class=>"cost_for#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-left", :required=> true} %>
+    </td> -->
+    <td>
+      <%#= number_field_tag 'new_record_item[][nominal]',0, { :class=>"amount#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-right nominal_td", :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')", :required=> true} %>
+      <%= text_field_tag 'new_record_item[][nominal]',0, { :class=>"amount#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-right nominal_td", :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')", :required=> true} %>
+    </td>
+    <td align='center' width=30px>
+      <%= link_to "", 'javascript:;', { :onclick=>"remove_row('#{params[:c]}','#{params[:controller].to_s}')", :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+<% when "change_bpk" %>
+  <% case field %>
+  <% when 'modal_bpk_list' %>
+    <!-- load process -->
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_bpk_lists">  
+      <tr>
+        <td>#</td>
+        <td class="uk-text-middle">Checked All</br><input class="select_bpk_list" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="cek_all_petty('<%= params[:controller].to_s %>')" id="checked_all_pettycash" value="" aria-label="checkall"></td>
+        <td>No. List Rutin</td>
+        <td>Tanggal</td>
+        <td>Jumlah</td>
+      </tr>
+      <% c = 0 %>
+      <% @bpk_lists.each do |rr| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td><input class="uk-checkbox select_bpk_list" type="checkbox" bpk_list="<%= rr.id %>"></td>
+          <td><%= rr.number %></td>
+          <td><%= rr.date %></td>
+          <td><%= rr.try(:grand_total) ? rr.grand_total : rr.expenditure_total %></td>
+        </tr>
+      <% end if @bpk_lists.present? %>
+    </table>
+  <% end %>
+<% when 'load_bpk_list' %>
+  <% c=1 %>
+  <% if @bpk_items.present? %>
+  <% @bpk_items.each do |bpk_item| %>
+      <tr trid="<%= c %>" row_id="<%= params[:c] %>" amount="<%= bpk_item.try(:nominal) ? bpk_item.nominal : nil %>" valign=top>
+        <td class="counter">
+          <%= c %>.
+          <%= hidden_field_tag "new_record_item[][id]", nil %>
+          <%= hidden_field_tag "new_record_item[][deleted]", nil %>
+          <%= hidden_field_tag "new_record_item[][routine_cost_payment_id]", (bpk_item.routine_cost_payment_id if bpk_item.class.table_name == "routine_cost_payment_items") %>
+          <%= hidden_field_tag "new_record_item[][proof_cash_expenditure_id]", (bpk_item.proof_cash_expenditure_id if bpk_item.class.table_name == "proof_cash_expenditure_items") %>
+          <%= hidden_field_tag "new_record_item[][cash_settlement_id]", (bpk_item.cash_settlement_id if bpk_item.class.table_name == "cash_settlement_items") %>
+          <%= hidden_field_tag "new_record_item[][routine_cost_payment_item_id]", (bpk_item.id if bpk_item.class.table_name == "routine_cost_payment_items")%>
+          <%= hidden_field_tag "new_record_item[][proof_cash_expenditure_item_id]", (bpk_item.id if bpk_item.class.table_name == "proof_cash_expenditure_items")%>
+          <%= hidden_field_tag "new_record_item[][cash_settlement_item_id]", (bpk_item.id if bpk_item.class.table_name == "cash_settlement_items")%>
+        </td>
+        <td>
+          <% nominal_total = cost_type = coa_number = cost_detail = nil %>
+          <% case bpk_item.class.table_name %>
+          <% when 'routine_cost_payment_items' %>
+            <% bpk_header = bpk_item.routine_cost_payment %>
+            <% nominal_total = bpk_item.amount %>
+            <% cost_type = bpk_item.coa_name %>
+            <% coa_number = bpk_item.coa_number %>
+          <% when 'proof_cash_expenditure_items' %>
+            <% bpk_header = bpk_item.proof_cash_expenditure %>
+            <% nominal_total = bpk_item.nominal %>
+            <% cost_type = bpk_item.type_cost %>
+            <% coa_number = bpk_item.no_coa %>
+            <% cost_detail = bpk_item.remarks %>
+          <% when 'cash_settlement_items' %>
+            <% bpk_header = bpk_item.cash_settlement %>
+            <% nominal_total = bpk_item.amount %>
+            <% cost_type = bpk_item.payment_type %>
+            <% cost_detail = bpk_item.description %>
+          <% end %>
+          <%= bpk_header.department.name if bpk_header.present? %>
+        </td>
+        <td>
+
+          <% case bpk_item.class.table_name %>
+          <% when 'routine_cost_payment_items' %>
+            <%= link_to "#{bpk_header.number}", routine_cost_payment_path(:id=> bpk_header.id), :target=> "_blank" if bpk_header.present? %>
+          <% when 'proof_cash_expenditure_items' %>
+            <%= link_to "#{bpk_header.number}", proof_cash_expenditure_path(:id=> bpk_header.id), :target=> "_blank" if bpk_header.present? %>
+          <% when 'cash_settlement_items' %>
+            <%= link_to "#{bpk_header.number}", cash_settlement_path(:id=> bpk_header.id), :target=> "_blank" if bpk_header.present? %>
+          <% end %>
+
+        </td>
+        <td>
+          <%= text_field_tag "new_record_item[][cost_type]", cost_type, {:class=> "uk-input uk-form-width-auto uk-form-small cost_type_td"} %>
+        </td>
+        <td>
+          <%= text_field_tag "new_record_item[][coa_number]", coa_number, {:class=> "uk-input uk-form-width-auto uk-form-small coa_number_td"} %>
+        </td>
+        <td>
+          <%= text_field_tag "new_record_item[][cost_detail]", cost_detail, {:class=> "uk-input uk-form-width-auto uk-form-small cost_detail_td", :readonly=>true} %>
+        </td>
+        <!-- <td>
+          <%#= text_field_tag "new_record_item[][cost_for]", (bpk_item.try(:cost_for) ? bpk_item.cost_for : nil), {:class=> "uk-input uk-form-width-auto uk-form-small cost_for_td"} %>
+        </td> -->
+        <td>
+          <%= text_field_tag "new_record_item[][nominal]", number_with_precision(nominal_total.to_f, precision: 2, delimiter: ".", separator: ","), {:class=> "uk-input uk-form-width-auto uk-form-small uk-text-right nominal_td", :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')", :readonly=>true} %>
+        </td>
+      </tr>
+      <% c+= 1%>
+    <% end %>
+  <% else %>
+    <tr>
+      <td colspan="10">Tidak ada Data!</td>
+    </tr>
+  <% end %>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+
+  <% else %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>
+              <input class="select-all" type="checkbox" style="margin-left: 10px;margin-right: 10px;"onchange="app3_multiple_select_all('<%= params[:controller].to_s %>')" id="checkboxNoLabel" value="" aria-label="checkall">
+              <%= link_to approve_voucher_payment_path(0, :status=> 'approve3'), method: :put, :class=>"app3click", data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+              <% end %> 
+            </th>
+            <th>Status</th>
+            <th>No. Voucher</th>
+            <th>Nama Penerima</th>
+            <th>Tanggal</th>
+            <th class="uk-text-center">Tanggal Pembayaran</th>
+            <th>Amount</th>
+            <th class="uk-text-center">Jenis Voucher</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @voucher_payments.each do |voucher_payment| %>
+            <tr uk-tooltip="title: <%= row_tooltip(voucher_payment) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td align="left" style="vertical-align: middle;">
+                <% case voucher_payment.status %>
+                <% when "approved2","canceled3" %>
+                  <input type='checkbox'onchange="app3_multiple_select('<%= params[:controller].to_s %>')" class='form-check-input approve_cek' id='approve_cek<%=@c%>' record_id="<%= voucher_payment.id %>" trid="<%=@c%>">
+                <% else %>
+                -
+                <% end %>
+              </td>
+              <td><%= voucher_payment.status %></td>
+              <td><%= voucher_payment.number %></td>
+              <td><%= voucher_payment.list_external_bank_account.name_account if voucher_payment.list_external_bank_account.present? %></td>
+              <td><%= voucher_payment.date %></td>
+              <td class="uk-text-center"><%= voucher_payment.payment_date %></td>
+              <td class="uk-text-right"><%= number_with_precision(voucher_payment.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+              <td class="uk-text-center"><%= voucher_payment.kind %></td>
+              <!-- <td><%#= link_to 'Show', voucher_payment %></td> -->
+              <td><%= link_to 'Show', voucher_payment_path(:id=> voucher_payment.id, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+              <td><%= link_to 'Edit', edit_voucher_payment_path(voucher_payment, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value])%></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% end %>
+<% end %>

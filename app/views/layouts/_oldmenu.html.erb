@@ -1,0 +1,46 @@
+
+<ul class="uk-nav uk-nav-default uk-nav-parent-icon" data-uk-nav>
+	
+	<li class="uk-background-secondary uk-active">
+    <a href="/">
+			<span class="uk-margin-small-right" data-uk-icon="icon: home"></span>Dashboards
+		</a>
+	</li>
+
+	<% permissons = PermissionBase.where(:id => UserPermission.where(:company_profile_id=> current_user.company_profile_id, :user_id=> current_user.id, :access_view=> 1).select(:permission_base_id), :status=> 'active') %>
+	<% if permissons.present? %>
+		<% permissons.where(:parent_id=> nil).order("list_order asc").each do |pb| %>					
+			<li class="uk-parent">
+		    <a href="javascript:;">
+					<span class="uk-margin-small-right <%= pb.icon %>"></span><%= pb.name %>
+				</a>
+				<ul class="uk-nav-sub">				
+		    	<% permissons.where(:parent_id=> pb.id).order("list_order asc").each do |pb_child1| %>
+						<li>
+		        	<% child2 = permissons.where(:parent_id=> pb_child1.id) %>
+		    			<%= link_to "#{pb_child1.link}#{pb_child1.link_param}", :remote=> true do %>
+		    				<%= pb_child1.name %>
+		  				<% end %>
+							<ul>		
+		    				<% child2.order("list_order asc").each do |pb_child2| %>
+									<li>
+			        			<%= link_to "#{pb_child2.link}#{pb_child2.link_param}", :remote=> true do %>
+				    					<%= pb_child2.name %>
+				    				<% end %>
+				    			</li>
+				    		<% end if child2.present? %>
+				    	</ul>
+						</li>
+		    	<% end %>
+				</ul>
+			</li>
+		<% end %>
+	<% else %>				
+		<li>
+	    <a href="javascript:;">
+				no access without permission
+			</a>
+		</li>
+	<% end %>
+
+</ul>

@@ -1,0 +1,130 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'load_payment_supplier' %>
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-bordered uk-table-divider" id="item">          
+      <tr>
+        <th>#</th>
+        <th>No.Voucher Payment</th>
+        <th>Nama Supplier</th>
+        <th>Nama Rekening</th>
+        <th>Nama Bank</th>
+        <th>Nomor Rekening</th>
+        <th>Amount</th>
+        <th>By Transfer</th>
+      </tr><%c=0 %>
+      <% @vp_lists.each do |vp| %>
+        <!-- 20220316 - Danny -->
+        <% case vp.class.table_name %>
+        <% when 'payment_suppliers' %>
+          <% grand_total = vp.grandtotal %>
+          <% supplier_banks = vp.supplier.supplier_banks if vp.supplier.present? %>
+          <% supplier_name = vp.supplier.name if vp.supplier.present? %>
+          <% supplier_bank_account_name = supplier_banks.first.account_holder if supplier_banks.present? %>
+          <% supplier_bank_name = supplier_banks.first.name if supplier_banks.present? %>
+          <% supplier_bank_number = supplier_banks.first.account_number if supplier_banks.present? %>
+        <% when 'voucher_payments' %>
+          <% grand_total = vp.grand_total %>
+          <% supplier_name = vp.list_external_bank_account.name_account %>
+          <% supplier_bank_account_name = vp.list_external_bank_account.name_account %>
+          <% supplier_bank_name = vp.list_external_bank_account.dom_bank.bank_name %>
+          <% supplier_bank_number = vp.list_external_bank_account.number_account %>
+        <% end %>
+        <tr>
+          <td><%= c+=1 %>
+            <%= hidden_field_tag "new_record_item[][payment_supplier_id]", (vp.id if vp.class.table_name == "payment_suppliers") %>
+            <%= hidden_field_tag "new_record_item[][voucher_payment_id]", (vp.id if vp.class.table_name == "voucher_payments") %>
+            <%= hidden_field_tag "new_record_item[][supplier_bank_id]", (supplier_banks.present? ? supplier_banks.first.id : nil) %>
+          </td>
+          <td><%= vp.number %></td>
+          <td>
+            <%= supplier_name %>
+            </td>
+          <td>
+            <%= supplier_bank_account_name %>
+            </td>
+          <td>
+            <%= supplier_bank_name %>
+          </td>
+          <td>
+            <%= supplier_bank_number %>
+            </td>
+          <td class="vp_sum_amount" grand_total="<%= grand_total %>" align="right">
+          <%= number_with_precision(grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+          <td><%= select_tag "template_bank_item[][by_transfer]", options_for_select([["BEN"],["OUR"]]), {:include_blank=>'-- Pilih --', :class=> 'uk-input uk-form-width-small uk-form-small by_transfer', :required=>true}%></td>
+        </tr>
+      <% end if @vp_lists.present? %>
+    </table>
+  </div>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th colspan="2">Action</th>
+          <th>Judul Template</th>
+          <th>Nomor Rekening</th>
+          <th>Tgl.Transfer</th>
+          <th>Payment Number</th>
+          <th>Total Amount</th>
+          <th>Status Approve</th>
+          <th>Status Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @template_banks.each do |item| %>
+          <% template_bank = item.template_bank %>
+          <tr uk-tooltip="title: <%= row_tooltip(template_bank) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= link_to 'Show', template_bank %></td>
+            <td><%= link_to 'Edit', edit_template_bank_path(template_bank) %></td>
+            <td><%= template_bank.number %></td>
+            <td><%= template_bank.list_internal_bank_account.name_account if template_bank.list_internal_bank_account.present? %></td>
+            <td><%= template_bank.date %></td>
+            <td><%= (item.try(:payment_supplier).present? ? item.payment_supplier.number : (item.try(:voucher_payment).present? ? item.voucher_payment.number : nil))%></td>
+            <td class="uk-text-right"><%= number_with_precision(template_bank.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= template_bank.status %></td>
+            <td><%= template_bank.paid_status %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th colspan="2">Action</th>
+          <th>Judul Template</th>
+          <th>Nomor Rekening</th>
+          <th>Tgl.Transfer</th>
+          <th>Count Record</th>
+          <th>Total Amount</th>
+          <th>Status Approve</th>
+          <th>Status Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @template_banks.each do |template_bank| %>
+          <tr uk-tooltip="title: <%= row_tooltip(template_bank) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= link_to 'Show', template_bank %></td>
+            <td><%= link_to 'Edit', edit_template_bank_path(template_bank) %></td>
+            <td><%= template_bank.number %></td>
+            <td><%= template_bank.list_internal_bank_account.name_account if template_bank.list_internal_bank_account.present? %></td>
+            <td><%= template_bank.date %></td>
+            <td><%= template_bank.template_bank_items.count() %></td>
+            <td class="uk-text-right"><%= number_with_precision(template_bank.grand_total, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td><%= template_bank.status %></td>
+            <td><%= template_bank.paid_status %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

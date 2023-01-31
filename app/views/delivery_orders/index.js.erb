@@ -1,0 +1,20 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_picking_slip' %>
+	$("#po_number").val("<%= params[:po_number] %>");
+	$("#delivery_order_month_delivery_yyyy").val("<%= params[:month_delivery].first(4) %>");
+	$("#delivery_order_month_delivery_mm").val("<%= params[:month_delivery].last(2) %>");
+	$("#delivery_order_sales_order_id").val("<%= params[:sales_order_id] %>");
+	$('#item').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_customer' %>
+	$('.picking_slip_detail').html("<%= escape_javascript(render 'partial') %>");
+	$('#item').html("");
+<% when 'add_item' %>
+	$('#item tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

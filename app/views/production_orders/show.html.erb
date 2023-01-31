@@ -1,0 +1,248 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', production_orders_path(), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Number</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :number, @production_order.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">Date</div>
+                      <div class="uk-width-1-3@m">
+                        <%= date_field_tag :date, @production_order.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Remarks</div>
+                      <div class="uk-width-4-5@m">
+                        <%= text_field_tag :remarks, @production_order.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Sales Order</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :sales_order, @production_order.sales_order.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true if @production_order.sales_order.present? %>
+                      </div>
+                      <div class="uk-width-1-6@m">PO Customer</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :po_customer, @production_order.sales_order.po_number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true if @production_order.sales_order.present? %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Service Type</div>
+                      <div class="uk-width-1-3@m">
+                        <%= @production_order.sales_order.list_service_type if @production_order.sales_order.present? %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+					  <hr>
+
+            <ul uk-tab data-uk-tab="{connect:'#tab-content'}">
+              <li class="uk-active"><a href="#">Items</a></li>
+              <li><a href="#">Detail Material</a></li>
+            </ul>
+            <ul id="tab-content" class="uk-switcher">
+              <li>    
+    					  <div class="uk-margin-small">
+    					    <div class="uk-grid">
+    					      <div class="uk-width-1-1@m">
+    					        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+    					          <tr>
+    					            <th>#</th>
+    					            <th>Product Name</th>
+                          <th>Product Code</th>
+    					            <th>Type</th>
+    					            <th>Unit</th>
+    					            <th>Quantity</th>
+    					            <th>Remarks</th>
+    					          </tr>
+    					          <% c=0 %>
+    					          
+    					          <% @production_order_items.each do |production_order_item| %>
+    					          	<% part = nil %>
+    						          <% if production_order_item.product.present? %>
+    						          	<% part = production_order_item.product %>
+    						          <% end %>					            
+    					            <tr>
+    					              <td class="counter"><%= c+=1%></td>
+    					              <td><%= (part.present? ? part.name : nil) %></td>
+    					              <td><%= (part.present? ? part.part_id : nil) %></td>
+                            <td><%= (part.present? ? part.type_name : nil) %></td>
+    					              <td><%= (part.present? ? part.unit_name : nil) %></td>
+    				                <td class="uk-text-right">
+    				                  <%= number_with_precision(production_order_item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+    				                </td>
+    				                <td><%= production_order_item.remarks %></td>
+    					            </tr>
+    					          <% end if @production_order_items.present? %>
+    					        </table>
+    					      </div>
+    					    </div>
+    					  </div>
+              </li>
+              <li>
+                PRF Material
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1@m">
+                      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+                        <tr>
+                          <th>#</th>
+                          <th>Product Name</th>
+                          <th>Material Name</th>
+                          <th>Quantity</th>
+                          <th colspan="2">PRF Outstanding</th>
+                        </tr>
+                        <% c=0 %>
+                        
+                        <% @production_order_detail_materials.where(:prf_kind=> 'material').each do |detail| %>
+                          <tr>
+                            <td><%= c+= 1 %></td>
+                            <td><%= "#{detail.product.part_id} | #{detail.product.name} | #{detail.product.type_name}" %></td>
+                            <td><%= "#{detail.material.part_id} | #{detail.material.name}" if detail.material.present? %></td>
+                            <td><%= detail.quantity %></td>
+                            <td><%= detail.prf_outstanding %></td>
+                            <td>
+                              <%= @production_order_used_prf.where(:production_order_detail_material_id=> detail.id, :production_order_item_id=> detail.production_order_item_id).map { |e| e.purchase_request_item.purchase_request.number if e.purchase_request_item.present? and e.purchase_request_item.purchase_request.present?}.uniq.join(", ") %>
+                            </td>
+                          </tr>
+                        <% end if @production_order_detail_materials.present? %>
+                      </table>
+                    </div>
+
+                  </div>
+                </div>
+
+                PRF Jasa
+                <div class="uk-margin-small">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-1@m">
+                      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+                        <tr>
+                          <th>#</th>
+                          <th>Parent BoM</th>
+                          <th>Product Name</th>
+                          <th>Prodcut Type</th>
+                          <th>Quantity</th>
+                          <th colspan="2">PRF Outstanding</th>
+                        </tr>
+                        <% c=0 %>
+                        
+                        <% @production_order_detail_materials.where(:prf_kind=> 'services').each do |detail| %>
+                          <tr>
+                            <td><%= c+= 1 %></td>
+                            <td><%= detail.production_order_item.product.part_id %></td>
+                            <td><%= "#{detail.product.part_id} | #{detail.product.name} " %></td>
+                            <td><%= detail.product.type_name %></td>
+                            <td><%= detail.quantity %></td>
+                            <td><%= detail.prf_outstanding %></td>
+                            <td>
+                              <%= @production_order_used_prf.where(:production_order_detail_material_id=> detail.id, :production_order_item_id=> detail.production_order_item_id).map { |e| e.purchase_request_item.purchase_request.number if e.purchase_request_item.present? and e.purchase_request_item.purchase_request.present?}.uniq.join(", ") %>
+                            </td>
+                          </tr>
+                        <% end if @production_order_detail_materials.present? %>
+                      </table>
+                    </div>
+
+                  </div>
+                </div>
+                
+                <%= link_to 'Export', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :record_id=> @production_order.id, :view_kind=> "detail_material",
+                :onclick=> "export_report(this, '"+params[:controller].to_s+"')" %>
+              </li>
+
+            </ul>
+					  <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @production_order.status == 'new' or @production_order.status == 'canceled1' %>
+                        <%= link_to approve_production_order_path(@production_order, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @production_order.status == 'approved1' or @production_order.status == 'canceled2' %>
+                        <%= link_to approve_production_order_path(@production_order, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_production_order_path(@production_order, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @production_order.status == 'approved2' or @production_order.status == 'canceled3' %>   
+                        <%= link_to approve_production_order_path(@production_order, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_production_order_path(@production_order, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_production_order_path(@production_order, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @production_order.status %>
+                      <% when 'approved3' %>
+                        <%= link_to print_production_order_path(@production_order), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', production_orders_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', production_orders_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_production_order_path(@production_order), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>   
+                      <%= link_to approve_production_order_path(@production_order, :status=> 'unlock_print'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be unlock print. Proced?' } do %>
+                        <button type="button" class="uk-button uk-button-danger uk-button-small uk-align-right">Unlock Print</button>
+                      <% end if @production_order.printed_by.present? %> 
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

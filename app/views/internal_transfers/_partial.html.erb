@@ -1,0 +1,74 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'add_item' %>
+  <tr id=trid"<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-right'><%= params[:c] %></td>
+    <td>
+      <% case params[:transfer_kind] %>
+      <% when 'product' %>
+        <%= select_tag "new_record_item[][product_id]", options_for_select(@products.collect { |e| [e.name, e.id, 
+          {:'part_id'=> e.part_id, :'unit_name' => (e.unit.name if e.unit.present?), :'part_model'=> e.part_model }]}) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-width-medium uk-form-small',
+          :onchange=> "change_product_id(this, '"+params[:controller].to_s+"', '"+params[:c].to_s+"');"} if @products.present? %>  
+        <%= hidden_field_tag "new_record_item[][material_id]",nil %>
+      <% when 'material' %>
+        <%= select_tag "new_record_item[][material_id]", options_for_select(@materials.collect { |e| [e.name, e.id, 
+          {:'part_id'=> e.part_id, :'unit_name' => (e.unit.name if e.unit.present?), :'part_model'=> e.part_model }]}) , { :include_blank => "-- Select --", :class=>'uk-select uk-form-width-medium uk-form-small',
+          :onchange=> "change_product_id(this, '"+params[:controller].to_s+"', '"+params[:c].to_s+"');"} if @materials.present? %>  
+        <%= hidden_field_tag "new_record_item[][product_id]",nil %>
+      <% end %>
+    </td>
+    <td>
+      <%= text_field_tag 'part_id',nil, {:class=>"part_id#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'part_model',nil, {:class=>"part_model#{params[:c]} uk-input uk-form-small", :disabled=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'unit_name',nil, {:class=>"unit_name#{params[:c]} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+    </td>
+
+    <td>
+      <%= number_field_tag 'new_record_item[][quantity]',nil, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :required=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+    </td>
+    <td align='center' width=30px>
+      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Number</th>
+          <th>Date</th>
+          <th>Kind</th>
+          <th>Transfer From</th>
+          <th>Transfer To</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>   
+        <% @internal_transfers.each do |internal_transfer| %>
+          <tr>
+            <td><%= c+=1 %></td>
+            <td><%= internal_transfer.status %></td>
+            <td><%= internal_transfer.number %></td>
+            <td><%= internal_transfer.date %></td>
+            <td><%= internal_transfer.transfer_kind %></td>
+            <td><%= internal_transfer.transfer_from %></td>
+            <td><%= internal_transfer.transfer_to %></td>
+            <td class="uk-width-auto"><%= link_to 'Show', internal_transfer_path(:id=> internal_transfer.id, :q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]) %></td>
+            <td class="uk-width-auto"><%= link_to 'Edit', edit_internal_transfer_path(internal_transfer, :q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

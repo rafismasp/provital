@@ -1,0 +1,27 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Delivery Cars</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @delivery_cars.each do |delivery_car| %>
+      <tr>
+        <td><%= delivery_car.name %></td>
+        <td><%= link_to 'Show', delivery_car %></td>
+        <td><%= link_to 'Edit', edit_delivery_car_path(delivery_car) %></td>
+        <td><%= link_to 'Destroy', delivery_car, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Delivery Car', new_delivery_car_path %>

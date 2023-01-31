@@ -1,0 +1,53 @@
+
+<ul class="uk-nav uk-nav-default uk-nav-parent-icon" data-uk-nav>
+	
+	<li class="uk-background-secondary uk-active">
+    <a href="/">
+			<span class="uk-margin-small-right" data-uk-icon="icon: home"></span>Dashboards
+		</a>
+	</li>
+
+	<% permissons = UserPermission.where(:company_profile_id=> current_user.company_profile_id, :user_id=> current_user.id, :access_view=> 1)
+	.includes(:permission_base).where("permission_bases.status = ?", "active").references(:permission_bases).order("permission_bases.parent_id asc, permission_bases.list_order asc") %>
+
+	<% if permissons.present? %>
+		<% permissons.each do |pb| %>	
+			<% if pb.permission_base.parent_id.blank? %>				
+				<li class="uk-parent">
+			    <a href="javascript:;">
+						<span class="uk-margin-small-right <%= pb.permission_base.icon %>"></span><%= pb.permission_base.name %>
+					</a>
+					<ul class="uk-nav-sub">				
+			    	<% permissons.each do |pb_child1| %>
+			    		<% if pb_child1.permission_base.parent_id == pb.permission_base_id %>
+								<li>
+				    			<%= link_to "#{pb_child1.permission_base.link}#{pb_child1.permission_base.link_param}", "data-disable-with" => "<i class='fa fa-spinner fa-spin'></i> please wait...".html_safe, :remote=> true do %>
+				    				<%= pb_child1.permission_base.name %>
+				  				<% end %>
+									<ul>		
+				    				<% permissons.each do |pb_child2| %>
+				    					<% if pb_child2.permission_base.parent_id == pb_child1.permission_base_id %>
+												<li>
+						        			<%= link_to "#{pb_child2.permission_base.link}#{pb_child2.permission_base.link_param}", "data-disable-with" => "<i class='fa fa-spinner fa-spin'></i> please wait...".html_safe, :remote=> true do %>
+							    					<%= pb_child2.permission_base.name %>
+							    				<% end %>
+							    			</li>
+						    			<% end if pb_child2.permission_base.present? %>
+						    		<% end %>
+						    	</ul>
+								</li>
+							<% end if pb_child1.permission_base.present? %>
+			    	<% end %>
+					</ul>
+				</li>
+			<% end if pb.permission_base.present? %>
+		<% end %>
+	<% else %>				
+		<li>
+	    <a href="javascript:;">
+				no access without permission
+			</a>
+		</li>
+	<% end %>
+
+</ul>

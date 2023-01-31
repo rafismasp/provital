@@ -1,0 +1,13 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    $.ajax({
+      url: "/invoice_tools",
+      type: "Get",
+      data: {
+        type: "<%= params[:type] %>",
+        msg: "<%= params[:msg].html_safe %>",
+      },
+      dataType: "script"
+    });
+  });
+</script>

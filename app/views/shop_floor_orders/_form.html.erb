@@ -1,0 +1,154 @@
+
+<%= form_with(model: shop_floor_order, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if shop_floor_order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(shop_floor_order.errors.count, "error") %> prohibited this shop_floor_order from being saved:</h2>
+
+      <ul>
+      <% shop_floor_order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Number</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :number, id: :shop_floor_order_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-6@m">Date</div>
+            <div class="uk-width-1-3@m">
+              <%= form.date_field :date, id: :shop_floor_order_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Remarks</div>
+            <div class="uk-width-4-5@m">
+              <%= form.text_field :remarks, id: :shop_floor_order_remarks, :class=> "uk-input uk-form-width-large uk-form-small"%>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :id=> "add_item_sfo", :q=> params[:q], :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>PO Number</th>
+            <th>Product Name</th>
+            <th>Product Code</th>
+            <th>Type</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Batch number</th>
+            <th>Batch Size</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @shop_floor_order_items.each do |shop_floor_order_item| %>
+            <%= hidden_field_tag 'shop_floor_order_item[][id]', shop_floor_order_item.id %>
+            <% part = nil %>
+            <% if shop_floor_order_item.product.present? %>
+              <% part = shop_floor_order_item.product %>
+            <% end %>
+
+            <% if shop_floor_order_item.edit_quantity == true %>
+              <tr>
+                <td class="counter uk-text-right"><%= c+=1%></td>
+              <td>
+
+                <%= hidden_field_tag "shop_floor_order_item[][sales_order_id]", shop_floor_order_item.sales_order_id, :class=>"sales_order_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                <%= render 'layouts/form_item', c: c, field_name: "sales_order_id", field_value: (shop_floor_order_item.sales_order.present? ? shop_floor_order_item.sales_order.po_number : nil), job_name: job_name %>
+
+              </td>
+              <td class="form_product<%= c %>" onclick="load_product_by_sales_order_id(this, 'shop_floor_orders', '<%= shop_floor_order_item.sales_order_id%>')" c="<%= c %>" job="<%= job_name %>">
+                <%= hidden_field_tag "shop_floor_order_item[][product_id]", shop_floor_order_item.product_id, :class=>"product_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                <%= render 'layouts/form_item', c: c, field_name: "product_id", field_value: (shop_floor_order_item.product.present? ? shop_floor_order_item.product.name : nil) %>
+
+              </td>
+              <td>
+                <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td><%= part.type_name if part.present? %></td>
+              <td>
+                <%= text_field_tag 'unit_name', (part.present? ? part.unit_name : nil), {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+             
+              <td>
+                <%= number_field_tag 'shop_floor_order_item[][quantity]', shop_floor_order_item.quantity, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'batch_number', @product_batch_number.where(:shop_floor_order_item_id=> shop_floor_order_item.id).map { |e| e.number }, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+              </td>
+              <td><%= part.max_batch if part.present? %></td>
+              <td>
+                <%= text_field_tag 'shop_floor_order_item[][remarks]',shop_floor_order_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "shop_floor_order_item[][status]", options_for_select(['active','deleted'],
+                  shop_floor_order_item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            <% else %>
+              <tr title="sudah dibuatkan dokumen Finish Good Receiving Notes">
+                <td class="counter uk-text-right"><%= c+=1%></td>
+                <td><%= shop_floor_order_item.sales_order.po_number if shop_floor_order_item.sales_order.present? %></td>
+                <td><%= part.name if part.present? %></td>
+                <td><%= part.part_id if part.present? %></td>
+                <td><%= part.type_name if part.present? %></td>
+                <td><%= part.unit_name if part.present? %></td>
+                <td class="uk-text-right">
+                  <%= number_with_precision(shop_floor_order_item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+                </td>
+
+                <td>
+                  <%= @product_batch_number.where(:shop_floor_order_item_id=> shop_floor_order_item.id).map { |e| e.number }.join(", ") %>
+                </td>
+                <td><%= part.max_batch if part.present? %></td>
+                <td><%= shop_floor_order_item.remarks %></td>
+                <td></td>
+              </tr>
+            <% end %>
+          <% end if @shop_floor_order_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', shop_floor_orders_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

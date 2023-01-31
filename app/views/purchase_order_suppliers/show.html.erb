@@ -1,0 +1,343 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', purchase_order_suppliers_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <% precision_digit = (@purchase_order_supplier.currency.present? ? @purchase_order_supplier.currency.precision_digit : 0) %>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Number</div>
+                      <div class="uk-width-2-3@m">    
+                        <%= text_field_tag :number, @purchase_order_supplier.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Department</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :department_name, @purchase_order_supplier.department.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Suppliers</div>
+                      <div class="uk-width-3-4@m">  
+                        <%= text_field_tag :supplier_name, @purchase_order_supplier.supplier.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Due Date</div>
+                      <div class="uk-width-2-3@m">  
+                        <%= date_field_tag :due_date, @purchase_order_supplier.due_date, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Date</div>
+                      <div class="uk-width-2-3@m">  
+                        <%= date_field_tag :date, @purchase_order_supplier.date, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Section</div>
+                      <div class="uk-width-1-2@m">  
+                        <%= text_field_tag :section_name, (@purchase_order_supplier.employee_section.present? ? @purchase_order_supplier.employee_section.name : ""), :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">T.O.P</div>
+                      <div class="uk-width-3-4@m">
+                        <div class="uk-flex">
+                          <%= text_field_tag :top_day, @purchase_order_supplier.top_day, :class=> "uk-select uk-form-small uk-width-1-4", :disabled=> true %>
+                          <%= text_field_tag :term_of_payment, @purchase_order_supplier.term_of_payment.name, :class=> "uk-select uk-form-small uk-width-3-4", :disabled=> true %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Attachments</div>
+                      <div class="uk-width-3-4@m">
+
+                        <table class="uk-table uk-table-striped">
+                          <tbody>
+                            
+                            <% @record_files.each do |record_file| %>
+                              <% case record_file.ext.downcase %>
+                              <% when '.pdf' %>
+                                <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a>
+                              <% else %>
+                                <a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 100px"/></a>
+                              <% end %>
+                            <% end if @record_files.present? %>
+                          </tbody> 
+                        </table>  
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Currency</div>
+                      <div class="uk-width-1-4@m">
+                        <%= text_field_tag :currency, @purchase_order_supplier.currency.name, :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Tax</div>
+                      <div class="uk-width-1-2@m">  
+                        <%= text_field_tag :tax, @purchase_order_supplier.tax.name, :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-4@m">Remarks</div>
+                      <div class="uk-width-3-4@m">
+                        <%= text_field_tag :remarks, @purchase_order_supplier.remarks, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true%>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">                        
+                        <% case params[:q] %>
+                        <% when 'material' %>
+                          <% if @purchase_order_supplier.present? and @purchase_order_supplier.pdm.present? and @purchase_order_supplier.purchase_request.blank? %>
+                            <% po_base = 'PDM' %>
+                          <% elsif @purchase_order_supplier.present? and @purchase_order_supplier.pdm.blank? and @purchase_order_supplier.purchase_request.present? %>
+                            <% po_base = 'PRF' %>
+                          <% else %>
+                            <% po_base = 'All' %>
+                          <% end %>
+                        <% else %>
+                          <% po_base = 'PRF' %>
+                        <% end %>
+                        <%= po_base %>
+                      </div>
+                      <div class="uk-width-1-3@m">
+                        <% case po_base %>
+                        <% when 'PDM' %>
+                          <%= text_field_tag :pdm_number, (@purchase_order_supplier.pdm.number if @purchase_order_supplier.pdm.present?), :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                        <% when 'PRF' %>
+                          <%= text_field_tag :purchase_request_number, (@purchase_order_supplier.purchase_request.number if @purchase_order_supplier.purchase_request.present?), :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                        <% else %>
+                          -
+                        <% end %>
+                      </div>
+                    </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">PRF Kind</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :order_kind, @purchase_order_supplier.kind, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">Asset Kind</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :asset_kind, @purchase_order_supplier.asset_kind, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m uk-overflow-auto">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-bordered uk-table-divider" id="item">                 
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>PRF Number</th>
+                        <th>PRF Date</th>
+                        <th>Part Name</th>
+                        <th>Internal Part ID</th>
+                        <th>Model</th>
+                        <th>Unit</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Sub Total</th>
+                        <th>Due Date</th>
+                        <th>Remarks</th>
+                      </tr>
+                    </thead>
+                    <tbody>            
+                      <% c=0 %>
+                      <% sum_price = sum_qty = sum_subtotal = 0 %>
+                      <% if @purchase_order_supplier_items.present? %>
+                        <% @purchase_order_supplier_items.each do |purchase_order_supplier_item| %>
+                          <% part = nil %>
+                          <% prf_number = nil %>
+                          <% prf_date = nil %>
+                          <% if purchase_order_supplier_item.purchase_request_item.present? %>
+                            <% record_item = purchase_order_supplier_item.purchase_request_item %>
+                            <% if record_item.present? %>
+                              <% if record_item.product.present? %>
+                                <% part = record_item.product %>
+                              <% elsif record_item.material.present? %>
+                                <% part = record_item.material %>
+                              <% elsif record_item.consumable.present? %>
+                                <% part = record_item.consumable %>
+                              <% elsif record_item.equipment.present? %>
+                                <% part = record_item.equipment %>
+                              <% elsif record_item.general.present? %>
+                                <% part = record_item.general %>
+                              <% end %>
+                            <% end %>
+                            <%# prf_number =  record_item.purchase_request.number %>
+                            <% prf_number = link_to "#{record_item.purchase_request.number}", purchase_request_path(:id=> record_item.purchase_request_id, :q=> record_item.purchase_request.request_kind), target: :_blank %>
+
+                            <% prf_date =  record_item.purchase_request.date %>
+                          <% elsif purchase_order_supplier_item.pdm_item.present? %>
+                            <% record_item = purchase_order_supplier_item.pdm_item %>
+                            <% if record_item.present? %>
+                              <% if record_item.material.present? %>
+                                <% part = record_item.material %>
+                              <% end %>
+                              <%# prf_number =  record_item.pdm.number %>
+                              <% prf_number = link_to "#{record_item.pdm.number}", pdm_path(:id=> record_item.pdm_id), target: :_blank %>
+                              <% prf_date =  record_item.pdm.date %>
+                            <% end %>
+                          <% end %>
+
+                          <tr>
+                            <td class="counter">
+                              <%= c+=1%>
+                            </td>
+                            <td><%= prf_number %></td>
+                            <td><%= prf_date %></td>
+                            <td><%= (part.name if part.present?) %></td>
+                            <td><%= (part.part_id if part.present?) %></td>
+                            <td><%= (part.part_model if part.present?) %></td>
+                            <td><%= (part.unit_name if part.present?) %></td>
+                            <td class="uk-text-right">
+                              <% sum_qty += purchase_order_supplier_item.quantity.to_f %>
+                              <%= number_with_precision(purchase_order_supplier_item.quantity, precision: ( purchase_order_supplier_item.quantity.to_f % 1 == 0 ? precision_digit : 2 ), delimiter: ".", separator: ",") %>
+                            </td>
+                            <td class="uk-text-right">
+                              <% sum_price += purchase_order_supplier_item.unit_price.to_f %>
+                              <%= number_with_precision(purchase_order_supplier_item.unit_price, precision: ( purchase_order_supplier_item.unit_price.to_f % 1 == 0 ? precision_digit : 2 ), delimiter: ".", separator: ",")%>
+                            </td>
+                            <td class="uk-text-right">
+                              <% subtotal = (purchase_order_supplier_item.quantity.to_f*purchase_order_supplier_item.unit_price.to_f) %>
+                              <% sum_subtotal += subtotal %>
+                              <%= number_with_precision(subtotal, precision: ( subtotal.to_f % 1 == 0 ? precision_digit : 2 ), delimiter: ".", separator: ",")%>
+                            </td>
+                            <td><%= purchase_order_supplier_item.due_date %></td>
+                            <td class="uk-width-medium">
+                              <%= purchase_order_supplier_item.remarks %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      <% else %>
+                        <tr>
+                          <td colspan="10">Tidak ada Data!</td>
+                        </tr>
+                      <% end %>
+                      <tr>
+                        <td colspan="9" class="uk-text-right"><b>Total</b></td>
+                        <td class="uk-text-right">
+                          <b><%= number_with_precision(sum_subtotal.to_f, precision: ( sum_subtotal.to_f % 1 == 0 ? precision_digit : 2 ), delimiter: ".", separator: ",") %></b>
+                        </td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+  
+            <hr>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @purchase_order_supplier.status == 'new' or @purchase_order_supplier.status == 'canceled1' %>
+                        <%= link_to approve_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @purchase_order_supplier.status == 'approved1' or @purchase_order_supplier.status == 'canceled2' %>
+                        <%= link_to approve_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @purchase_order_supplier.status == 'approved2' or @purchase_order_supplier.status == 'canceled3' %>   
+                        <%= link_to approve_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @purchase_order_supplier.status %>
+                      <% when 'approved3' %>
+                        <%= link_to print_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', purchase_order_suppliers_path(:q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', purchase_order_suppliers_path(:q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_purchase_order_supplier_path(:id=> @purchase_order_supplier.id, :q=> @purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

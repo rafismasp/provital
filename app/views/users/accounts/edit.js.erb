@@ -1,0 +1,4 @@
+<% case params[:partial] %>
+<% when 'change_department' %>
+	$('.select_section').html("<%= escape_javascript(render 'partial') %>");
+<% end %>

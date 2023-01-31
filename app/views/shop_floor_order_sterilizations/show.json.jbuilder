@@ -1,0 +1,1 @@
+json.partial! "shop_floor_order_sterilizations/shop_floor_order_sterilization", shop_floor_order_sterilization: @shop_floor_order_sterilization

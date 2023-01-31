@@ -1,0 +1,182 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_purchase_order_supplier' %>  
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>PRF/PDM</th>
+      <th>Material Name</th>
+      <th>Material Code</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Supplier Batch Number</th>
+      <th>EXP Date</th>
+      <th>Packaging Condition</th>
+      <th>Remarks</th>
+      <th>Remove</th>
+    </tr>
+    <% c=0 %>
+    <% @purchase_order_supplier_items.each do |item| %>
+      <% if item.purchase_request_item.present? %>
+        <% part = item.purchase_request_item.material if item.purchase_request_item.present? and item.purchase_request_item.material.present? %>
+        <% prf_number = item.purchase_request_item.purchase_request.number %>
+      <% elsif item.pdm_item.present? %>
+        <% part = item.pdm_item.material if item.pdm_item.present? and item.pdm_item.material.present? %>
+        <% prf_number = item.pdm_item.pdm.number %>
+      <% end %>
+      <tr id="trid<%= c %>" valign=top>
+        <td align=right width=22px class='counter'><%= c+=1 %></td>
+        <td><%= prf_number %></td>
+        <td>
+          <%= hidden_field_tag "new_record_item[][material_id]", (part.present? ? part.id : nil) %>
+          <%= hidden_field_tag "new_record_item[][purchase_order_supplier_item_id]", item.id %>
+          <%= (part.present? ? part.name : nil) %>
+          <%#= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+            
+        </td>
+        <td><%= part.present? ? part.part_id : nil %>
+          <%#= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+        </td>
+        <td>
+          <%= text_field_tag 'batch_number',nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true, :placeholder=> "Auto"} %>
+        </td>
+        <td><%= part.present? ? part.unit.name : nil %>
+          <%#= text_field_tag 'unit_name', (part.present? ? part.unit.name : nil), {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+        </td>
+
+        <td>
+          <%= number_field_tag 'new_record_item[][quantity]', item.outstanding, {:step=> "any", :min=> 0, :max=> item.outstanding, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+        </td>
+        <td>
+          <%= text_field_tag 'new_record_item[][supplier_batch_number]', nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :placeholder=> "Tidak Ada"} %>
+        </td>
+        <td>
+          <%= date_field_tag 'new_record_item[][supplier_expired_date]', nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :placeholder=> "Tidak Ada"} %>
+        </td>
+        <td>
+          <%= select_tag "new_record_item[][packaging_condition]", options_for_select(['','OK','NG']), { :class=>'uk-select uk-form-small'} %>
+        </td>
+        <td>
+          <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+        </td>
+        <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+      </tr>
+    <% end if @purchase_order_supplier_items.present? %>
+  </table>
+<% when 'change_supplier' %>
+  <% if @purchase_order_suppliers.present? %>
+    <%= select_tag "material_receiving[purchase_order_supplier_id]", options_for_select(@purchase_order_suppliers.map { |e| [e.number, e.id] }), :class=>"purchase_order_supplier_id uk-select uk-form-width-large uk-form-small", :prompt=>"--select--", :onchange=> "$('#button_add_item').attr('sales_order_id', $(this).val()); $('#item').html('');"%>
+  <% else %>
+    <%= text_field_tag "purchase_order_supplier_id", nil, {:placeholder=> "Tidak ada PO Supplier", :class=>"uk-input uk-form-width-large uk-form-small" , :disabled=> true} %>
+  <% end %>
+<% else %>
+  <% case params[:tbl_kind] %>
+  <% when 'items' %>
+    <!-- report -->
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Material Name</th>
+          <th>Supplier/Vendor</th>
+          <th>Batch No. Supplier</th>
+          <th>Batch No. Provital</th>
+          <th>Qty</th>
+          <th>Recorded by</th>
+          <th>Verified by</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @c = (@c.present? ? @c : 0) %>   
+        <% @material_receivings.each do |item| %>
+          <tr>
+            <td><%= @c+=1 %></td>
+            <td><%= item.material_receiving.date if item.material_receiving.present? %></td>
+            <td><%= item.material.name if item.material.present? %></td>
+            <td><%= item.material_receiving.supplier.name if item.material_receiving.present? and item.material_receiving.supplier.present? %></td>
+            <td><%= item.supplier_batch_number.present? ? item.supplier_batch_number : "Tidak Ada" %></td>
+            <td><%= item.material_batch_number.number if item.material_batch_number.present? %></td>
+            <td><%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td><%= account_name(item.material_receiving.created_by) %></td>
+            <td><%= account_name(item.material_receiving.approved1_by) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% else %>
+    <% case params[:view_kind] %>
+    <% when 'item' %>
+      <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Number</th>
+            <th>Internal Batch Number</th>
+            <th>Supplier Batch Number</th>
+            <th>EXP Date</th>
+            <th>Packaging Condition</th>
+            <th>Material Code</th>
+            <th>Material Number</th>
+            <th>Quantity</th>
+            <th>Remarks Item</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @c = (@c.present? ? @c : 0) %>   
+          <% @material_receivings.each do |item| %>
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= @c+=1 %></td>
+              <td><%= item.material_receiving.status %></td>
+              <td><%= item.material_receiving.number %></td>
+              <td><%= item.material_batch_number.number if item.material_batch_number.present? %></td>
+              <td><%= item.supplier_batch_number.present? ? item.supplier_batch_number : "Tidak Ada" %></td>
+              <td><%= item.supplier_expired_date.present? ? item.supplier_expired_date : "Tidak Ada" %></td>
+              <td><%= item.packaging_condition.present? ? item.packaging_condition : "Tidak Ada" %></td>
+              <td><%= item.material.part_id %></td>
+              <td><%= item.material.name %></td>
+              <td class="uk-text-right">
+                <%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %>
+              </td>
+              <td><%= item.remarks %></td>
+              <td><%= link_to 'Show', item.material_receiving %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% else %>
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Supplier</th>
+            <th>Document Number</th>
+            <th>Date</th>
+            <th>PO Number</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @material_receivings.each do |material_receiving| %>          
+            <tr uk-tooltip="title: <%= row_tooltip(material_receiving) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= material_receiving.status %></td>
+              <td><%= material_receiving.supplier.name if material_receiving.supplier.present? %></td>
+              <td><%= material_receiving.number %></td>
+              <td><%= material_receiving.date %></td>
+              <td><%= material_receiving.purchase_order_supplier.number if material_receiving.purchase_order_supplier.present? %></td>
+              <td><%= link_to 'Show', material_receiving %></td>
+              <td><%= link_to 'Edit', edit_material_receiving_path(material_receiving) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    <% end %>
+  <% end %>
+<% end %>

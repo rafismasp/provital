@@ -1,0 +1,53 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', product_categories_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+          
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Category</div>
+                <div class="uk-width-3-4@m">
+                  <%= text_field_tag :kind, @product_category.kind, :class=> "uk-select uk-form-width-medium uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Code</div>
+                <div class="uk-width-3-4@m">
+                  <%= text_field_tag :code, @product_category.code, :class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Description</div>
+                <div class="uk-width-3-4@m">
+                  <%= text_area_tag :name, @product_category.name, :class=> "uk-textarea uk-form-width-large uk-form-small", :disabled=> true, :rows=> 5 %>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', product_categories_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_product_category_path(@product_category), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

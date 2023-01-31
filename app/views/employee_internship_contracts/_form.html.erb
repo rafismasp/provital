@@ -1,0 +1,118 @@
+
+<%= form_with(model: employee_internship_contract, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if employee_internship_contract.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(employee_internship_contract.errors.count, "error") %> prohibited this employee_internship_contract from being saved:</h2>
+
+      <ul>
+      <% employee_internship_contract.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-4@m">Number</div>
+          <div class="uk-width-3-4@m">
+            <%= form.text_field :number, id: :employee_internship_contract_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Periode</div>
+          <div class="uk-width-1-3@m">
+            <%= form.date_field :begin_of_contract, id: :employee_internship_contract_begin_of_contract, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+          </div>
+          <div class="uk-width-1-3@m">
+            <%= form.date_field :end_of_contract, id: :employee_internship_contract_end_of_contract, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <h4>Peserta Magang</h4>
+        <div class="uk-grid">
+          <div class="uk-width-1-4@m">Nama</div>
+          <div class="uk-width-3-4@m">
+            <%= form.collection_select :employee_internship_id, @employee_internships, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-medium uk-form-small", :onchange=> "change_internship(this, '"+params[:controller].to_s+"')" %>
+          </div>
+        </div>
+
+        <div class="intership_detail uk-margin-small">
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-4@m">Tempat tgl lahir</div>
+            <div class="uk-width-1-3@m">
+              <%= text_field_tag :employee_internship_born_place, (@employee_internship_contract.employee_internship.born_place if @employee_internship_contract.employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+            </div>
+            <div class="uk-width-1-3@m">
+              <%= date_field_tag :employee_internship_born_date, (@employee_internship_contract.employee_internship.born_date if @employee_internship_contract.employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-4@m">Education</div>
+            <div class="uk-width-1-3@m">
+              <%= text_field_tag :employee_internship_last_education, (@employee_internship_contract.employee_internship.last_education if @employee_internship_contract.employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+            </div>
+            <div class="uk-width-1-5@m">Gender</div>
+            <div class="uk-width-1-5@m">
+              <%= text_field_tag :employee_internship_gender, (@employee_internship_contract.employee_internship.gender if @employee_internship_contract.employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-4@m">Phone</div>
+            <div class="uk-width-1-3@m">
+              <%= text_field_tag :employee_internship_phone_number, (@employee_internship_contract.employee_internship.phone_number if @employee_internship_contract.employee_internship.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-4@m">Address</div>
+            <div class="uk-width-1-2@m">
+              <%= text_area_tag :employee_internship_address, (@employee_internship_contract.employee_internship.address if @employee_internship_contract.employee_internship.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :disabled=> true, :rows=> '5'  %>
+            </div>
+          </div>      
+        </div>
+
+      </div>
+      <div class="uk-width-1-2@m">
+        <h4>Penyelenggara Magang</h4>
+        <div class="uk-grid">
+          <div class="uk-width-1-4@m">Nama</div>
+          <div class="uk-width-3-4@m">
+            <%= form.collection_select :employee_id, @employees,:id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-medium uk-form-small", :onchange=> "change_employee(this, '"+params[:controller].to_s+"')" %>
+          </div>
+        </div>
+        <div class="employee_detail uk-margin-small">
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-4@m">Jabatan</div>
+            <div class="uk-width-1-3@m">
+              <%= text_field_tag :employee_position, (@employee_internship_contract.employee.position.name if @employee_internship_contract.employee.present?), :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+          <div class="uk-grid uk-margin-small">
+            <div class="uk-width-1-4@m">Address</div>
+            <div class="uk-width-1-2@m">
+              <%= text_area_tag :employee_domicile_address, (@employee_internship_contract.employee.domicile_address if @employee_internship_contract.employee.present?), :class=> "uk-textarea uk-form-width-large uk-form-small", :disabled=> true, :rows=> '5'  %>
+            </div>
+          </div> 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', employee_internship_contracts_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+  <% end %>

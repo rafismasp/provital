@@ -1,0 +1,122 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_purchase_order_supplier' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>General Name</th>
+      <th>General Code</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Supplier Batch Number</th>
+      <th>Remarks</th>
+      <th>Remove</th>
+    </tr>
+    <% c=0 %>
+    <% @purchase_order_supplier_items.each do |item| %>
+      <% part = item.purchase_request_item.consumable if item.purchase_request_item.present? and item.purchase_request_item.consumable.present? %>
+      <% if part.present? %>
+        <tr id="trid<%= c %>" valign=top><td align=right width=22px class='counter'><%= c+=1 %></td>
+          <td>
+            <%= hidden_field_tag "new_record_item[][consumable_id]", (part.present? ? part.id : nil) %>
+            <%= hidden_field_tag "new_record_item[][purchase_order_supplier_item_id]", item.id %>
+            <%= text_field_tag 'part_name', (part.present? ? part.name : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              
+          </td>
+          <td>
+            <%= text_field_tag 'part_id', (part.present? ? part.part_id : nil), {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+          </td>
+          <td>
+            <%= text_field_tag 'batch_number',nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true, :placeholder=> "Auto"} %>
+          </td>
+          <td>
+            <%= text_field_tag 'unit_name', (part.present? ? part.unit_name : nil), {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+          </td>
+
+          <td>
+            <%= number_field_tag 'new_record_item[][quantity]', item.outstanding, {:min=> 0, :max=> item.outstanding, :placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+          </td>
+          <td>
+            <%= text_field_tag 'new_record_item[][supplier_batch_number]', nil, {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+          </td>
+          <td>
+            <%= text_field_tag 'new_record_item[][remarks]',nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+          </td>
+          <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+        </tr>
+      <% end %>
+    <% end if @purchase_order_supplier_items.present? %>
+  </table>
+<% when 'change_supplier' %>
+  <% if @purchase_order_suppliers.present? %>
+    <%= select_tag "consumable_receiving[purchase_order_supplier_id]", options_for_select(@purchase_order_suppliers.map { |e| [e.number, e.id] }), :class=>"purchase_order_supplier_id uk-select uk-form-width-large uk-form-small", :prompt=>"--select--", :onchange=> "$('#button_add_item').attr('sales_order_id', $(this).val());"%>
+  <% else %>
+    <%= text_field_tag "purchase_order_supplier_id", nil, {:placeholder=> "Tidak ada PO Supplier", :class=>"uk-input uk-form-width-large uk-form-small" , :disabled=> true} %>
+  <% end %>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Doc. Number</th>
+            <th>General Code</th>
+            <th>General Name</th>
+            <th>Batch Number</th>
+            <th>Unit</th>
+            <th>Qty</th>
+            <th>Outstanding</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>   
+          <% @consumable_receivings.each do |item| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td><%= (item.consumable_receiving.present? ? item.consumable_receiving.number : nil) %></td>
+              <td><%= (item.consumable.present? ? item.consumable.part_id : nil) %></td>
+              <td><%= (item.consumable.present? ? item.consumable.name : nil) %></td>
+              <td><%= @consumable_batch_number.where(:consumable_receiving_item_id=> item.id).map { |e| e.number }.join(", ") if @consumable_batch_number.present? %></td>
+              <td><%= (item.consumable.present? ? item.consumable.unit.name : nil) %></td>
+              <td><%= number_with_precision(item.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+              <td><%= number_with_precision(item.outstanding, precision: 0, delimiter: ".", separator: ",") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Supplier</th>
+          <th>Document Number</th>
+          <th>Date</th>
+          <th>PO Number</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @consumable_receivings.each do |consumable_receiving| %>          
+          <tr uk-tooltip="title: <%= row_tooltip(consumable_receiving) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= consumable_receiving.status %></td>
+            <td><%= consumable_receiving.supplier.name if consumable_receiving.supplier.present? %></td>
+            <td><%= consumable_receiving.number %></td>
+            <td><%= consumable_receiving.date %></td>
+            <td><%= consumable_receiving.purchase_order_supplier.number if consumable_receiving.purchase_order_supplier.present? %></td>
+            <td><%= link_to 'Show', consumable_receiving %></td>
+            <td><%= link_to 'Edit', edit_consumable_receiving_path(consumable_receiving) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

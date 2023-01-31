@@ -1,0 +1,189 @@
+<%= form_with(model: proof_cash_expenditure, local: true, class: "uk-form-horizontal") do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "proof_cash_expenditure[automatic_calculation]", 0 %>
+  <% if proof_cash_expenditure.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(proof_cash_expenditure.errors.count, "error") %> prohibited this proof_cash_expenditure from being saved:</h2>
+
+      <ul>
+      <% proof_cash_expenditure.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% if params[:q].blank? %>
+    <% if @proof_cash_expenditure.present? %>
+      <%# params[:q] = @proof_cash_expenditure.request_kind %>
+    <% end %>
+  <% end %>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">No. BPK</div>
+          <div class="uk-width-1-3@m">    
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= text_field_tag :number, @proof_cash_expenditure.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            <% else %>
+              <%= form.text_field :number, id: :proof_cash_expenditure_number, :class=> "uk-input uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            <% end %>
+          </div>
+          <div class="uk-width-1-6@m">Tanggal</div>
+          <div class="uk-width-1-3@m">      
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= date_field_tag "date", form.object.date, {:title=>"Tanggal tidak bisa diubah, karena mempengaruhi penomoran Dokumen", :class=> "uk-input uk-form-small", :disabled=> true} %>
+            <% else %>
+              <%= form.date_field :date, id: :proof_cash_expenditure_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-small", :required=> true %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">Grand Total</div>
+            <div class="uk-width-1-3@m">
+              <%= text_field_tag "show_grand_total",(form.object.present? ? number_with_precision(form.object.grand_total, precision: 2, delimiter: ".", separator: ",") : nil), :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' %>
+              <%= form.hidden_field :grand_total, id: :proof_cash_expenditure_grand_total, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :required=>true, :step=>'any' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">Department</div>
+          <div class="uk-width-1-3@m">
+            <% case form_kind %>
+            <% when 'edit' %>
+              <%= select_tag "department", options_for_select(@department.map{|c| [c.name, c.id, {:'q'=> params[:q]} ]}, form.object.department_id), {:prompt => " -- select -- ", class: "uk-select uk-form-width-large uk-form-small", :disabled=> true} %>
+            <% else %>
+              <%= form.select :department_id, options_for_select(@department.map{|c| [c.name, c.id, {:'q'=> params[:q]} ]}, form.object.department_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small",
+                  :onchange=> "change_department(this, '"+params[:controller].to_s+"');", :required=> true} if @department.present? %>
+            <% end %>
+          </div>
+          <div class="uk-width-1-6@m">No. Voucher</div>
+          <div class="uk-width-1-3@m">
+            <%= text_field_tag "proof_cash_expenditure[voucher_payment]", (@proof_cash_expenditure.voucher_payment if @proof_cash_expenditure.present?) , {:placeholder=> "No. Voucher", :class=>"uk-input uk-form-small"} %>
+            <%#= form.number_field :vocher_payment, id: :proof_cash_expenditure_vocher_payment, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :min=> 0 %>
+            <%= link_to "Save Voucher", 'javascript:;', {:class=> "uk-button uk-button-primary uk-button-small" , :id=>"save_voucher", remote: true } if params[:action] == 'show' %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">Remarks</div>
+          <div class="uk-width-1-2@m">
+            <%= form.text_area :remarks, id: :proof_cash_expenditure_remarks, :class=> "uk-input uk-form-small" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="uk-margin-small">
+    <%= link_to 'Add', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                        :onclick=> "add_bon(this, '"+params[:controller].to_s+"');" %>
+
+    <div id="modal-container" class="uk-modal-container add_bon" uk-modal>
+      <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+          <h4 class="uk-modal-title">New : <%= controller_name.humanize %></h4>
+        </div>
+        <div class="uk-modal-body">
+          
+        </div>
+
+        <div class="uk-modal-footer uk-text-right">
+          <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+          <%= link_to 'Save', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                        :onclick=> "load_bon(this, '"+params[:controller].to_s+"');" %>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-container" class="uk-modal-container change_attachment" uk-modal>
+      <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+          <h4 class="uk-modal-title">New : <%= controller_name.humanize %></h4>
+        </div>
+        <div class="uk-modal-body">
+          
+        </div>
+
+        <div class="uk-modal-footer uk-text-right">
+          <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+          <%= link_to 'Save', 'javascript:;', class: "uk-button uk-button-primary uk-button-small load_attachment" %>
+        </div>
+      </div>
+    </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+          <thead> 
+            <tr>
+              <th class="uk-text-middle">No.</th>  
+              <th class="uk-text-middle uk-text-center">Action</th>  
+              <th class="uk-text-middle uk-text-center">Jenis Biaya/Nama COA</th>
+              <th class="uk-text-middle uk-text-center">No. COA</th>
+              <th class="uk-text-middle uk-text-center">Keterangan</th>
+              <th class="uk-text-middle uk-text-center">Nominal</th>
+            </tr>
+          </thead>
+          <tbody class="tbody_item">
+          <% case params[:action] %>
+          <% when 'edit' %>
+            <% c=0 %>
+            <% show = [] %>
+            <% @proof_cash_expenditure_items.each do |item| %>
+              <tr trid='<%= c+1 %>' bon_count="<%= item.bon_count %>">
+                <%= hidden_field_tag 'record_item[][id]', item.id %>
+                <td><%= c+=1 %></td>
+                <% if show.include?(item.bon_count) == false %>
+                  <td rowspan="<%= item.bon_length %>">
+                    <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], item.status) , { :class=>'uk-select uk-form-small uk-form-width-small' , :onchange=>"calculation_amount(this, '"+params[:controller].to_s+"')"} %>
+                    <a target="_blank" class="uk-button uk-button-secondary uk-button-small" onclick="change_attachment('<%= item.bon_count %>', '<%= params[:controller].to_s %>')">Change File</a>
+                    <span class="hidden-attachment" bon_count="<%= item.bon_count %>"></span>
+                    <% item.image.each do |record_file| %>
+                      <% if record_file["status"]=="active" and record_file["bon_count"] == item.bon_count%>
+                        <%= hidden_field_tag 'record_file[][id]', record_file["id"] %>
+                        <a target="_blank" class="uk-button uk-button-primary uk-button-small bon_attachment" bon_count="<%= item.bon_count %>" href="/<%= record_file["path"].gsub("public/", "") %>">View File</a>
+                      <% end %>
+                    <% end if item.image.present? %>
+                    <% show << item.bon_count %>
+                  </td>
+                <% end %>
+                <td><%= text_field_tag 'record_item[][type_cost]', item.type_cost, {:class=>"uk-input uk-form-small"} %></td>
+                <td><%= text_field_tag 'record_item[][no_coa]', item.no_coa, {:class=>"uk-input uk-form-small"} %></td>
+                <td><%= text_field_tag 'record_item[][remarks]', item.remarks, {:class=>"uk-input uk-form-small"} %></td>
+                <td><%= number_field_tag 'record_item[][nominal]', item.nominal, {:class=>"uk-input uk-form-small", :step=>"any", :onchange=>"calculation_amount(this, '"+params[:controller].to_s+"')"} %></td>
+              </tr>
+            <% end %>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- tes PopUp -->
+  <!-- <div id="item-sections" uk-modal="container: false "></div> -->
+  <div id="item-sections"></div>
+  <!-- end -->
+  <hr>
+  <!-- from add record -->
+  <p uk-margin>
+    <%= link_to 'Back', proof_cash_expenditures_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+<% end %>
+

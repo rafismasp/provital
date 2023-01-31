@@ -1,0 +1,12 @@
+<% case params[:partial] %>
+<% when 'add_item' %>
+  <tr id=trid"<%= params[:c] %>" valign=top><td align=right width=22px class='counter'><%= params[:c] %></td>
+    <td>
+      <%= select_tag "bank[][currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]} ) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-small"} if @currencies.present? %>
+    </td>
+    <td><%= text_field_tag "bank[][bank_name]", nil, {:class=> "uk-input uk-form-small"} %></td>
+    <td><%= text_field_tag "bank[][bank_account]", nil, {:class=> "uk-input uk-form-small"} %></td>
+    <td><%= text_field_tag "bank[][signature]", nil, {:class=> "uk-input uk-form-small"} %></td>
+    <td align='center' width=30px><%= link_to "Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'} %></td>
+  </tr>
+<% end %>

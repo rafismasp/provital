@@ -1,0 +1,178 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'get_date' %>
+  <% case field %>
+  <% when 'year' %>
+    <%= text_field_tag "year", (params[:input_date][0..3]), {:disabled=>true, :class=> "year uk-input uk-form-small"}  %>
+  <% when 'period_yymm' %>
+    <% if params[:input_date].to_s[8,2] <= '20' %>
+      <% period = params[:input_date].to_date - 1.month %>
+    <% else %>
+      <% period = params[:input_date].to_date %>
+    <% end %>
+
+    <% if period.strftime('%m') == '01' %>
+      <% range_period = '21 Jan - 20 Feb' %>
+    <% elsif period.strftime('%m') == '02' %>
+      <% range_period = '21 Feb - 20 Mar' %>
+    <% elsif period.strftime('%m') == '03' %>
+      <% range_period = '21 Mar - 20 Apr' %>
+    <% elsif period.strftime('%m') == '04' %>
+      <% range_period = '21 Apr - 20 Mei' %>
+    <% elsif period.strftime('%m') == '05' %>
+      <% range_period = '21 Mei - 20 Jun' %>
+    <% elsif period.strftime('%m') == '06' %>
+      <% range_period = '21 Jun - 20 Jul' %>
+    <% elsif period.strftime('%m') == '07' %>
+      <% range_period = '21 Jul - 20 Aug' %>
+    <% elsif period.strftime('%m') == '08' %>
+      <% range_period = '21 Aug - 20 Sep' %>
+    <% elsif period.strftime('%m') == '09' %>
+      <% range_period = '21 Sep - 20 Oct' %>
+    <% elsif period.strftime('%m') == '10' %>
+      <% range_period = '21 Oct - 20 Nov' %>
+    <% elsif period.strftime('%m') == '11' %>
+      <% range_period = '21 Nov - 20 Dec' %>
+    <% elsif period.strftime('%m') == '12' %>
+      <% range_period = '21 Dec - 20 Jan' %>
+    <% end %>
+
+    <%= text_field_tag "select_period_yymm", (range_period), {:disabled=>true, :title=>'Periode Lembur', :class=>"period_yymm uk-input uk-form-small"} %>
+  <% else %>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Karyawan</th>
+        <th>NIK</th>
+        <th>Department</th>
+        <th>Schedule</th>
+        <th>Mulai Lembur</th>
+        <th>Selesai Lembur</th>
+        <th>Lama Lembur</th>
+        <th>Jenis Pekerjaan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=1 %>
+      <tr id="trid1" valign=top>
+        <td class='counter'><%= c%></td>
+        <td>
+          <%= hidden_field_tag "new_record_item[][employee_id]", (params[:employee_id]), :class=>"employee_id_#{c} uk-input uk-form-width-medium uk-form-small" %>
+          <%= render 'layouts/form_item', c: c, field_name: "employee_item_id", field_value: (params[:employee_name]) %>
+        </td>
+        <td><%= text_field_tag "employee_nik", (params[:employee_nik]), :class=>"employee_nik_#{c} uk-input uk-form-small", :disabled=>true %></td>
+        <td><%= text_field_tag "employee_department", (params[:department_name]), :class=>"employee_department_#{c} uk-input uk-form-small", :disabled=>true %></td>
+        <td id="sched">
+          <%= text_field_tag "new_record_item[][schedule]", nil, {:readonly=>true, :class=>"schedule_#{c} uk-input uk-form-small"} %>
+        </td>
+        <td><%= time_field_tag "new_record_item[][overtime_begin]", (nil), {:required=>true, :class=>'uk-input uk-form-small overtime_begin', :onchange=> "overtime_in(this,"+c.to_s+");"} %></td>
+        <td><%= time_field_tag "new_record_item[][overtime_end]", (nil), {:required=>true, :class=>'uk-input uk-form-small overtime_end', :onchange=> "overtime_out(this,"+c.to_s+");"} %></td>
+        <td><%= text_field_tag 'total_overtime', 0, {:disabled=>true, :class=>'uk-input uk-form-small'}%></td>
+        <td><%= text_field_tag 'new_record_item[][description]', (nil), {:class=>"uk-input uk-form-small"}  %></td>
+      </tr>
+    </tbody>
+  <% end %>
+<% when 'add_item' %>
+  <tr id="trid<%= params[:c] %>" valign=top>
+    <td class='counter'><%= params[:c] %></td>
+    <td>
+      <%= hidden_field_tag "new_record_item[][employee_id]", (params[:employee_id]), :class=>"employee_id_#{params[:c]} uk-input uk-form-width-medium uk-form-small" %>
+      <%= render 'layouts/form_item', c: params[:c], field_name: "employee_item_id", field_value: (params[:employee_name]) %>
+    </td>
+    <td><%= text_field_tag "employee_nik", (params[:employee_nik]), :class=>"employee_nik_#{params[:c]} uk-input uk-form-small", :disabled=>true %></td>
+    <td><%= text_field_tag "employee_department", (params[:department_name]), :class=>"employee_department_#{params[:c]} uk-input uk-form-small", :disabled=>true %></td>
+    <td id="sched">
+      <%= text_field_tag "new_record_item[][schedule]", nil, {:readonly=>true, :class=>"schedule_#{params[:c]} uk-input uk-form-small"} %>
+    </td>
+    <td><%= time_field_tag "new_record_item[][overtime_begin]", (nil), {:required=>true, :class=>'uk-input uk-form-small overtime_begin', :onchange=> "overtime_in(this,"+params[:c].to_s+");"} %></td>
+    <td><%= time_field_tag "new_record_item[][overtime_end]", (nil), {:required=>true, :class=>'uk-input uk-form-small overtime_end', :onchange=> "overtime_out(this,"+params[:c].to_s+");"} %></td>
+    <td><%= text_field_tag 'total_overtime', 0, {:disabled=>true, :class=>'uk-input uk-form-small'}%></td>
+    <td><%= text_field_tag 'new_record_item[][description]', (nil), {:class=>"uk-input uk-form-small"}  %></td>
+    <td align='center' width=30px>
+      <%= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+<% when 'change_period' %>
+  <%= date_field_tag "employee_overtime[date]", (nil), :min=>@period_begin.strftime(), :max=>@period_end.strftime(), :required=>true, :class=> "date uk-input uk-form-small", :onchange=>"change_date(this, '"+params[:controller].to_s+"')" %>
+<% when 'show_schedule' %> 
+  <% if @emp_schedules.present? %>
+    <% schedules = @schedules.find_by(:code=>@emp_schedules["day#{params[:input_date][8,2]}"]) %>
+    <% if schedules.present? %>
+      <% if schedules["#{params[:input_date].to_date.strftime("%A").camelize(:lower)+("_in")}"].present? && schedules["#{params[:input_date].to_date.strftime("%A").camelize(:lower)+("_out")}"].present? %>
+        <% day_in = schedules["#{params[:input_date].to_date.strftime("%A").camelize(:lower)+("_in")}"].strftime('%H:%M') %>
+        <% day_out = schedules["#{params[:input_date].to_date.strftime("%A").camelize(:lower)+("_out")}"].strftime('%H:%M') %>
+      <% else %>
+        <% day_in = schedules["#{params[:input_date].to_date.strftime("%A").camelize(:lower)+("_in")}"] %>
+        <% day_out = schedules["#{params[:input_date].to_date.strftime("%A").camelize(:lower)+("_out")}"] %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <%= text_field_tag "new_record_item[][schedule]", (@emp_schedules.present? ? @emp_schedules["day#{params[:input_date][8,2]}"] : nil ), {:readonly=>true, :class=>"uk-input uk-form-small"} %>
+  <%= hidden_field_tag 'schedule_in', (day_in), {:class=>'uk-input uk-form-small'} %>
+  <%= hidden_field_tag 'schedule_out', (day_out), {:class=>'uk-input uk-form-small'} %>
+<% when 'get_total_day' %>
+  <%= text_field_tag "days", "#{params[:tday]} Hari", :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true %>
+  <%= hidden_field_tag "employee_absence[day]", (params[:tday]), {:readonly=>true, :class=>"form-control input-sm"} %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+    <thead class="bg-primary">
+      <tr>
+        <th>No</th>
+        <th>STATUS</th>
+        <th>NIK</th>
+        <th>Nama Karyawan</th>
+        <th>Department</th>
+        <th>Jabatan</th>
+        <th>Tanggal</th>
+        <th>Mulai Lembur</th>
+        <th>Selesai Lembur</th>
+        <th>Total Jam Lembur</th>
+        <th>Keterangan</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @employee_overtimes.each do |employee_overtime| %>
+        <tr uk-tooltip="title: <%= row_tooltip(employee_overtime) %>; pos: top-left">
+          <% total_ot = TimeDifference.between(employee_overtime.datetime_overtime_begin, employee_overtime.datetime_overtime_end).in_hours %>
+          <% if total_ot >= "4.00".to_f && total_ot < "5.00".to_f %>
+            <% total_ot = (total_ot.to_f - 0.30) %>
+          <% elsif total_ot >= "5.00".to_f %>
+            <% total_ot = (total_ot.to_f - 1.00) %>
+          <% end %>
+          <td><%= c+=1 %></td>
+          <td>
+            <% case employee_overtime.status %>
+            <% when 'deleted' %>
+              <%= image_tag "void.png", size: "15x15" %>
+            <% when 'approved3' %>
+              <%= image_tag "approve.png", size: "15x15" %>
+              <%= image_tag "approve.png", size: "15x15" %>
+              <%= image_tag "approve.png", size: "15x15" %>
+            <% when 'canceled3','approved2' %>
+              <%= image_tag "approve.png", size: "15x15" %>
+              <%= image_tag "approve.png", size: "15x15" %>
+            <% when 'canceled2','approved1' %>
+              <%= image_tag "approve.png", size: "15x15" %>
+            <%else%>
+              <%= image_tag "new.png", size: "15x15" %>
+            <%end%>
+          </td>
+          <td><%= employee_overtime.employee.nik if employee_overtime.employee.present? %></td>
+          <td><%= employee_overtime.employee.name if employee_overtime.employee.present? %></td>
+          <td><%= employee_overtime.employee.department.name if employee_overtime.employee.present? and employee_overtime.employee.department.present?  %></td>
+          <td><%= employee_overtime.employee.position.name if employee_overtime.employee.present? and employee_overtime.employee.position.present?  %></td>
+          <td><%= employee_overtime.date %></td>
+          <td><%= employee_overtime.overtime_begin.strftime("%H:%M") %></td>
+          <td><%= employee_overtime.overtime_end.strftime("%H:%M") %></td>
+          <td><%= total_ot %></td>
+          <td><%= employee_overtime.description %></td>
+          <td><%= link_to 'Show', employee_overtime_path(:id=>employee_overtime.id, :department_id=>params[:department_id], :year=>params[:year], :month=>params[:month]), :job=>'show' %></td>
+          <td><%= link_to 'Edit', edit_employee_overtime_path(employee_overtime, :job=>'edit') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

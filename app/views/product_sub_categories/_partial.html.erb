@@ -1,0 +1,30 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+    <thead class="bg-primary">
+      <tr>
+        <th>#</th>
+        <th>Code</th>
+        <th>Sub Category</th>
+        <th>Category</th>
+        <th>Sub Category</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @c = (@c.present? ? @c : 0) %>   
+      <% @product_sub_categories.each do |product_sub_category| %>
+        <tr>
+          <td><%= @c+=1 %></td>
+          <td><%= product_sub_category.code %></td>
+          <td><%= product_sub_category.name %></td>
+          <td><%= product_sub_category.product_category.code if product_sub_category.product_category.present? %> - <%= product_sub_category.product_category.name if product_sub_category.product_category.present? %></td>
+          <td><%= link_to 'Show', product_sub_category %></td>
+          <td><%= link_to 'Edit', edit_product_sub_category_path(product_sub_category) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

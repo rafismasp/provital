@@ -1,0 +1,79 @@
+        
+<%= form_with(model: job_list, local: true, class: 'uk-form-horizontal') do |form| %>
+  <% if job_list.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(job_list.errors.count, "error") %> prohibited this job_list from being saved:</h2>
+
+      <ul>
+      <% job_list.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class=" uk-margin-small">
+    <%= form.label :category, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.collection_select :job_category_id, @job_category,:id,:name, {}, include_blank: true, class: "uk-select uk-form-small" if @job_category.present? %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :interval, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.select :interval, ['daily','weekly','monthly','yearly'], {}, :class=> "uk-select uk-form-width-medium uk-form-small", :onchange=> "change_interval_job_list(this, '"+params[:controller].to_s+"')" %>
+
+      <% case @job_list.interval %>
+      <% when "weekly" %>
+        <%= select_tag "job_list[weekly_day]", options_for_select(['Monday','Sunday','Tuesday','Wednesday','Thursday','Friday','Saturday'], @job_list.weekly_day), :required=>true,:class=>"uk-select uk-form-width-small uk-form-small", :prompt=>"--Pilih--" %>
+      <% when "monthly" %>
+        <%= number_field_tag "job_list[monthly_date]", (@job_list.monthly_date if @job_list.present?), :class=> "uk-select uk-form-width-small uk-form-small", :max=> 31 %>
+      <% when "yearly" %>
+        <%= select_tag "job_list[yearly_month]", options_for_select(['January','February','March','April','May','June','July','August','September','October','November','December'], @job_list.yearly_month), :required=>true,:class=>"uk-select uk-form-width-small uk-form-small", :prompt=>"--Pilih--" %>
+      <% end if @job_list.present? %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :department, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.collection_select :department_id, @department,:id,:name, {}, include_blank: true, class: "uk-select uk-form-width-small uk-form-small" if @department.present? %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :user, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.collection_select :user_id, @users,:id,:email, {}, include_blank: true, class: "uk-select uk-form-width-large uk-form-small" if @users.present? %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :job_name, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.text_field :name, id: :job_list_name, :class=> "uk-input uk-form-small" %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :description, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.text_area :description, id: :job_list_description, :class=> "uk-textarea uk-form-small", :rows=> 5 %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :time_required, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.number_field :time_required, id: :job_list_time_required, :class=> "uk-input uk-form-width-small uk-form-small" %>
+    </div>
+  </div>
+  <div class=" uk-margin-small">
+    <%= form.label :status, class:"uk-form-label uk-width-small", for: "form-horizontal-text" %>
+    <div class="uk-form-controls">
+      <%= form.select :status, ['active','suspend'], {}, :class=> "uk-select uk-form-width-small uk-form-small" %>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', job_lists_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

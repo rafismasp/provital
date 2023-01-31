@@ -1,0 +1,5 @@
+class CostProjectFinanceGrnItem < ApplicationRecord
+	belongs_to :cost_project_finance
+	belongs_to :cost_project_finance_prf_item
+	belongs_to :cost_project_finance_po_item
+end

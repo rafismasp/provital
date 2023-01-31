@@ -1,0 +1,75 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_customer' %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th>#</th>
+      <th>PO Number</th>
+      <th>DO Number</th>
+      <th>Product Code</th>
+      <th>Product Name</th>
+      <th>Batch Number</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Remarks</th>
+      <th>Remove</th>
+    </tr>
+    <% c=0 %>
+    <% @delivery_order_items.each do |item| %>
+      <%= hidden_field_tag 'new_record_item[][delivery_order_item_id]', item.id %>
+      <%= hidden_field_tag 'new_record_item[][sales_order_item_id]', item.sales_order_item_id %>
+      <%= hidden_field_tag 'new_record_item[][product_id]', item.product_id %>
+      <tr>
+        <td class="counter"><%= c+=1%></td>
+        <td>
+          <%= (item.sales_order_item.present? ? item.sales_order_item.sales_order.po_number : nil) %>
+        </td>
+        <td><%= (item.delivery_order.present? ? item.delivery_order.number : nil) %></td>
+        <td><%= item.product.part_id %></td>
+        <td><%= item.product.name %></td>
+        <td><%= (item.product_batch_number.present? ? item.product_batch_number.number : nil) %></td>
+        <td><%= item.product.unit.name %></td>       
+        <td>
+          <%= number_field_tag 'new_record_item[][quantity]', item.quantity, {:placeholder=> 'quantity', :class=>"uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+        </td>
+       
+        <td>
+          <%= number_field_tag 'new_record_item[][unit_price]',(item.sales_order_item.present? ? item.sales_order_item.unit_price : 0), {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :readonly=> true } %>
+        </td>
+        <td>
+          <%= text_field_tag 'new_record_item[][remarks]', nil, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+        </td>
+      </tr>
+    <% end if @delivery_order_items.present? %>
+  </table>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+    <thead class="bg-primary">
+      <tr>
+        <th>#</th>
+        <th>Status</th>
+        <th>Customer</th>
+        <th>Invoice Number</th>
+        <th>Invoice Date</th>
+        <th>Driver Name</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @invoice_customers.each do |invoice_customer| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td><%= invoice_customer.status %></td>
+          <td><%= invoice_customer.customer.name if invoice_customer.customer.present? %></td>
+          <td><%= invoice_customer.number %></td>
+          <td><%= invoice_customer.date %></td>
+          <td><%= link_to 'Show', invoice_customer %></td>
+          <td><%= link_to 'Edit', edit_invoice_customer_path(invoice_customer) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

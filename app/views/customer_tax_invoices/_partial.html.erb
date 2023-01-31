@@ -1,0 +1,72 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "change_customer" %>
+	<% case field %>
+	<% when 'currency_id' %>
+		<%= text_field_tag "currency", @currency.name, {:class=> 'uk-input uk-form-small', :disabled=> true} if @currency.present? %>
+	<% when 'invoice_customer_unused' %>           
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="invoice_customer_unused">  
+      <tr>
+        <td>#</td>
+        <td>Checked</td>
+        <td>Number</td>
+        <td>Date</td>
+        <td>Subtotal</td>
+        <td>GrandTotal</td>
+      </tr>
+      <% c = 0 %>
+      <% @invoice_customer_unused.each do |invoice| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td><input class="uk-checkbox select_invoice_customer_id" type="checkbox" invoice_customer_id="<%= invoice.id %>"></td>
+          <td><%= invoice.number %></td>
+          <td><%= invoice.date %></td>
+          <td><%= number_with_precision(invoice.subtotal, precision: 0, delimiter: ".", separator: ",")%></td>
+          <td><%= number_with_precision(invoice.grandtotal, precision: 0, delimiter: ".", separator: ",")%></td>
+        </tr>
+      <% end if @invoice_customer_unused.present? %>
+    </table>
+	<% end %>
+<% when "load_invoice_customer" %>
+  <%= render 'tab_record' %>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+	  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+	    <thead class="bg-primary">
+	      <tr>
+	        <th>#</th>
+	        <th>Customer</th>
+	        <th>No.E-faktur</th>
+	        <th>Tanggal</th>
+	        <th>Subtotal</th>
+	        <th>PPN</th>
+	        <th>Amount</th>
+	        <th colspan="2">Action</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      <% c=0 %>
+	      <% if @customer_tax_invoices.present? %>
+		      <% @customer_tax_invoices.each do |customer_tax_invoice| %>
+		        <tr>
+		          <td><%= c+=1 %></td>
+		          <td><%= customer_tax_invoice.customer.name if customer_tax_invoice.customer.present? %></td>
+		          <td><%= customer_tax_invoice.number %></td>
+		          <td><%= customer_tax_invoice.date %></td>
+		          <td class="uk-text-right"><%= number_with_precision(customer_tax_invoice.subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		          <td class="uk-text-right"><%= number_with_precision(customer_tax_invoice.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+		          <td class="uk-text-right"><%= number_with_precision(customer_tax_invoice.amount, precision: 0, delimiter: ".", separator: ",") %></td>
+		          <td><%= link_to 'Show', customer_tax_invoice %></td>
+		          <td><%= link_to 'Edit', edit_customer_tax_invoice_path(customer_tax_invoice) %></td>
+		        </tr>
+		      <% end %>
+		    <% else %>
+		    	<tr>
+		    		<td colspan="10">record not found</td>
+		    	</tr>
+		    <% end %>
+	    </tbody>
+	  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+	</div>
+<% end %>

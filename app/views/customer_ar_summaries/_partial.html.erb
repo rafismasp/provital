@@ -1,0 +1,57 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_inventory_kind' %>  
+  <%= hidden_field_tag "#{params[:select_inventory_kind]}_id", nil, :class=>"#{params[:select_inventory_kind]}_id1 part", :prompt=>"--select--"%>
+  <%= render 'layouts/form_item', c: 1, field_name: "#{params[:select_inventory_kind]}_id", field_value: nil%>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+    <thead class="bg-primary">      
+      <tr>
+        <th>No.</th>
+        <th>Customer</th>
+        <th>Curr</th>
+        <th>January</th>
+        <th>February</th>
+        <th>March</th>
+        <th>April</th>
+        <th>May</th>
+        <th>June</th>
+        <th>July</th>
+        <th>August</th>
+        <th>September</th>
+        <th>October</th>
+        <th>November</th>
+        <th>December</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%c=0 %>
+      <% @records.each do |record| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td><%= record.customer.name if record.customer.present? %></td>
+          <td><%= record.customer.currency.name if record.customer.present? and record.customer.currency.present? %></td>
+          <% begin_period = "#{params[:periode_yyyy]}-01-01" %> 
+          <% end_period   = "#{params[:periode_yyyy]}-12-31" %>
+          <% months = (begin_period..end_period).map {|date| ["#{date.to_s[0, 7]}","#{date.to_s[0..-4]}"+"-01"]}.uniq %>
+          <% sum_by_year = 0 %>
+          <% months.each do |yyyymm, yyyymmdd| %>
+            <% begin_date = yyyymmdd.to_date.at_beginning_of_month %>
+            <% end_date   = yyyymmdd.to_date.at_end_of_month %>
+            <td title="between <%= begin_date %> and <%= end_date %>" align="right">
+              <% sum_by_month = @all_records.where(:customer_id=> record.customer_id, :date=> begin_date .. end_date).sum(:subtotal) %>
+
+              <%= number_with_precision( sum_by_month, precision: 2, delimiter: ".", separator: "," ) %>
+              <% sum_by_year += sum_by_month %>
+            </td>
+          <% end %>
+          <td title="between <%= begin_period %> and <%= end_period %>" align="right">
+            <%= number_with_precision( sum_by_year, precision: 2, delimiter: ".", separator: "," ) %>
+          </td>
+        </tr>
+      <% end if @records.present? %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

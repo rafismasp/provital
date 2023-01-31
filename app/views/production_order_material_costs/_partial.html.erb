@@ -1,0 +1,64 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+    <thead class="bg-primary">
+      <tr>
+        <th>#</th>
+        <th>SO Number</th>
+        <th>SPP Number</th>
+        <th>SPP Date</th>
+        <th>Product Part ID</th>
+        <th>Product Qty</th>
+        <th>Product Price</th>
+        <th>Material Part ID</th>
+        <th>Material Qty</th>
+        <th>Material Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @records.each do |record| %>
+        <% material_part = nil %>
+        <% if record.purchase_request_item.material.present? %>
+          <% material_part = record.purchase_request_item.material %>
+        <% elsif record.purchase_request_item.product.present? %>
+          <% material_part = record.purchase_request_item.product %>
+        <% end %>
+        <tr>
+          <td><%= @c+=1 %></td>
+          <td><%= link_to record.production_order_item.production_order.sales_order.number, "/sales_orders/#{record.production_order_item.production_order.sales_order_id}" %></td>
+          <td><%= link_to record.production_order_item.production_order.number, "/production_orders/#{record.production_order_item.production_order_id}" %></td>
+          <td><%= record.production_order_item.production_order.date %></td>
+          <td><%= record.production_order_item.product.part_id %></td>
+          <td><%= record.production_order_item.quantity %></td>
+          <td><%= record.production_order_item.sales_order_item.unit_price %></td>
+          <td><%= material_part.part_id if material_part.present? %></td>
+          <td><%= record.purchase_request_item.quantity %></td>
+          <td>
+            <% if record.purchase_request_item.purchase_order_supplier_items.present? %>
+              <table>
+                <thead>
+                  <tr>
+                    <th>PO Number</th>
+                    <th>Unit Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% record.purchase_request_item.purchase_order_supplier_items.each do |po_item| %>
+                    <% if po_item.purchase_order_supplier.status == 'approved3' %>
+                      <tr>
+                        <td><%= link_to po_item.purchase_order_supplier.number, "/purchase_order_suppliers/#{po_item.purchase_order_supplier_id}?q=#{po_item.purchase_order_supplier.kind}" %></td>
+                        <td><%= po_item.unit_price %></td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            <% end %>
+          </tr>
+        </tr>
+      <% end if @records.present? %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

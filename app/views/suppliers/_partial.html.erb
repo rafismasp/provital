@@ -1,0 +1,64 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'add_item' %>
+  <tr id="trid<%= params[:c]%>" counter="<%= params[:c]%>">
+    <td align=right width=22px>
+      <%= params[:c] %>.
+    </td>
+    <td><%= text_field_tag 'new_bank[][account_holder]', nil,{:class=> "uk-form-width-medium uk-input uk-form-small", :style=> "width: 250px;"}  %></td>
+    <td>
+      <%= hidden_field_tag "new_bank[][dom_bank_id]", nil, :class=>"dom_bank_id#{params[:c]}" %>
+      <%= render 'layouts/form_item', c: params[:c], field_name: "dom_bank_id", field_value: "" %>
+    </td>
+    <td><%= text_field_tag 'new_bank[][account_number]', nil,{:class=> "uk-form-width-medium uk-input uk-form-small"}  %></td>
+    <td>
+      <%= select_tag "new_bank[][receiver_type]", options_for_select(['Individual / Perorangan','Perushaan / Company','Pemerintah / Goverment'], 'Perushaan / Company'), ctrl: params[:controller], tbl: params[:tbl], :class=>"uk-form-width-medium uk-select uk-form-small" %>
+        
+    </td>
+    <td><%= text_field_tag 'new_bank[][email]', nil, { :class=>"uk-form-width-medium uk-input uk-form-small"} %></td>
+    <td>
+      <%= select_tag "new_bank[][residence_type]", options_for_select(['Residence','Non Residence'], 'Residence'), ctrl: params[:controller], tbl: params[:tbl], :class=>"uk-form-width-medium uk-select uk-form-small" %>
+    </td>
+    <td>
+      <%= hidden_field_tag "new_bank[][country_code_id]", nil, :class=>"country_code_id#{params[:c]}" %>
+      <%= render 'layouts/form_item', c: params[:c], field_name: "country_code_id", field_value: "" %>
+    <td>
+      <%= select_tag "new_bank[][currency_id]", options_for_select(@currencies.map { |e| [e.name, e.id] }, nil),  :prompt => '-- Pilih --', ctrl: params[:controller], tbl: params[:tbl], :class=>"uk-form-width-medium uk-select uk-form-small", :style=> "width: 80px;" if @currencies.present? %>
+    </td>
+    <td><%= link_to("Delete", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();'})%></td>         
+  </tr>
+<% else %>
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>Supplier ID</th>
+          <th>Nama</th>
+          <th>Business Desc.</th>
+          <th>PIC</th>
+          <th>Telephone</th>
+          <th>Email</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c = @c.present? ? @c : 0 %>
+        <% @suppliers.each do |supplier| %>
+          <tr uk-tooltip="title: <%= row_tooltip(supplier) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= supplier.number %></td>
+            <td><%= supplier.name %></td>
+            <td><%= supplier.business_description %></td>
+            <td><%= supplier.pic %></td>
+            <td><%= supplier.telephone %></td>
+            <td><%= supplier.email %></td>
+            <td><%= link_to 'Show', supplier %></td>
+            <td><%= link_to 'Edit', edit_supplier_path(supplier) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

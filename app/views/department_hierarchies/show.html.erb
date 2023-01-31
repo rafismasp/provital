@@ -1,0 +1,108 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', department_hierarchies_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Department</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :department_id, @department_hierarchy.department.name, :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Approved 1 By</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :approved1_by, "#{@department_hierarchy.approved1.first_name} #{@department_hierarchy.approved1.last_name}", :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">Cancel 1 By</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :canceled1, "#{@department_hierarchy.canceled1.first_name} #{@department_hierarchy.canceled1.last_name}", :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Approved 2 By</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :approved2_by, "#{@department_hierarchy.approved2.first_name} #{@department_hierarchy.approved2.last_name}", :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">Cancel 2 By</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :canceled2, "#{@department_hierarchy.canceled2.first_name} #{@department_hierarchy.canceled2.last_name}", :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Approved 3 By</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :approved3_by, "#{@department_hierarchy.approved3.first_name} #{@department_hierarchy.approved3.last_name}", :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">Cancel 3 By</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :canceled3, "#{@department_hierarchy.canceled3.first_name} #{@department_hierarchy.canceled3.last_name}", :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Void By</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :voided, "#{@department_hierarchy.voided.first_name} #{@department_hierarchy.voided.last_name}", :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-width-1-2@m">
+              <%= link_to 'Edit', edit_department_hierarchy_path(@department_hierarchy, :job => 'edit'), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+              <%= link_to 'Back', department_hierarchies_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

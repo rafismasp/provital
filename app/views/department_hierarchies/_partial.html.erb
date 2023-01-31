@@ -1,0 +1,39 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+    <thead class="bg-primary">
+      <tr>
+        <th>No</th>
+        <th>Department</th>
+        <th>Approved1 by</th>
+        <th>Cancel1 by</th>
+        <th>Approved2 by</th>
+        <th>Cancel2 by</th>
+        <th>Approved3 by</th>
+        <th>Cancel3 by</th>
+        <th>Void By</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c=0 %>
+      <% @department_hierarchies.each do |department_hierarchy| %>
+        <tr uk-tooltip="title: <%= row_tooltip(department_hierarchy) %>; pos: top-left">
+          <td><%= c+=1 %></td>
+          <td><%= department_hierarchy.department.name %></td>
+          <td><%= "#{department_hierarchy.approved1.first_name} #{department_hierarchy.approved1.last_name}" %></td>
+          <td><%= "#{department_hierarchy.canceled1.first_name} #{department_hierarchy.canceled1.last_name}" %></td>
+          <td><%= "#{department_hierarchy.approved2.first_name} #{department_hierarchy.approved2.last_name}" %></td>
+          <td><%= "#{department_hierarchy.canceled2.first_name} #{department_hierarchy.canceled2.last_name}" %></td>
+          <td><%= "#{department_hierarchy.approved3.first_name} #{department_hierarchy.approved3.last_name}" %></td>
+          <td><%= "#{department_hierarchy.canceled3.first_name} #{department_hierarchy.canceled3.last_name}" %></td>
+          <td><%= "#{department_hierarchy.voided.first_name} #{department_hierarchy.voided.last_name}" %></td>
+          <td><%= link_to 'Show', department_hierarchy, :job=>'show' %></td>
+          <td><%= link_to 'Edit', edit_department_hierarchy_path(department_hierarchy, :job=>'edit') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

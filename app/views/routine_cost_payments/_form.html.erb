@@ -1,0 +1,176 @@
+
+<%= form_with(model: routine_cost_payment, local: true, class: "uk-form-horizontal", :multipart => true) do |form| %>
+
+  <% if routine_cost_payment.errors.any? %>
+    <% alert = "<h4> #{pluralize(routine_cost_payment.errors.count, 'error')} prohibited this routine_cost_payment from being saved:</h4>" %>
+    <% alert += "<ul>" %>
+    <% routine_cost_payment.errors.full_messages.each do |message| %>
+      <% alert += "<li>#{message}</li>" %>
+    <% end %>
+    <% alert += "</ul>" %>
+
+    <script type="text/javascript">
+      UIkit.notification({
+        message: '<%= alert.to_s.html_safe %>', status: 'warning', pos: 'top-center', timeout: 10000
+      });
+    </script>
+  <% end if routine_cost_payment.present? %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <!-- Left -->
+      <div class="uk-width-1-3@m">
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Routine Cost Number</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :number, id: :routine_cost_payment_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically", :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Date</div>
+          <div class="uk-width-2-3@m">
+            <%= form.date_field :date, id: :routine_cost_payment_date, :class=> "uk-input uk-form-small", :required=> true, :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Department</div>
+          <div class="uk-width-2-3@m">
+            <%= form.collection_select :department_id, @departments, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-small", :onchange=>"change_department(this, '"+params[:controller].to_s+"')", :disabled=>(params[:action]=="edit" ? true : false) %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Load Routine Cost</div>
+          <div class="uk-width-2-3@m routine_cost_form">
+            <% if params[:action] == "edit" %>
+              <%= link_to "Add New","javascript:;", :class=>"uk-button uk-button-primary uk-button-small", :onclick=>"add_new_routine(this, '"+params[:controller].to_s+"')" %>
+            <% end %>
+
+            <%#= select_tag "select_routine", options_for_select(@routine_cost_interval.map { |e| ["#{e.routine_cost.number} - #{e.routine_cost.cost_name} - #{e.date}",e.id]  }), class: "uk-select uk-form-small select_routine_cost", :onchange=>"select_routine_cost(this, '"+params[:controller].to_s+"')", :multiple=>"multiple" %>
+          </div>
+        </div>
+
+      </div>
+      <!-- End Left -->
+
+      <!-- Right -->
+      <div class="uk-width-1-3@m">
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Grand Total</div>
+          <div class="uk-width-2-3@m">
+            <%= form.number_field :grand_total, id: :routine_cost_payment_grand_total, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :step=>"any" %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Voucher Number</div>
+          <div class="uk-width-2-3@m">
+            <%= form.text_field :voucher_number, id: :routine_cost_payment_voucher_number, :class=> "uk-input uk-form-width-large uk-form-small" %>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-margin-small">
+          <div class="uk-width-1-3@m">Attachment</div>
+          <div class="uk-width-2-3@m select_taxes">
+            <table class="uk-table uk-table-striped">
+              <thead>
+                <tr>
+                  <th>File Upload</th>
+                </tr>
+              </thead>   
+              <tbody>
+                <% @record_files.each do |record_file| %>
+                  <%= hidden_field_tag 'record_file[][id]', record_file.id %>
+                  <% case record_file.ext.downcase %>
+                  <% when '.png','.jpg','.jpeg','.jfif','.svg','.webp' %>
+                    <tr>
+                      <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>"><img src="/<%= record_file.path.gsub("public/", "") %>" ext="img" class="show_files" style="max-height: 200px"/></a></td>
+                      <td><%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+                    </tr>
+                  <% else %>
+                    <tr>
+                      <td><a target="_blank" href="/<%= record_file.path.gsub("public/", "") %>">View PDF</a></td>
+                      <td><%= select_tag "record_file[][status]", options_for_select(['active','deleted'], record_file.status) , { :class=>'uk-select uk-form-small uk-form-width-small'} %></td>
+                    </tr>
+                  <% end %>
+                <% end if @record_files.present? %>
+                <tr>
+                  <td><%= file_field_tag 'file[][attachment]', :class=>'btn btn-default btn-sm', :multiple=>true %></td>
+                </tr>
+              </tbody> 
+            </table>  
+          </div>
+        </div>
+      </div>
+      <!-- End Right -->
+    </div>
+  </div>
+
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">
+          <thead> 
+            <tr>
+              <th class="uk-text-middle">No</th>  
+              <th class="uk-text-middle">Delete</th>  
+              <th class="uk-text-middle uk-text-center">Routine Number</th>
+              <th class="uk-text-middle uk-text-center">COA Name</th>
+              <th class="uk-text-middle uk-text-center">COA Number</th>
+              <th class="uk-text-middle uk-text-center">Payment Name</th>
+              <th class="uk-text-middle uk-text-center">Period</th>
+              <th class="uk-text-middle uk-text-center">Type</th>
+              <th class="uk-text-middle uk-text-center">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="tbody_item">
+          <% case params[:action] %>
+          <% when 'edit' %>
+            <% c=0 %>
+            <% @routine_cost_payment_items.each do |item| %>
+              <tr trid='<%= item.id %>'>
+                <% case item.routine_cost.interval %>
+                <% when 'annual' %>
+                  <% periode = item.routine_cost_interval.date.strftime("%Y") %>
+                <% when 'monthly' %>
+                  <% periode = item.routine_cost_interval.date.strftime("%b-%Y") %>
+                <% when 'weekly' %>
+                  <% periode = item.routine_cost_interval.date.strftime("%A, %W , %Y") %>
+                <% end %>
+                <%= hidden_field_tag 'record_item[][id]', item.id %>
+                <%= hidden_field_tag 'record_item[][routine_cost_payment_id]', item.routine_cost_payment_id %>
+                <%= hidden_field_tag 'record_item[][routine_cost_interval_id]', item.routine_cost_interval_id %>
+                <%= hidden_field_tag 'record_item[][routine_cost_id]', item.routine_cost_id %>
+                <% permanent = item.routine_cost.nominal_type == "permanent" ? "permanent" : "not-permanent" %>
+                <td><%= c+=1 %></td>
+                <td>
+                  <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], item.status) , { :class=>'uk-select uk-form-small uk-form-width-small' , :onchange=>"routine_price_change()"} %>
+                </td>
+                <td><%= text_field_tag 'number', item.routine_cost.number, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                <td><%= text_field_tag 'record_item[][coa_name]', item.coa_name, {:class=>"uk-input uk-form-small"} %></td>
+                <td><%= text_field_tag 'record_item[][coa_number]', item.coa_number, {:class=>"uk-input uk-form-small"} %></td>
+                <td><%= text_field_tag 'cost_name', item.routine_cost.cost_name, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                <td><%= text_field_tag 'date', periode, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+                <td><%= text_field_tag 'nominal_type', item.routine_cost.nominal_type, {:class=>"uk-input uk-form-small", :disabled=>true} %></td>
+
+                <td><%= number_field_tag 'record_item[][amount]', item.amount, {:class=>"uk-input uk-form-small", :readonly=> (permanent == "permanent" ? true : false), :step=>"any"} %></td>
+              </tr>
+            <% end %>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', routine_cost_payments_path(:id=> params[:id], :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

@@ -1,0 +1,33 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Material Code</th>
+        <th>Vendor</th>
+        <th>Nama</th>
+        <th>Model Name</th>
+        <th>Unit</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% c= @c.present? ? @c : 0 %>
+      <% @materials.each do |material| %>
+        <tr uk-tooltip="title: <%= row_tooltip(material) %>; pos: top-left">
+          <td><%= c+=1 %></td>
+          <td><%= material.part_id %></td>
+          <td><%= material.vendor_name %></td>
+          <td class="uk-width-large"><%= material.name %></td>
+          <td><%= material.part_model %></td>
+          <td><%= material.unit.name if material.unit.present? %></td>
+          <td class="uk-width-auto"><%= link_to 'Show', material %></td>
+          <td class="uk-width-auto"><%= link_to 'Edit', edit_material_path(material) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

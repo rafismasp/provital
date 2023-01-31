@@ -1,0 +1,248 @@
+
+<%= form_with(model: material_additional, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if material_additional.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(material_additional.errors.count, "error") %> prohibited this material_additional from being saved:</h2>
+
+      <ul>
+      <% material_additional.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Doc. Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :material_additional_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Doc. Date</div>
+            <div class="uk-width-1-2@m">
+              <%= form.date_field :date, id: :material_additional_date, :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true, 
+                :min=> (form.object.date.present? ? form.object.date.to_date.at_beginning_of_month() : ""),
+                :max=> (form.object.date.present? ? form.object.date.to_date.at_end_of_month() : "")
+                 %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Remarks</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :remarks, id: :material_additional_remarks, :class=> "uk-input uk-form-width-large uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">RM Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.hidden_field :material_return_id, id: :material_additional_material_return_id, :class=> "material_return_id" %>
+              <%= render 'layouts/form_item', c: 0, field_name: "material_return_id", field_value: (form.object.material_return.present? ? form.object.material_return.number : nil), job_name: job_name %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">RM Date</div>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "rm_date", (form.object.material_return.present? ? form.object.material_return.date : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">MI Number</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "mi_number", (form.object.material_outgoing.present? ? form.object.material_outgoing.number : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+              <%= form.hidden_field :material_outgoing_id, id: :material_additional_material_outgoing_id, :class=> "material_outgoing_id" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">MI Date</div>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "mi_date", (form.object.material_outgoing.present? ? form.object.material_outgoing.date : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">SFO Number</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "sfo_number", (form.object.shop_floor_order.present? ? form.object.shop_floor_order.number : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">SFO Date</div>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "sfo_date", (form.object.shop_floor_order.present? ? form.object.shop_floor_order.date : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Product Name</div>
+            <div class="uk-width-2-3@m">
+              <%= text_field_tag "product_name", (form.object.material_return.present? ? form.object.material_return.product_batch_number.product.name : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Batch Number</div>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "batch_number", (form.object.material_return.present? ? form.object.material_return.product_batch_number.number : nil), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+              <%= form.hidden_field :product_batch_number_id, id: :material_additional_product_batch_number_id, :class=> "batch_id" %>
+              <%= form.hidden_field :shop_floor_order_id, id: :material_additional_shop_floor_order_id, :class=> "shop_floor_order_id" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m" id="item">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">
+          <tr>
+            <th rowspan="2">#</th>
+            <th rowspan="2" rowspan="2">Batch Number</th>
+            <th rowspan="2">Material Name</th>
+            <th rowspan="2">Material Code</th>
+            <th rowspan="2">Unit</th>
+            <th colspan="2">Return Material</th>
+            <th rowspan="2">Additional Material Qty</th>
+            <th rowspan="2">Remarks</th>
+            <th rowspan="2">Remove</th>
+          </tr>
+          <tr>
+            <td>Qty</td>
+            <td>Outstanding</td>
+          </tr>
+          <% c=0 %>
+          <% @material_additional_items.each do |material_additional_item| %>
+            <% quanitty_available = material_additional_item.material_return_item.outstanding.to_f + material_additional_item.quantity.to_f %>
+            <% part = nil %>
+            <% if material_additional_item.material.present? %>
+              <% part = material_additional_item.material %>
+            <% elsif material_additional_item.product.present? %>
+              <% part = material_additional_item.product %>
+            <% end %>
+            <% unit_name = (part.present? ? part.unit_name : nil) %>
+
+            <tr>
+              <td class="counter uk-text-right"><%= c+=1%></td>
+              <td>
+                <%= hidden_field_tag 'material_additional_item[][id]', material_additional_item.id %>
+                <%= hidden_field_tag 'material_additional_item[][material_return_item_id]', material_additional_item.material_return_item_id %>
+                <%= hidden_field_tag "material_additional_item[][material_batch_number_id]", material_additional_item.material_batch_number_id %>
+                <%= hidden_field_tag "material_additional_item[][material_id]", material_additional_item.material_id %>
+                <%= hidden_field_tag "material_additional_item[][product_batch_number_id]", material_additional_item.product_batch_number_id %>
+                <%= hidden_field_tag "material_additional_item[][product_id]", material_additional_item.product_id %>
+
+                <% if material_additional_item.material_batch_number.present? %>
+                  <%= text_field_tag "batch_number_row#{c}", "#{material_additional_item.material_batch_number.number}", {:class=>"batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+                <% elsif material_additional_item.product_batch_number.present? %>
+                  <%= text_field_tag "batch_number_row#{c}", "#{material_additional_item.product_batch_number.number}", {:class=>"batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+                <% end %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_name', "#{part.name if part.present?}", {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'part_id', "#{part.part_id if part.present?}", {:class=>"part_id#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag "rm_quantity#{c}", "#{material_additional_item.material_return_item.quantity}", {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag "rm_outstanding#{c}", "#{material_additional_item.material_return_item.outstanding}", {:class=>"uk-input uk-form-width-small uk-form-small uk-text-right", :disabled=> true} %>
+              </td>
+              <td>
+                <%= number_field_tag 'material_additional_item[][quantity]', material_additional_item.quantity, {step: :any, :max=> quanitty_available, :placeholder=> 'quantity', :class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'material_additional_item[][remarks]',material_additional_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "material_additional_item[][status]", options_for_select(['active','deleted'],
+                  material_additional_item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @material_additional_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', material_additionals_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

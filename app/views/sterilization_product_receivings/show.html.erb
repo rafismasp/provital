@@ -1,0 +1,156 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name") %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', sterilization_product_receivings_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Number</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :number, @sterilization_product_receiving.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">Date</div>
+                      <div class="uk-width-1-3@m">
+                        <%= date_field_tag :date, @sterilization_product_receiving.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="uk-width-1-2@m">
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-6@m">Customer</div>
+                    <div class="uk-width-1-2@m">
+                      <%= text_field_tag :po_number, (@sterilization_product_receiving.sales_order.present? ? @sterilization_product_receiving.sales_order.customer.name : nil), :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-6@m">PO</div>
+                    <div class="uk-width-1-2@m">
+                      <%= text_field_tag :po_number, (@sterilization_product_receiving.sales_order.present? ? @sterilization_product_receiving.sales_order.po_number : nil), :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+					  <hr>
+					  <div class="uk-margin-small">
+					    <div class="uk-grid">
+					      <div class="uk-width-1-1@m">
+					        <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+					          <tr>
+					            <th>#</th>
+					            <th>Product Name</th>
+					            <th>Product Code</th>
+					            <th>Unit</th>
+					            <th>Quantity</th>
+					            <th>Batch number</th>
+					            <th>Remarks</th>
+					          </tr>
+					          <% c=0 %>
+					          
+					          <% @sterilization_product_receiving_items.each do |sterilization_product_receiving_item| %>
+					          	<% part = nil %>
+						          <% if sterilization_product_receiving_item.product.present? %>
+						          	<% part = sterilization_product_receiving_item.product %>
+						          <% end %>					            
+					            <tr>
+					              <td class="counter"><%= c+=1%></td>
+					              <td><%= (part.present? ? part.name : nil) %></td>
+					              <td><%= (part.present? ? part.part_id : nil) %></td>
+					              <td><%= (part.present? ? part.unit_name : nil) %></td>
+              					<td><%= number_with_precision(sterilization_product_receiving_item.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+					              <td class="uk-text-right">
+					                <%= @product_batch_number.where(:sterilization_product_receiving_item_id=> sterilization_product_receiving_item.id).map { |e| e.number }.join(", ") %>
+					              </td>
+					              <td>
+					                <%= sterilization_product_receiving_item.remarks %>
+					              </td>
+					            </tr>
+					          <% end if @sterilization_product_receiving_items.present? %>
+					        </table>
+					      </div>
+					    </div>
+					  </div>
+					  <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @sterilization_product_receiving.status == 'new' or @sterilization_product_receiving.status == 'canceled1' %>
+                        <%= link_to approve_sterilization_product_receiving_path(@sterilization_product_receiving, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @sterilization_product_receiving.status == 'approved1' or @sterilization_product_receiving.status == 'canceled2' %>
+                        <%= link_to approve_sterilization_product_receiving_path(@sterilization_product_receiving, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_sterilization_product_receiving_path(@sterilization_product_receiving, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @sterilization_product_receiving.status == 'approved2' or @sterilization_product_receiving.status == 'canceled3' %>   
+                        <%= link_to approve_sterilization_product_receiving_path(@sterilization_product_receiving, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_sterilization_product_receiving_path(@sterilization_product_receiving, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_sterilization_product_receiving_path(@sterilization_product_receiving, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @sterilization_product_receiving.status %>
+                      <% when 'approved3' %>
+                        <%= link_to print_sterilization_product_receiving_path(@sterilization_product_receiving), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                        <%= link_to 'Back', sterilization_product_receivings_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', sterilization_product_receivings_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_sterilization_product_receiving_path(@sterilization_product_receiving), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

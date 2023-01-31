@@ -1,0 +1,79 @@
+<% case params[:partial] %>
+<% when 'change_invoice_tools_kind' %>
+  $('.invoice_tools_kind').html("<%= escape_javascript(render 'partial', :partial_type=>'change_invoice_tools_kind') %>"); 
+  <% case params[:invoice_tools_kind] %>
+  <% when 'do_move_invoice' %>
+    $(".do_modal").html("<%= escape_javascript(render 'partial', :partial_type=>'modal') %>")
+  <% end %>
+
+<% when 'load_do_list' %>
+   $(".table_do").html("<%= escape_javascript(render 'partial', :partial_type=>'load_do_list') %>")
+<% else %>
+  $('#modal-sections').remove();
+  $('#content').html("<%= escape_javascript(render 'index') %>");
+  // window.location.href="/invoice_tools/new";
+
+  function change_invoice_tools_kind(obj, ctrl, evt) {
+    if(ctrl == 'invoice_tools'){
+      var tools_id = $(obj).val();
+      $.ajax({
+        url: "/"+ctrl,
+        type: "GET",
+        data: {
+          partial: "change_invoice_tools_kind",
+          invoice_tools_kind: $("#kind").val(),
+          customer_id: $("#customer_id").val(),
+          start_date: $("#start_delivery_order_date").val(),
+          end_date: $("#end_delivery_order_date").val(),
+          stuff: "<%= params[:stuff] %>" 
+        },
+        dataType: "script",
+        success: function (data){
+         }
+      });
+    }
+  }
+
+  function load_do_list(obj, ctrl, evt) {
+    let stuff = [];
+    $('.select_do_list:checked').each(function() {
+      stuff.push($(this).attr('val'));
+    }); 
+    $.ajax({
+      url: "/"+ctrl,
+      type: "Get",
+      data: {
+        partial: "load_do_list",
+        invoice_tools_kind: $("#kind").val(),
+        customer_id: $("#customer_id").val(),
+        start_date: $("#start_delivery_order_date").val(),
+        end_date: $("#end_delivery_order_date").val(),
+        stuff: stuff
+      },
+      dataType: "script",
+      success: function (data){
+      }
+    });
+  }
+
+  function check_invoice_number(obj, ctrl, evt) {
+      $.ajax({
+        url: "/"+ctrl,
+        type: "Get",
+        data: {
+          partial: "change_invoice_tools_kind",
+          invoice_tools_kind: $("#kind").val(),
+          customer_id: $("#customer_id").val(),
+          start_date: $("#start_delivery_order_date").val(),
+          end_date: $("#end_delivery_order_date").val(),
+          stuff: "<%= params[:stuff] %>",
+          check: "yes",
+          number: $("#new_invoice_customer_number").val(),
+        },
+        dataType: "script",
+        success: function (data){
+        }
+      });
+    }
+
+<% end %>

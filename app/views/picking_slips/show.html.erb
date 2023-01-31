@@ -1,0 +1,189 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', picking_slips_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Customer</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :customer, @picking_slip.customer.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Doc. Number</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :number, @picking_slip.number, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Date</div>
+                      <div class="uk-width-1-2@m">
+                        <%= date_field_tag :date, @picking_slip.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">Remarks</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :remarks, @picking_slip.remarks, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-3@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-3@m">PO Customer</div>
+                      <div class="uk-width-2-3@m">
+                        <%= text_field_tag :sales_order_id, (@picking_slip.sales_order.po_number if @picking_slip.sales_order.present?), :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="item">
+                    <tr>
+                      <th>#</th>
+                      <th>Product Code</th>
+                      <th>Product Name</th>
+                      <th>Batch Number</th>
+                      <th>Unit</th>
+                      <th>Quantity available</th>
+                      <th>Quantity dispatch</th>
+                      <th>Remarks</th>
+                    </tr>
+                    <% c=0 %>
+                    
+                    <% @picking_slip_items.each do |picking_slip_item| %>
+                      <% periode = picking_slip_item.picking_slip.date.to_date.strftime("%Y%m") %>
+                      <% part = nil %>
+                      <% if picking_slip_item.product.present? %>
+                        <% part = picking_slip_item.product %>
+                      <% elsif picking_slip_item.material.present? %>
+                        <% part = picking_slip_item.material %>
+                      <% end %>
+                      <% stock_bn = (part.present? ? part.current_stock_batch_number(current_user.company_profile_id, picking_slip_item.product_batch_number_id, periode) : nil) %>
+                      <% unit_name = (part.unit.present? ? part.unit_name : nil) %>
+                      
+                      <tr>
+                        <td class="counter"><%= c+=1%></td>
+                        <td><%= (part.present? ? part.part_id : nil) %></td>
+                        <td><%= (part.present? ? part.name : nil) %></td>
+                        <td style="width: 90px;"><%= (picking_slip_item.product_batch_number.present? ? picking_slip_item.product_batch_number.number : nil) %></td>
+                        <td style="width: 50px;"><%= unit_name %></td>
+                        <td style="width: 100px;" class="uk-text-right"><%= number_with_precision(stock_bn, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td style="width: 100px;" class="uk-text-right"><%= number_with_precision(picking_slip_item.quantity, precision: 0, delimiter: ".", separator: ",") %></td>
+                        <td><%= picking_slip_item.remarks %></td>
+                      </tr>
+                    <% end if @picking_slip_items.present? %>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @picking_slip.status == 'new' or @picking_slip.status == 'canceled1' %>
+                        <%= link_to approve_picking_slip_path(@picking_slip, :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @picking_slip.status == 'approved1' or @picking_slip.status == 'canceled2' %>
+                        <%= link_to approve_picking_slip_path(@picking_slip, :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_picking_slip_path(@picking_slip, :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @picking_slip.status == 'approved2' or @picking_slip.status == 'canceled3' %>   
+                        <%= link_to approve_picking_slip_path(@picking_slip, :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_picking_slip_path(@picking_slip, :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% else %>
+                        <%= link_to approve_picking_slip_path(@picking_slip, :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% print_allow = false %>
+                      <% case @picking_slip.status %>
+                      <% when 'approved1','canceled2' %>
+                        <% print_allow = true %>
+                      <% end %>
+
+                      <% if current_user.present? and current_user.id == 1 %>
+                        <% print_allow = true %>
+                      <% end %>
+
+                      <% if print_allow == true %>
+                        <%= link_to print_picking_slip_path(@picking_slip), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button>
+                        <% end %>
+                      <% end %>
+
+                      <% case @picking_slip.status %>
+                      <% when 'approved3' %>
+                        <%= link_to 'Back', picking_slips_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', picking_slips_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_picking_slip_path(@picking_slip), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

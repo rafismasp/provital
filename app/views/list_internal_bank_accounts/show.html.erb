@@ -1,0 +1,146 @@
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', list_internal_bank_accounts_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <!-- Left -->
+                <div class="uk-width-1-3@m">
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Nama Rekening</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :name_account, @list_internal_bank_account.name_account, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Currency</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :currency_id, @list_internal_bank_account.currency.name, :class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Kode Voucher</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :code_voucher, @list_internal_bank_account.code_voucher, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Nama Bank</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :dom_bank_id, @list_internal_bank_account.dom_bank.bank_name, :class=> "uk-input uk-form-small", :disabled=>true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Status</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :new_status, @list_internal_bank_account.new_status, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=>true %>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Left -->
+
+                <!-- Right -->
+                <div class="uk-width-1-3@m">
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">No. Rekening</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :number_account, @list_internal_bank_account.number_account, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=>true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Cabang</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_field_tag :branch_bank, @list_internal_bank_account.branch_bank, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=>true %>
+                    </div>
+                  </div>
+
+                  <div class="uk-grid uk-margin-small">
+                    <div class="uk-width-1-3@m">Alamat Bank</div>
+                    <div class="uk-width-2-3@m">
+                      <%= text_area_tag :address_bank, @list_internal_bank_account.address_bank, rows: 5, :class=> "uk-textarea uk-form-width-large uk-form-small", :style=>"line-height: normal !important;", :disabled=>true %>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Right -->
+              </div>
+            </div>
+
+            <!-- APPROVE -->
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% if @list_internal_bank_account.status == 'new' or @list_internal_bank_account.status == 'canceled1' %>
+                        <%= link_to approve_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                        <% end %>
+                      <% elsif @list_internal_bank_account.status == 'approved1' or @list_internal_bank_account.status == 'canceled2' %>
+                        <%= link_to approve_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve1'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled1. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 1</button>
+                        <% end %>
+                        <%= link_to approve_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                        <% end %> 
+                      <% elsif @list_internal_bank_account.status == 'approved2' or @list_internal_bank_account.status == 'canceled3' %>   
+                        <%= link_to approve_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve2'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled2. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 2</button>
+                        <% end %>
+
+                        <%= link_to approve_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be approved3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                        <% end %>                
+                      <% elsif @list_internal_bank_account.status == 'void' %>
+                        Status: Void 
+                      <% else %>
+                        <%= link_to approve_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'cancel_approve3'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be canceled3. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Cancel 3</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @list_internal_bank_account.status %>
+                      <% when 'void' %>
+                        <%= link_to 'Back', list_internal_bank_accounts_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% when 'approved3' %>
+                        <%#= link_to print_list_internal_bank_account_path(@list_internal_bank_account), method: :put, data: { disable_with: "Please wait..."}, target: :_blank do %>
+                          <!-- <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right">Print</button> -->
+                        <%# end %>
+                        <%= link_to 'Back', list_internal_bank_accounts_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', list_internal_bank_accounts_path(:view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+
+                        <%= link_to approve_list_internal_bank_account_path(@list_internal_bank_account, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value], :status=> 'void'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be void. Proced?' } do %>
+                          <button type="button" class="uk-button uk-button-danger uk-button-small">Void</button>
+                        <% end if @list_internal_bank_account.status != 'void' %>
+                      <% end %>    
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

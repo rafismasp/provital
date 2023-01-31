@@ -1,0 +1,220 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_inventory_kind' %>  
+  <%= hidden_field_tag "#{params[:select_inventory_kind]}_id", nil, :class=>"#{params[:select_inventory_kind]}_id1 part", :prompt=>"--select--"%>
+  <%= render 'layouts/form_item', c: 1, field_name: "#{params[:select_inventory_kind]}_id", field_value: nil%>
+<% when 'load_invoice_supplier' %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider" id="invoice_supplier_receiving_item">                 
+    <thead class="bg-primary">      
+      <tr>
+        <th rowspan="2">No</th>
+        <th rowspan="2">No.Index</th>
+        <th rowspan="2">Supplier</th>
+        <th rowspan="2">Invoice</th>
+        <th rowspan="2">Tgl.Invoice</th>
+        <th rowspan="2">Tgl.Terima Invoice</th>
+        <th rowspan="2">Payment Due date</th>
+        <th rowspan="2">Mata Uang</th>
+        <th rowspan="2">Amount</th>
+        <th title="(I) Pengecekan oleh Staff AP" colspan="4">Pengecekan 1</th>
+        <th title="(II) Pengecekan oleh Supervisor Finance" colspan="5">Pengecekan 2</th>
+        
+        <th colspan="5">Pengecekan (Mr.Yap)</th>
+        <th colspan="5">Pengecekan (Pak Johnny)</th>
+      
+        <th colspan="5">Pengecekan (Pak Peter)</th>
+        <th colspan="4">Payment</th>
+        <th rowspan="2">Kelengkapan DC</th>
+        <th rowspan="2">Sisa AP</th>
+      </tr>
+      <tr>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+        <th>Note</th>
+
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+        <th>Note</th>
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+        <th>Note</th>
+
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+        <th>Note</th>
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+        <th>Note</th>
+
+        <th>Tgl.Payment</th>
+        <th>Terlambat (Hari)</th>
+        <th>Note</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%c=0 %>
+      <% @invoice_supplier_receiving_items.each do |item| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td class="uk-text-nowrap"><%= item.index_number %></td>
+          <td class="uk-text-nowrap"><%= item.invoice_supplier_receiving.supplier.name if item.invoice_supplier_receiving.present? and item.invoice_supplier_receiving.supplier.present? %></td>
+          <td class="uk-text-nowrap"><%= item.invoice_number %></td>
+          <td class="uk-text-nowrap"><%= item.invoice_date %></td>
+          <td class="uk-text-nowrap"><%= item.invoice_supplier_receiving.date if item.invoice_supplier_receiving_id.present?%></td>
+          <td class="uk-text-nowrap due_date_payment<%= item.id %>"><%= item.invoice_supplier_receiving.due_date if item.invoice_supplier_receiving_id.present?%></td>
+          <td class="uk-text-nowrap"><%= item.currency.name if item.currency.present? %></td>
+          <td class="uk-text-nowrap amount_invoice<%= item.id %>"><%= item.total %></td>
+          <td class="uk-text-nowrap">
+            <%= hidden_field_tag "invoice_supplier_receiving_item[][id]", item.id %>
+            <%= date_field_tag "invoice_supplier_receiving_item[][due_date_checked1]", (item.due_date_checked1.present? ? item.due_date_checked1 : (item.invoice_supplier_receiving.date.to_date+4.day if item.invoice_supplier_receiving_id.present?)), {:class=> 'uk-input uk-form-small due_date_checked1'+item.id.to_s, :readonly=> true} %>
+          </td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_checked1]", item.date_checked1, {:class=> 'uk-input uk-form-small date_checked1'+item.id.to_s, :onchange=>"diff_date(this,1,"+item.id.to_s+")"} %></td>
+          <td class="diff_date1<%= item.id %>"></td>
+          <td><%= text_field_tag "invoice_supplier_receiving_item[][note_checked1]", item.note_checked1, {:class=>"uk-input uk-form-width-small uk-form-small "} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_receive_checked2]", item.date_receive_checked2, {:class=> "uk-input uk-form-small ", :onchange=> "$('.due_date_checked2"+item.id.to_s+"').val(addDays(this.value,3));"} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][due_date_checked2]", item.due_date_checked2, {:class=> 'uk-input uk-form-small due_date_checked2'+item.id.to_s, :readonly=> true} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_checked2]", item.date_checked2, {:class=> 'uk-input uk-form-small date_checked2'+item.id.to_s, :onchange=>"diff_date(this,2,"+item.id.to_s+")"} %></td>
+          <td class="diff_date2<%= item.id %>"></td><td><%= text_field_tag "invoice_supplier_receiving_item[][note_checked2]", item.note_checked2, {:class=>"uk-input uk-form-width-small uk-form-small"} %></td>
+
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_receive_checked3]", item.date_receive_checked3, {:class=>"uk-input uk-form-small", :onchange=> "$('.due_date_checked3"+item.id.to_s+"').val(addDays(this.value,3));"} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][due_date_checked3]", item.due_date_checked3, {:class=> 'uk-input uk-form-small due_date_checked3'+item.id.to_s, :readonly=> true} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_checked3]", item.date_checked3, {:class=> 'uk-input uk-form-small date_checked3'+item.id.to_s, :onchange=>"diff_date(this,3,"+item.id.to_s+")"} %></td>
+          <td class="diff_date3<%= item.id %>"></td>
+          <td><%= text_field_tag "invoice_supplier_receiving_item[][note_checked3]", item.note_checked3, {:class=>"uk-input uk-form-width-small uk-form-small"} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_receive_checked4]", item.date_receive_checked4, {:class=> "uk-input uk-form-small", :onchange=> "$('.due_date_checked4"+item.id.to_s+"').val(addDays(this.value,7));"} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][due_date_checked4]", item.due_date_checked4, {:class=> 'uk-input uk-form-small due_date_checked4'+item.id.to_s, :readonly=> true} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_checked4]", item.date_checked4, {:class=> 'uk-input uk-form-small date_checked4'+item.id.to_s, :onchange=>"diff_date(this,4,"+item.id.to_s+")"} %></td>
+          <td class="diff_date4<%= item.id %>"></td>
+          <td><%= text_field_tag "invoice_supplier_receiving_item[][note_checked4]", item.note_checked4, {:class=>"uk-input uk-form-width-small uk-form-small"} %></td>
+          
+
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_receive_checked5]", item.date_receive_checked5, {:class=> "uk-input uk-form-small", :onchange=> "$('.due_date_checked5"+item.id.to_s+"').val(addDays(this.value,7));"} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][due_date_checked5]", item.due_date_checked5, {:class=> 'uk-input uk-form-small due_date_checked5'+item.id.to_s, :readonly=> true} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_checked5]", item.date_checked5, {:class=> 'uk-input uk-form-small date_checked5'+item.id.to_s, :onchange=>"diff_date(this,5,"+item.id.to_s+")"} %></td>
+          <td class="diff_date5<%= item.id %>"></td>
+          <td><%= text_field_tag "invoice_supplier_receiving_item[][note_checked5]", item.note_checked5, {:class=>"uk-input uk-form-width-small uk-form-small"} %></td>
+          <td><%= date_field_tag "invoice_supplier_receiving_item[][date_payment]", item.date_payment, {:class=> 'uk-input uk-form-small date_payment'+item.id.to_s, :onchange=>"diff_date_payment(this,"+item.id.to_s+")"} %></td>
+          <td class="diff_date_payment<%= item.id %>"></td>
+          <td><%= text_field_tag "invoice_supplier_receiving_item[][remarks]", item.remarks, {:class=>"uk-input uk-form-width-small uk-form-small"} %></td>
+          <td><%= number_field_tag "invoice_supplier_receiving_item[][amount_payment]", item.total, {:class=> "uk-input uk-form-width-small uk-form-small amount_payment"+item.id.to_s, :onchange=>"change_amount_payment(this,"+item.id.to_s+")"} %></td>
+          <td><%= text_field_tag "invoice_supplier_receiving_item[][completeness_dc]", item.completeness_dc, {:class=>"uk-input uk-form-width-small uk-form-small"} %></td>
+          <td class="sisa_ap<%= item.id %>"></td>
+        </tr>
+      <% end if @invoice_supplier_receiving_items.present? %>
+    </tbody>
+  </table>
+<% else %>
+  <table class="uk-table uk-table-small uk-table-bordered uk-table-hover uk-table-divider">                 
+    <thead class="bg-primary">      
+      <tr>
+        <th rowspan="2">No</th>
+        <th rowspan="2">No.Index</th>
+        <th rowspan="2" class="">Supplier</th>
+        <th rowspan="2">Invoice</th>
+        <th rowspan="2" class="uk-width-small">Tgl.Invoice</th>
+        <th rowspan="2">Tgl.Terima Invoice</th>
+        <th rowspan="2">Payment Due date</th>
+        <th rowspan="2">Mata Uang</th>
+        <th rowspan="2">Amount</th>
+        <th title="(I) Pengecekan oleh Staff AP" colspan="3">Pengecekan 1</th>
+        <th title="(II) Pengecekan oleh Supervisor Finance" colspan="4">Pengecekan 2</th>
+        
+        <th colspan="4">Pengecekan (Mr.Yap)</th>
+        <th colspan="4">Pengecekan (Pak Johnny)</th>
+      
+        <th colspan="4">Pengecekan (Pak Peter)</th>
+        <th colspan="4">Payment</th>
+        <th rowspan="2">Kelengkapan DC</th>
+        <th rowspan="2">Sisa AP</th>
+      </tr>
+      <tr>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+      
+        <th>Tgl. Diserahkan</th>
+        <th>Target Selesai</th>
+        <th>Tgl. Selesai</th>
+        <th>Terlambat (Hari)</th>
+        <th>Tgl.Payment</th>
+        <th>Terlambat (Hari)</th>
+        <th>Note</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%c=0 %>
+      <% @invoice_supplier_receiving_items.each do |invoice_supplier_receiving_item| %>
+        <tr>
+          <td><%= c+=1 %></td>
+          <td><%= invoice_supplier_receiving_item.index_number %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.invoice_supplier_receiving.supplier.name if invoice_supplier_receiving_item.invoice_supplier_receiving.supplier.present? %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.invoice_number %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.invoice_date %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.invoice_supplier_receiving.date if invoice_supplier_receiving_item.invoice_supplier_receiving.present? %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.invoice_supplier_receiving.due_date if invoice_supplier_receiving_item.invoice_supplier_receiving.present? %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.currency.name if invoice_supplier_receiving_item.currency.present? %></td>
+          <td class="uk-text-nowrap uk-text-right">
+            <%= number_with_precision( invoice_supplier_receiving_item.total , precision: 0, delimiter: ".") %>
+          </td>
+          <td class="uk-text-nowrap"><%= (invoice_supplier_receiving_item.due_date_checked1.present? ? invoice_supplier_receiving_item.due_date_checked1 : (invoice_supplier_receiving_item.invoice_supplier_receiving.date.to_date+4.day if invoice_supplier_receiving_item.invoice_supplier_receiving_id.present?)) %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_checked1 %></td>
+          <td class="uk-text-nowrap"><%= (invoice_supplier_receiving_item.date_checked1 - invoice_supplier_receiving_item.due_date_checked1).to_i if invoice_supplier_receiving_item.date_checked1.present? and invoice_supplier_receiving_item.due_date_checked1.present? %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_receive_checked2 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.due_date_checked2 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_checked2 %></td>
+          <td class="uk-text-nowrap"><%= (invoice_supplier_receiving_item.date_checked2 - invoice_supplier_receiving_item.due_date_checked2).to_i if invoice_supplier_receiving_item.date_checked2.present? and invoice_supplier_receiving_item.due_date_checked2.present? %></td>
+
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_receive_checked3 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.due_date_checked3 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_checked3 %></td>
+          <td class="uk-text-nowrap"><%= (invoice_supplier_receiving_item.date_checked3 - invoice_supplier_receiving_item.due_date_checked3).to_i if invoice_supplier_receiving_item.date_checked3.present? and invoice_supplier_receiving_item.due_date_checked3.present? %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_receive_checked4 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.due_date_checked4 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_checked4 %></td>
+          <td class="uk-text-nowrap"><%= (invoice_supplier_receiving_item.date_checked4 - invoice_supplier_receiving_item.due_date_checked4).to_i if invoice_supplier_receiving_item.date_checked4.present? and invoice_supplier_receiving_item.due_date_checked4.present? %></td>
+
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_receive_checked5 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.due_date_checked5 %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_checked5 %></td>
+          <td class="uk-text-nowrap"><%= (invoice_supplier_receiving_item.date_checked5 - invoice_supplier_receiving_item.due_date_checked5).to_i if invoice_supplier_receiving_item.date_checked5.present? and invoice_supplier_receiving_item.due_date_checked5.present? %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.date_payment %></td>                  
+          <td class="uk-text-nowrap"><%= (invoice_supplier_receiving_item.date_payment - invoice_supplier_receiving_item.invoice_supplier_receiving.due_date).to_i if invoice_supplier_receiving_item.invoice_supplier_receiving_id.present? and invoice_supplier_receiving_item.date_payment.present? %></td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.remarks %></td>
+          <td class="uk-text-nowrap uk-text-right">
+            <%= number_with_precision( invoice_supplier_receiving_item.amount_payment , precision: 0, delimiter: ".") %>
+          </td>
+          <td class="uk-text-nowrap"><%= invoice_supplier_receiving_item.completeness_dc %></td>
+          <td class="uk-text-nowrap uk-text-right">
+            <%= number_with_precision( invoice_supplier_receiving_item.total - invoice_supplier_receiving_item.amount_payment , precision: 0, delimiter: ".") %>
+          </td>
+        </tr>
+      <% end if @invoice_supplier_receiving_items.present? %>
+    </tbody>
+  </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+<% end %>

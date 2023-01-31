@@ -1,0 +1,93 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_item' %>
+	$('#item tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% when 'change_dp','load_pi_list' %>
+	<% case params[:partial] %>
+	<% when 'change_dp' %>
+		$('.dp').val("<%= params[:select_dp] %>");
+	<% when 'load_pi_list' %>
+		$('.select_top_day').val("<%= params[:select_top_day] %>");
+		$('.select_term_of_payments').val("<%= params[:select_term_of_payment_id] %>");
+		$('.select_sales_order_id').val("<%= params[:select_sales_order_id] %>");
+		$('#proforma_invoice_customer_tax_id').val("<%= params[:select_tax_id] %>");
+		// alert($("#proforma_invoice_customer_down_payment").val());
+		$('.tbody_item').html("<%= escape_javascript(render 'partial') %>");
+	<% end %>
+
+	var grand_total = 0;
+
+  if ($("#proforma_invoice_customer_down_payment").val() == "") {
+    var dp = 0;
+  } else {
+    var dp = parseFloat($("#proforma_invoice_customer_down_payment").val());
+  }
+	var discount = 0;
+	var discount_total = 0;
+	// var ppn_total = 10/100;
+	// var ppn_total = $("#proforma_invoice_customer_tax_id").val();
+	var ppn_total = ($("#select_tax_id").find(':selected').attr('tax'));
+	// var ppn_total = ($("#proforma_invoice_customer_tax_id").find(':selected').attr('tax'));
+	// alert(ppn_total);
+	// total
+	$('.amount_td').each(function(i, obj) {
+		// alert($(obj).val());
+		grand_total += parseFloat($(obj).val().replaceAll(".",""));
+	}); 
+
+  $("#total").val(grand_total.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+  $("#proforma_invoice_customer_total").val(grand_total); //save
+  // DP
+  var total_dp = grand_total * (dp / 100);
+  $("#down_payment_total").val(total_dp.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+  $("#proforma_invoice_customer_down_payment_total").val(total_dp); //save
+  // amount discount 
+	$('.amountdisc_td').each(function(i, obj) {
+		discount += parseFloat($(obj).val().replaceAll(".",""));
+	});
+  if ( dp == 0 ){
+  	// diskon total 0 dp
+		var discount_total = discount ;
+		var amount = grand_total;
+  } else {
+  	// Diskon total
+		var discount_total = discount * (dp /100);
+		var amount = total_dp;
+  }
+
+	// PPN
+  var total_ppn = (amount - discount_total) * ppn_total ;
+  // Grand Total
+  var total_gt = (amount - discount_total + total_ppn);
+
+  $("#discount_total").val(discount_total.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+  $("#proforma_invoice_customer_discount_total").val(discount_total); //save
+
+  $("#ppn_total").val(total_ppn.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+  $("#proforma_invoice_customer_ppn_total").val(total_ppn); //save
+
+  $("#grand_total").val(total_gt.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+  $("#proforma_invoice_customer_grand_total").val(total_gt); //save
+<% when 'change_pi' %>
+	$('#select_pi_lists').html("<%= escape_javascript(render 'partial', {field:'modal_pi_list'}) %>");
+	$('.button-pi-modal').html("<a class='uk-button uk-button-default uk-button-small' href='#pi_list-sections' uk-toggle>--- Pilih ---</a>");
+	$('.select_taxes').html("<%= escape_javascript(render 'partial', {field:'tax_id'}) %>");
+	// clear field input
+	$('.tbody_item').html("");
+  $("#total").val(0);
+  $("#proforma_invoice_customer_total").val(0);
+  $("#down_payment_total").val(0);
+  $("#proforma_invoice_customer_down_payment_total").val(0);
+  $("#discount_total").val(0);
+  $("#proforma_invoice_customer_discount_total").val(0);
+  $("#ppn_total").val(0);
+  $("#proforma_invoice_customer_ppn_total").val(0);
+  $("#grand_total").val(0);
+  $("#proforma_invoice_customer_grand_total").val(0);
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

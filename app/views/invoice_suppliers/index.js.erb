@@ -1,0 +1,94 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_supplier' %>
+	$('.select_taxes').html("<%= escape_javascript(render 'partial', {field:'tax_id'}) %>");
+	$('.select_currencies').html("<%= escape_javascript(render 'partial', {field:'currency_id'}) %>");
+	$('.select_term_of_payments').html("<%= escape_javascript(render 'partial', {field:'term_of_payment_id'}) %>");
+	$('.select_top_day').val("<%= params[:select_top_day] %>");
+	$('.select_tax_rates').html("<%= escape_javascript(render 'partial', {field:'tax_rate_id'}) %>");
+	$('#select_material_receivings').html("<%= escape_javascript(render 'partial', {field:'modal_material_receiving'}) %>");
+	$('#select_product_receivings').html("<%= escape_javascript(render 'partial', {field:'modal_product_receiving'}) %>");
+	$('#select_general_receivings').html("<%= escape_javascript(render 'partial', {field:'modal_general_receiving'}) %>");
+	$('#select_consumable_receivings').html("<%= escape_javascript(render 'partial', {field:'modal_consumable_receiving'}) %>");
+	$('#select_equipment_receivings').html("<%= escape_javascript(render 'partial', {field:'modal_equipment_receiving'}) %>");
+	$('.button-grn-modal').html("<a class='uk-button uk-button-primary uk-button-small' href='#grn-sections' uk-toggle>Select GRN: Material</a>");
+	$('.button-prn-modal').html("<a class='uk-button uk-button-primary uk-button-small' href='#prn-sections' uk-toggle>Select GRN: Product</a>");
+	$('.button-gen-modal').html("<a class='uk-button uk-button-primary uk-button-small' href='#gen-sections' uk-toggle>Select GRN: Serivce</a>");
+	$('.button-con-modal').html("<a class='uk-button uk-button-primary uk-button-small' href='#con-sections' uk-toggle>Select GRN: Consumable</a>");
+	$('.button-equ-modal').html("<a class='uk-button uk-button-primary uk-button-small' href='#equ-sections' uk-toggle>Select GRN: Equipment</a>");
+	$('#item').html("Please select GRN number");
+<% when 'load_material_receiving','load_product_receiving','load_general_receiving','load_consumable_receiving','load_equipment_receiving' %>
+	$('#item').html("<%= escape_javascript(render 'partial') %>");
+
+  var setDateRule = '2022-04-01';
+  // var setDateRule = '2020-09-01';
+  var dt1Status = false; // tgl dibawah setDateRule
+  var dt2Status = false; // tgl diatas sama dengan setDateRule
+  var ppn_percent = parseFloat("<%= params[:ppn_percent] %>");
+	$("#invoice_supplier_tax_id").val("<%= params[:tax_id] %>");
+  $('.rcv_dates').each(function() {
+  	var seq = $(this).attr('seq');
+		var newItem = $(this).text();
+
+		if (newItem < setDateRule) {
+			// $("#ppn_item"+seq).html(10);
+			if (dt1Status == false) {
+				dt1Status = true;
+  			ppn_percent = parseFloat($(this).attr("ppn_percent"));
+			}
+		}
+		if (newItem >= setDateRule) {
+			// 11% jika pilih PPN 10%
+			<% case params[:tax_id].to_i %>
+			<% when 2, 5 %>
+				if (dt2Status == false) {
+					$("#invoice_supplier_tax_id").val("5");
+					$("#select_tax").val("5");
+	  			ppn_percent = 0.11;
+					dt2Status = true;
+				}
+			<% end %>
+		}
+		// rcv_dates.indexOf(newItem) === -1 && rcv_dates.push(newItem);
+  })
+
+  if (dt1Status == true && dt2Status == true) {
+  	$('.rcv_dates').each(function() {
+			var newItem = $(this).text();
+
+			if (newItem >= setDateRule) {
+				$(this).parent().css({
+					'background' : 'yellow'
+				});
+			} else {
+				$(this).parent().removeAttr("style");		
+			}
+	  })
+		$('.note_for_user').text("note: SPG tanggal < 1 April 2022 dan SPG tanggal >= 1 April 2022 tidak dapat digabung menjadi 1 Invoice!");
+
+     $(':input[type="submit"]').prop('disabled', true);
+  } else {
+		$('.note_for_user').text(" ");	
+  	$(':input[type="submit"]').prop('disabled', false);
+  }
+
+	var subtotal = 0;
+	var ppntotal = 0;
+	$('.subtotal_item').each(function() {
+		subtotal += parseFloat($(this).val());
+	});
+	$("#invoice_supplier_subtotal").val(subtotal);
+
+	if (ppn_percent > 0 ){
+		ppntotal = subtotal*ppn_percent;
+	}
+	
+	var grandtotal = subtotal+ppntotal;
+	$("#invoice_supplier_ppntotal").val(ppntotal.toFixed(2));
+	$("#invoice_supplier_grandtotal").val(grandtotal.toFixed(2));
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

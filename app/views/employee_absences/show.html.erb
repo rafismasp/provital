@@ -1,0 +1,343 @@
+<%= stylesheet_link_tag 'hrd' %>
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>"><h4>Show: <%= feature("name").humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', employee_absences_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">NAMA</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag :employee_id, @employee_absence.employee.name, :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">NIK</div>
+                      <div class="uk-width-1-3@m">
+                        <%= text_field_tag 'nik', @employee_absence.employee.nik, :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Type</div>
+                      <div class="uk-width-expand@m">
+                        <%= text_field_tag :employee_absence_type_id, @employee_absence.employee_absence_type.name, :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div> 
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Date Begin</div>
+                      <div class="uk-width-1-3@m">
+                        <%= date_field_tag :begin_date, @employee_absence.begin_date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                      <div class="uk-width-1-6@m">Date End</div>
+                      <div class="uk-width-1-3@m">
+                        <%= date_field_tag :end_date, @employee_absence.end_date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Total Day</div>
+                      <div class="uk-width-1-5@m total_day">
+                        <%= text_field_tag :day, @employee_absence.day, :class=> "uk-input uk-form-small", :disabled=> true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <div class="uk-width-1-6@m">Note</div>
+                      <div class="uk-width-3-4@m">
+                        <%= text_area_tag :description, @employee_absence.description, :class=> "uk-textarea uk-form-small", :style=>'border: 2px;', :rows=> 3, :disabled=>true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                  <div class="uk-margin-small">
+                    <div class="uk-grid">
+                      <% if @employee_files.present? %>
+                        <div class="uk-width-1-6@m">Attachment</div>
+                        <div class="uk-width-1-3@m">
+                          <table class="uk-table uk-table-striped">
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <a target="_blank" href="/<%= @employee_files.path.gsub("public/", "") %>" class="uk-button uk-button-primary">Click To View</a>
+                                </td>
+                              </tr>
+                            </tbody> 
+                          </table>  
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="uk-margin-small">
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-2@m" id="item">
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered" id="item">          
+                    <tr>
+                      <th class="uk-text-middle">No</th>  
+                      <th class="uk-text-middle uk-text-center">Jenis Izin</th>
+                      <th colspan="2" class="uk-text-middle uk-text-center">Periode</th>
+                      <th class="uk-text-center">Jumlah Hari</th>
+                    </tr>
+                    <% c = 1 %>
+                    <% ct = izin = sakit = ci = 0 %>
+                    <% if @absences.present? %>
+                      <% @absences.each do |item| %>
+                        <% libur = 0 %>
+
+                        <% if libur == 0 %>
+                          <tr title="Keterangan: <%= item.description %>">
+                            <td><%=c%>.</td>
+                            <td><%=item.employee_absence_type.name if item.employee_absence_type_id.present?%></td>
+                            <td><%=item.begin_date%></td>
+                            <td><%=item.end_date%></td>
+                            <td align="right">
+                              <%= (item.end_date - item.begin_date).to_i+1 %>
+                            </td>
+                          </tr><% c+=1%><% ct += ((item.end_date - item.begin_date).to_i+1) %>
+                        <% end %>
+                      <% end  %>
+                    <% end %>
+                    <% @special_absences.each do |item| %>
+                      <% libur = 0 %>
+
+                      <% if libur == 0 %>
+                        <tr title="Keterangan: <%= item.description %>">
+                          <td><%=c%>.</td>
+                          <td><%=item.employee_absence_type.name if item.employee_absence_type_id.present?%></td>
+                          <td><%=item.begin_date%></td>
+                          <td><%=item.end_date%></td>
+                          <td align="right"><%= (item.end_date - item.begin_date).to_i+1 %></td>
+                        </tr><% c+=1%>
+
+                        <% case item.employee_absence_type.code %>
+                        <% when 'ITM' %>
+                          <% izin += (item.end_date - item.begin_date).to_i+1 %>
+                        <% when 'IS' %>
+                          <% sakit += (item.end_date - item.begin_date).to_i+1 %>
+                        <% else %>
+                          <% ci += (item.end_date - item.begin_date).to_i+1 %>
+                        <% end %>
+                      <% end %>
+                    <% end if @special_absences.present? %>
+                  </table>
+
+                  <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">          
+                    <tr>
+                      <th class="uk-text-middle">Cuti Terpakai</th>  
+                      <th class="uk-text-middle uk-text-center">Sisa Cuti</th>
+                      <th class="uk-text-middle uk-text-center">Izin</th>
+                      <th class="uk-text-center">Sakit</th>
+                      <th class="uk-text-center">Cuti Istimewa</th>
+                    </tr>
+                    <tr>
+                      <td align="center" id="leave_total"><%= ct %></td>
+                      <td align="center" id ="leave_os"><%= @os_leave %></td>
+                      <td align="center" id="permit_total"><%= izin %></td>
+                      <td align="center"><%= sakit %></td>
+                      <td align="center"><%= ci %></td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-1@m">
+                  <div class="uk-grid">
+                    <div class="uk-width-1-2@m">
+                      <% btn_approve1 = btn_approve2 = btn_approve3 = btn_level3 = btn_cancel1 = btn_cancel2 = btn_cancel3 = btn_void = btn_unvoid = false %>
+                      <% status_approve = status_cancel = btn_info_approve = btn_info_cancel = nil %>
+                      <% @department_hierarchies.each do |dh| %>
+                        <% case @employee_absence.status %>
+                        <% when 'new','canceled1'%>
+                          <% if dh.approved1_by == current_user.id %>
+                            <% btn_approve1 = true %>
+                            <!-- approve 1 -->
+                            <% disabled = nil %>
+                            <% status_approve = "approve1" %>
+                            <% btn_style = "uk-button-secondary uk-button-small" %>
+                            <% btn_info_approve = 'Approve 1' %>
+                          <% end %>
+                        <% when 'approved1','canceled2'%>
+                          <% if dh.approved2_by == current_user.id or dh.cancel1_by == current_user.id %>
+                            <% btn_approve2 = true %>
+                            <!-- approve 2 -->
+                            <% disabled = nil %>
+                            <% status_approve = "approve2" %>
+                            <% btn_style = "uk-button-secondary uk-button-small" %>
+                            <% btn_info_approve = 'Approve 2' %>
+                            <!-- cancel approve 1 -->
+                            <% btn_cancel1 = true %>
+                            <% disabled = nil %>
+                            <% status_cancel = "cancel_approve1" %>
+                            <% btn_style = "uk-button-danger uk-button-small" %>
+                            <% btn_info_cancel = 'Cancel Approve 1' %>
+                          <% end %>                    
+                        <% when 'approved2','canceled3'%>
+                          <% if dh.approved3_by == current_user.id or dh.cancel2_by == current_user.id %>
+                            <% btn_approve3 = true %>
+                            <!-- approve 3 -->
+                            <% disabled = nil %>
+                            <% status_approve = "approve3" %>
+                            <% btn_style = "uk-button-secondary uk-button-small" %>
+                            <% btn_info_approve = 'Approve 3' %>
+                            <!-- cancel approve 2 -->
+                            <% btn_cancel2 = true %>
+                            <% disabled = nil %>
+                            <% status_cancel = "cancel_approve2" %>
+                            <% btn_style = "uk-button-danger uk-button-small" %>
+                            <% btn_info_cancel = 'Cancel Approve 2' %>
+                          <% end %> 
+                        <% when 'approved3'%>
+                          <% if dh.cancel3_by == current_user.id  %>
+                            <!-- cancel approve 2 -->
+                            <% btn_cancel3 = true %>
+                            <% disabled = nil %>
+                            <% status_cancel = "cancel_approve3" %>
+                            <% btn_style = "uk-button-danger uk-button-small" %>
+                            <% btn_info_cancel = 'Cancel Approve 3' %>
+                          <% end %>
+                        <% end %>
+
+                        <!-- void -->
+                        <% case current_user.id %>
+                        <% when dh.void_by %>
+                          <% btn_void = true %>
+                        <% end %>
+
+                        <% if @employee_absence.present? and @employee_absence.created_by == current_user.id %>
+                          <% case @employee_absence.status %>
+                          <% when 'new', 'approved1','canceled1','approve2','canceled2','canceled3' %>
+                            <% btn_void = true %>
+                          <% when 'deleted' %>
+                            <% btn_unvoid = true %>
+                          <% end %>
+                        <% end %>
+                      <% end if @department_hierarchies.present? %>
+
+                      <% case @employee_absence.status %>
+                      <% when 'new','canceled1'%>
+                        <% if btn_approve1 == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> "#{status_approve}"), method: :put, data: { disable_with: "Please wait...", confirm: "This will be #{btn_info_approve}. Proced?" } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 1</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default">No Access Approve 1</button>
+                        <% end %>
+                      <% when 'approved1','canceled2'%>
+                        <% if btn_cancel1 == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> "#{status_cancel}"), method: :put, data: { disable_with: "Please wait...", confirm: "This will be #{btn_info_cancel}. Proced?" } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Cancel 1</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default">No Access Cancel Approve 1</button>
+                        <% end %>
+
+                        <% if btn_approve2 == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> "#{status_approve}"), method: :put, data: { disable_with: "Please wait...", confirm: "This will be #{btn_info_approve}. Proced?" } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 2</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default">No Access Approve 2</button>
+                        <% end %>
+                      <% when 'approved2','canceled3'%>
+                        <% if btn_cancel2 == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> "#{status_cancel}"), method: :put, data: { disable_with: "Please wait...", confirm: "This will be #{btn_info_cancel}. Proced?" } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Cancel 2</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default">No Access Cancel Approve 2</button>
+                        <% end %>
+
+                        <% if btn_approve3 == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> "#{status_approve}"), method: :put, data: { disable_with: "Please wait...", confirm: "This will be #{btn_info_approve}. Proced?" } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Approve 3</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default">No Access Approve 3</button>
+                        <% end %>
+                      <% end %>
+
+                      <% case @employee_absence.status %>
+                      <% when 'new','approved1','approved2','canceled1','canceled2','canceled3' %>
+                        <% if btn_void == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> 'deleted'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be void. Proced?' } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Void</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default" disabled="true">No Access To Void</button>
+                        <% end %>
+                      <% when 'approved3' %>
+                        <% if btn_void == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> 'deleted'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be void. Proced?' } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Void</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default" disabled="true">No Access To Void</button>
+                        <% end %>
+                      <% when 'delete' %>
+                        <% if btn_unvoid == true %>
+                          <%= link_to approve_employee_absence_path(@employee_absence, :status=> 'cancel_deleted'), method: :put, data: { disable_with: "Please wait...", confirm: 'This will be void. Proced?' } do %>
+                            <button type="button" class="uk-button uk-button-secondary uk-button-small">Void</button>
+                          <% end %>
+                        <% else %>
+                          <button type="button" class="uk-button uk-button-small uk-button-default" disabled="true">No Access To Cancel Void</button>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <% case @employee_absence.status %>
+                      <% when 'new','canceled1' %>
+                        <%= link_to 'Back', employee_absences_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                        <%= link_to 'Edit', edit_employee_absence_path(@employee_absence, :job => 'edit'), class: "uk-button uk-button-primary uk-button-small uk-align-right" %>
+                      <% else %>
+                        <%= link_to 'Back', employee_absences_path(), class: "uk-button uk-button-secondary uk-button-small uk-align-right" %>
+                      <% end %>    
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

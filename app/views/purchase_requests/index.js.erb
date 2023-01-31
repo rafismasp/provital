@@ -1,0 +1,85 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'change_department' %>
+	$('.select_section').html("<%= escape_javascript(render 'partial') %>");
+<% when 'load_production_order_detail_material' %>
+	$("#add_item").hide();
+	$('#item').html("<%= escape_javascript(render 'partial') %>");
+<% when 'tab_spp' %>
+	$('#form_spp').show();
+  $('#item').hide();
+  $('#button-layout').hide();
+<% when 'load_spp_by_prf' %>
+	$('#form_tab_spp').html("<%= escape_javascript(render 'partial') %>");
+
+  $('#item').html("");
+<% when 'add_item_spp' %>
+	$('#item_<%= params[:production_order_item_id] %> tr:last').after("<%= escape_javascript(render 'partial') %>");
+	// $('#prf_item_spp_header').html("")
+<% when 'pdm_item_detail' %>
+	$(".pdm_item_detail<%= params[:c] %>").html("<%= escape_javascript(render 'partial') %>");
+	var pdm_item_sum = 0;
+
+	$('.pdm_qty<%= params[:material_id] %>').each(function(){
+		pdm_item_sum += parseFloat($(this).val());
+	 });
+	$(".pdm_item_sum<%= params[:c] %>").html(pdm_item_sum);
+
+	if (parseFloat(pdm_item_sum) > 0) {
+		$(".pdm_close<%= params[:c] %>").prop("disabled", false);
+	} else {
+		$(".pdm_close<%= params[:c] %>").prop("disabled", true);		
+	}
+<% when 'add_item' %>
+  $('#form_spp').hide();
+	$('#item').show();
+	$('#item tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>
+
+
+function PrfQty(obj, c) {
+	var qty_ori = $(obj).val();
+	$(obj).attr('qty_ori', qty_ori)
+	PdmClose(obj, c)
+}
+
+function PdmClose(obj, c) {
+	var prf_qty = $('.quantity'+c).val();
+	var prf_qty_ori = $('.quantity'+c).attr('qty_ori');
+	$('.pdm_status'+c).val("suspend");
+
+	if (parseFloat(prf_qty) > 0 ) {
+		var pdm_qty = $('.pdm_item_sum'+c).text();
+		$('.pdm_close'+c).prop("disabled", false);
+		if (obj.checked) {
+			var total  = parseFloat(prf_qty) - parseFloat(pdm_qty);
+			if (total < 0) {
+
+        UIkit.notification.closeAll();
+        UIkit.notification({
+          message: 'PRF Qty tidak boleh kurang dari PDM Qty', status: 'warning', pos: 'bottom-center', timeout: 10000
+        });
+
+				$('.pdm_close'+c).prop("checked", false);
+			} else {
+				$('.quantity'+c).val(total.toFixed(4));
+				$('.quantity'+c).prop('readonly', true);
+				$('.pdm_status'+c).val("active");
+			}
+		} else {
+			$('.quantity'+c).val(prf_qty_ori);
+			$('.quantity'+c).prop('readonly', false);
+		}
+	} else {
+		$('.quantity'+c).focus();
+		$('.pdm_close'+c).prop("checked", false);
+		$('.pdm_close'+c).prop("disabled", true);
+		$('.quantity'+c).prop('readonly', false);
+	}
+}

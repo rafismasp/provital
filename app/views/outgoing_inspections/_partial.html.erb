@@ -1,0 +1,167 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'change_picking_slip' %>  
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">          
+    <tr>
+      <th rowspan="2" class="uk-text-middle">No</th>
+      <th colspan="3" class="uk-text-center">Product</th>
+      <th rowspan="2" class="uk-text-middle">Batch Number</th>
+      <th rowspan="2" class="uk-text-middle">Qty</th>
+      <th rowspan="2" class="uk-text-middle">Expired Date</th>
+      <th rowspan="2" class="uk-text-middle">Physical Condition</th>
+    </tr>
+    <tr>
+      <th class="uk-width-1-5@m">Code</th>
+      <th class="uk-width-auto@m">Name</th>
+      <th class="uk-width-1-6@m">Type</th>
+    </tr>
+    <% c=0 %>
+    <% @picking_slip_items.each do |item| %>
+      <% outgoing_inspection_item = @outgoing_inspection_items.find_by(:picking_slip_item_id=> item.id) %>
+      <% if outgoing_inspection_item.present? %>  
+        <% if item.status == 'active' %>     
+          <tr>
+            <%= hidden_field_tag 'record_item[][id]', outgoing_inspection_item.id %>
+            <td class='counter uk-text-right'><%= c+=1 %></td>
+            <td>
+              <%= text_field_tag 'product_batch_number', outgoing_inspection_item.product_batch_number.number, {:class=>"product_batch_number#{c} uk-input uk-form-smal", :disabled=>true} %>
+            </td>
+            <td><%= select_tag 'record_item[][inspection_name]', options_for_select(['Available','Not Available'], outgoing_inspection_item.inspection_name), {:class=>"uk-select uk-form-small"} %></td>
+            <td><%= select_tag 'record_item[][inspection_type]', options_for_select(['Available','Not Available'], outgoing_inspection_item.inspection_type), {:class=>"uk-select uk-form-small"} %></td>
+            <td><%= select_tag 'record_item[][inspection_batch]', options_for_select(['Available','Not Available'], outgoing_inspection_item.inspection_batch), {:class=>"uk-select uk-form-small"} %></td>
+            <td><%= select_tag 'record_item[][inspection_qty]', options_for_select(['Available','Not Available'], outgoing_inspection_item.inspection_qty), {:class=>"uk-select uk-form-small"} %></td>
+            <td><%= select_tag 'record_item[][inspection_expired]', options_for_select(['Available','Not Available'], outgoing_inspection_item.inspection_expired), {:class=>"uk-select uk-form-small"} %></td>
+            <td><%= select_tag 'record_item[][inspection_physical]', options_for_select(['OK','Not OK'], outgoing_inspection_item.inspection_physical), {:class=>"uk-select uk-form-small"} %></td>
+          </tr>
+        <% else %>   
+          <tr>
+            <%= hidden_field_tag 'delete_record_item[][id]', outgoing_inspection_item.id %>
+            <td class='counter uk-text-right' style="background: red;" title="Delete Record"><%= c+=1 %></td>
+            <td>
+              <%= outgoing_inspection_item.product_batch_number.number %>
+            </td>
+            <td><%= outgoing_inspection_item.inspection_name %></td>
+            <td><%= outgoing_inspection_item.inspection_type %></td>
+            <td><%= outgoing_inspection_item.inspection_batch %></td>
+            <td><%= outgoing_inspection_item.inspection_qty %></td>
+            <td><%= outgoing_inspection_item.inspection_expired %></td>
+            <td><%= outgoing_inspection_item.inspection_physical %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <% if item.status == 'active' %>     
+          <tr id=trid"<%= c %>" valign=top>
+            <td class='counter uk-text-right' style="background: yellow;" title="New Record"><%= c+=1 %></td>
+            <td>
+              <%= hidden_field_tag "new_record_item[][product_id]", item.product_id %>
+              <%= hidden_field_tag "new_record_item[][picking_slip_item_id]", item.id %>
+              <%= hidden_field_tag "new_record_item[][product_batch_number_id]", item.product_batch_number_id %>
+              <%= text_field_tag 'product_batch_number', item.product_batch_number.number, {:class=>"product_batch_number#{c} uk-input uk-form-small", :disabled=> true} %>
+              <%#= text_field_tag 'part_id', item.product.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+            </td>
+            <td><%= select_tag 'new_record_item[][inspection_name]', options_for_select(['Available','Not Available']), {:class=>"uk-select uk-form-small", :required=>true} %></td>
+            <td><%= select_tag 'new_record_item[][inspection_type]', options_for_select(['Available','Not Available']), {:class=>"uk-select uk-form-small", :required=>true} %></td>
+            <td><%= select_tag 'new_record_item[][inspection_batch]', options_for_select(['Available','Not Available']), {:class=>"uk-select uk-form-small", :required=>true} %></td>
+            <td><%= select_tag 'new_record_item[][inspection_qty]', options_for_select(['Available','Not Available']), {:class=>"uk-select uk-form-small", :required=>true} %></td>
+            <td><%= select_tag 'new_record_item[][inspection_expired]', options_for_select(['Available','Not Available']), {:class=>"uk-select uk-form-small", :required=>true} %></td>
+            <td><%= select_tag 'new_record_item[][inspection_physical]', options_for_select(['OK','Not OK']), {:class=>"uk-select uk-form-small", :required=>true} %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    <% end if @picking_slip_items.present? %>
+    <% @outgoing_inspection_items.where.not(:picking_slip_item_id=> @picking_slip_items).each do |outgoing_inspection_item| %>
+      <tr>
+        <%= hidden_field_tag 'delete_record_item[][id]', outgoing_inspection_item.id %>
+        <td class='counter uk-text-right' style="background: red;" title="Delete Record"><%= c+=1 %></td>
+        <td>
+          <%= outgoing_inspection_item.product_batch_number.number %>
+        </td>
+        <td><%= outgoing_inspection_item.inspection_name %></td>
+        <td><%= outgoing_inspection_item.inspection_type %></td>
+        <td><%= outgoing_inspection_item.inspection_batch %></td>
+        <td><%= outgoing_inspection_item.inspection_qty %></td>
+        <td><%= outgoing_inspection_item.inspection_expired %></td>
+        <td><%= outgoing_inspection_item.inspection_physical %></td>
+      </tr>
+    <% end if @outgoing_inspection_items.where.not(:picking_slip_item_id=> @picking_slip_items).present? %>
+  </table>
+<% when 'change_customer' %>
+  <%= select_tag "outgoing_inspection[picking_slip_id]", options_for_select(@picking_slips.map { |e| [e.number, e.id] }), :class=>"uk-select uk-form-width-large uk-form-small", :prompt=>"--select--", :onchange=> "$('#button_add_item').attr('picking_slip_id', $(this).val());" %>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when "item" %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+      <thead class="bg-primary">
+        <tr>
+          <th rowspan="2">No</th>
+          <th rowspan="2">Status</th>
+          <th rowspan="2" class="uk-width-1-6@m">Customer</th>
+          <th rowspan="2">Document Number</th>
+          <th rowspan="2">Picking Slip Number</th>
+          <th colspan="3">Product</th>
+          <th rowspan="2">Batch Number</th>
+          <th rowspan="2">QTY</th>
+          <th rowspan="2">Expired Date</th>
+          <th rowspan="2">Physical Condition</th>                            
+          <th colspan="2" rowspan="2">Action</th>
+        </tr>
+        <tr>
+          <th>code</th>
+          <th>name</th>
+          <th>type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @outgoing_inspections.each do |item| %>
+          <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= item.outgoing_inspection.status %></td>
+            <td><%= item.outgoing_inspection.customer.name if item.outgoing_inspection.customer.present? %></td>
+            <td><%= item.outgoing_inspection.number if item.outgoing_inspection.present? %></td>
+            <td><%= item.outgoing_inspection.picking_slip.number if item.outgoing_inspection.picking_slip.present? %></td>
+            <td><%= item.product.part_id if item.product.present? %></td>
+            <td><%= item.inspection_name if item.present? %></td>
+            <td><%= item.inspection_type if item.present? %></td>
+            <td><%= item.inspection_batch if item.present? %></td>
+            <td><%= item.inspection_qty if item.present? %></td>
+            <td><%= item.inspection_expired if item.present? %></td>
+            <td><%= item.inspection_physical if item.present? %></td>
+            <td><%= link_to 'Show', item.outgoing_inspection %></td>
+            <td><%= link_to 'Edit', edit_outgoing_inspection_path(item.outgoing_inspection, :job=>'edit') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider uk-table-bordered">
+      <thead class="bg-primary">
+        <tr>
+          <th>No</th>
+          <th>Status</th>
+          <th>Customer</th>
+          <th>Document Number</th>
+          <th>Date</th>
+          <th>Picking Slip Number</th>
+          <th colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% c=0 %>
+        <% @outgoing_inspections.each do |outgoing_inspection| %>
+          <tr uk-tooltip="title: <%= row_tooltip(outgoing_inspection) %>; pos: top-left">
+            <td><%= c+=1 %></td>
+            <td><%= outgoing_inspection.status %></td>
+            <td><%= outgoing_inspection.customer.name if outgoing_inspection.customer.present? %></td>
+            <td><%= outgoing_inspection.number %></td>
+            <td><%= outgoing_inspection.date %></td>
+            <td><%= outgoing_inspection.picking_slip.number if outgoing_inspection.picking_slip.present? %></td>
+            <td><%= link_to 'Show', outgoing_inspection %></td>
+            <td><%= link_to 'Edit', edit_outgoing_inspection_path(outgoing_inspection, :job=>'edit') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

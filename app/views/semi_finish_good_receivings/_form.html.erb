@@ -1,0 +1,135 @@
+
+<%= form_with(model: semi_finish_good_receiving, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if semi_finish_good_receiving.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(semi_finish_good_receiving.errors.count, "error") %> prohibited this semi_finish_good_receiving from being saved:</h2>
+
+      <ul>
+      <% semi_finish_good_receiving.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Number</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :number, id: :semi_finish_good_receiving_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-6@m">Date</div>
+            <div class="uk-width-1-3@m">
+              <% if form.object.date.present? %>
+                <%= form.date_field :date, id: :semi_finish_good_receiving_date, :value=> form.object.date, :class=> "uk-input uk-form-width-large uk-form-small", :disabled=> true%>
+              <% else %>
+                <%= form.date_field :date, id: :semi_finish_good_receiving_date, :value=> DateTime.now().strftime("%Y-%m-%d"), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="uk-width-1-2@m">
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+          <tr>
+            <th>#</th>
+            <th>Order Number</th>
+            <th>Batch Number</th>
+            <th>Product Name</th>
+            <th>Product Code</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Remarks</th>
+            <th>Remove</th>
+          </tr>
+          <% c=0 %>
+          <% @semi_finish_good_receiving_items.each do |semi_finish_good_receiving_item| %>
+            <%= hidden_field_tag 'semi_finish_good_receiving_item[][id]', semi_finish_good_receiving_item.id %>
+            <% part = nil %>
+            <% if semi_finish_good_receiving_item.product.present? %>
+              <% part = semi_finish_good_receiving_item.product %>
+            <% elsif semi_finish_good_receiving_item.material.present? %>
+              <% part = semi_finish_good_receiving_item.material %>
+            <% end %>
+            <% unit_name = (part.unit.present? ? part.unit.name : nil) %>
+
+            <tr>
+              <td class="counter uk-text-right"><%= c+=1%></td>
+              <td>
+                <% batch_number = semi_finish_good_receiving_item.product_batch_number %>
+
+                <% if batch_number.present? %>
+                  <% if batch_number.shop_floor_order_item.present? %>
+                    <%= batch_number.shop_floor_order_item.shop_floor_order.number %>
+                  <% else %>
+                    <% if batch_number.sterilization_product_receiving_item.present? %>
+                      <%= batch_number.sterilization_product_receiving_item.sterilization_product_receiving.number %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </td>
+              <td>
+                <% if semi_finish_good_receiving_item.product_batch_number.present? %>
+                  <%= hidden_field_tag "semi_finish_good_receiving_item[][product_batch_number_id]", semi_finish_good_receiving_item.product_batch_number_id, :class=>"product_batch_number_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                  <%= render 'layouts/form_item', c: c, field_name: "product_batch_number_id", field_value: semi_finish_good_receiving_item.product_batch_number.number %>
+                <% end %>
+              </td>
+              <td>
+                <%= hidden_field_tag 'semi_finish_good_receiving_item[][product_id]', semi_finish_good_receiving_item.product_id, {:class=>"product_id#{c} uk-input uk-form-small uk-text-right"} %> 
+                <%= text_field_tag 'part_name', part.name, {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+             <td>
+                <%= text_field_tag 'part_id', part.part_id, {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+              </td>
+              <td>
+                <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-medium uk-form-small uk-text-center", :disabled=> true} %>
+              </td>
+             
+              <td>
+                <%= number_field_tag 'semi_finish_good_receiving_item[][quantity]', semi_finish_good_receiving_item.quantity, {:placeholder=> 'quantity', :class=>"quantity#{c} uk-input uk-form-small uk-text-right"} %>
+              </td>
+              <td>
+                <%= text_field_tag 'semi_finish_good_receiving_item[][remarks]',semi_finish_good_receiving_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+              </td>
+              <td>
+                <%= select_tag "semi_finish_good_receiving_item[][status]", options_for_select(['active','deleted'],
+                  semi_finish_good_receiving_item.status) , { :class=>'uk-select uk-form-small'} %>
+              </td>
+            </tr>
+          <% end if @semi_finish_good_receiving_items.present? %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', semi_finish_good_receivings_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

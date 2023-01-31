@@ -1,0 +1,1 @@
+json.array! @routine_cost_payments, partial: "routine_cost_payments/routine_cost_payment", as: :routine_cost_payment

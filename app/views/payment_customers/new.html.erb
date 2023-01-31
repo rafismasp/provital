@@ -1,0 +1,36 @@
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-1@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto" title="<%= feature("description") %>">
+              <% title = "New: #{feature("name")}" %>
+              <% case params[:kind] %>
+              <% when 'invoice' %>
+                <% title += " by Invoice" %>
+              <% when 'proforma' %>
+                <% title += " by Proforma Invoices" %>
+              <% end %>
+              <%= "<h4>#{title}</h4>".html_safe %>
+            </div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', payment_customers_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="uk-card-body">
+          <% if params[:kind].present? %>
+            <%= render 'form', payment_customer: @payment_customer, form_kind: "new", invoice_kind: params[:kind] %>
+          <% else %>
+            <div class="uk-padding-small">
+              <%= link_to 'Invoice', new_payment_customer_path(:kind=> "invoice"), class: "uk-button uk-button-primary uk-button-small" %>
+              <%= link_to 'Profoma', new_payment_customer_path(:kind=> "proforma"), class: "uk-button uk-button-primary uk-button-small" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

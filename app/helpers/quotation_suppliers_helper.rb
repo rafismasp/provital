@@ -1,0 +1,2 @@
+module QuotationSuppliersHelper
+end

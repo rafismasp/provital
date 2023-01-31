@@ -1,0 +1,2 @@
+class DeliveryDriver < ApplicationRecord
+end

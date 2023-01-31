@@ -1,0 +1,181 @@
+
+<%= form_with(model: material_outgoing, local: true, class: "uk-form-horizontal" ) do |form| %>
+  <%= hidden_field_tag "q", params[:q] %>
+  <%= hidden_field_tag "q1", params[:q1] %>
+  <%= hidden_field_tag "q2", params[:q2] %>
+
+  <% if material_outgoing.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(material_outgoing.errors.count, "error") %> prohibited this material_outgoing from being saved:</h2>
+
+      <ul>
+      <% material_outgoing.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-6@m">Number</div>
+            <div class="uk-width-1-3@m">
+              <%= form.text_field :number, id: :material_outgoing_number, :class=> "uk-input uk-form-width-large uk-form-small", :readonly=> true, :placeholder=> "generate automatically" %>
+            </div>
+            <div class="uk-width-1-6@m">Date</div>
+            <div class="uk-width-1-3@m">
+              <%= form.date_field :date, id: :material_outgoing_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-large uk-form-small", :required=> true%>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Product</div>
+          <% if job == "new" %>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "product_name", nil, {:class=> "uk-input uk-form-small product_name", :disabled=> true} %>
+            </div>
+            <div class="uk-width-1-4@m">
+              <%= text_field_tag "product_code", nil, {:class=> "uk-input uk-form-width-small uk-form-small product_code", :disabled=> true} %>
+            </div>
+          <% else %>
+            <div class="uk-width-1-2@m">
+              <%= text_field_tag "product_name", (@material_outgoing.product_batch_number.present? ? @material_outgoing.product_batch_number.product.name : nil), {:class=> "uk-input uk-form-small product_name", :disabled=> true} %>
+            </div>
+            <div class="uk-width-1-4@m">
+              <%= text_field_tag "product_code", (@material_outgoing.product_batch_number.present? ? @material_outgoing.product_batch_number.product.part_id : nil), {:class=> "uk-input uk-form-width-small uk-form-small product_code", :disabled=> true} %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-6@m">SFO</div>
+          <div class="uk-width-1-3@m">
+              <%= form.select :shop_floor_order_id, options_for_select(@shop_floor_orders.map{|c| [c.number, c.id ]}, form.object.shop_floor_order_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small", :onchange=> "change_shop_floor_order(this, '"+params[:controller].to_s+"')"} if @shop_floor_orders.present? %>
+          </div>
+          <div class="uk-width-1-6@m">Batch</div>
+          <div class="uk-width-1-3@m product_batch_number_detail" title="Product Batch Number">              
+            <%= form.select :product_batch_number_id, options_for_select(@product_batch_number.map{|e| [e.number, e.id, {:'product_id'=> e.product_id, :'part_name'=> e.product.name, :'part_id'=> e.product.part_id, :sfo_qty=> e.shop_floor_order_item.quantity}]}, form.object.product_batch_number_id), {:prompt => " -- select -- "}, {class: "uk-select uk-form-width-large uk-form-small",
+              :onchange=> "
+              $('.product_name').val($(this).find(':selected').attr('part_name'));
+              $('.product_code').val($(this).find(':selected').attr('part_id'));"
+              } if @product_batch_number.present? %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">SFO Quantity</div>
+          <div class="uk-width-1-4@m">
+            <%= text_field_tag "sfo_quantity", (form.object.product_batch_number.shop_floor_order_item.quantity if form.object.product_batch_number.present?), {:class=> "uk-input uk-form-small sfo_quantity", :disabled=> true} %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-5@m">
+        <div class="flex">
+          <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+          <%= link_to 'Load BOM', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "load_bom_item(this, '"+params[:controller].to_s+"')" %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-1@m">
+        <div class="uk-overflow-auto" id="item">
+          <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
+            <tr>
+              <th>#</th>
+              <th>Batch Number</th>
+              <th>Material Name</th>
+              <th>Material Code</th>
+              <th>Unit</th>
+              <th>Quantity</th>
+              <th>Remarks</th>
+              <th>Remove</th>
+            </tr>
+            <% c=0 %>
+            <% @material_outgoing_items.each do |material_outgoing_item| %>
+              <%= hidden_field_tag 'material_outgoing_item[][id]', material_outgoing_item.id %>
+              <% part = nil %>
+              <% if material_outgoing_item.material.present? %>
+                <% part = material_outgoing_item.material %>
+              <% elsif material_outgoing_item.product.present? %>
+                <% part = material_outgoing_item.product %>
+              <% end %>
+              <% unit_name = (part.present? ? part.unit_name : nil) %>
+
+              <tr>
+                <td class="counter uk-text-right"><%= c+=1%></td>
+                <td>
+                  <% if material_outgoing_item.material.present? %>
+                    <%= hidden_field_tag "material_outgoing_item[][material_batch_number_id]", material_outgoing_item.material_batch_number_id, :class=>"material_batch_number_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                    <%= render 'layouts/form_item', c: c, field_name: "material_batch_number_id", field_value: (material_outgoing_item.material_batch_number.number if material_outgoing_item.material_batch_number.present?) %>
+                    <%= hidden_field_tag 'material_outgoing_item[][material_id]', material_outgoing_item.material_id, {:class=>"material_id#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+
+                    <%= hidden_field_tag "material_outgoing_item[][product_batch_number_id]", nil %>
+                    <%= hidden_field_tag "material_outgoing_item[][product_id]", nil %>
+
+                  <% elsif material_outgoing_item.product.present? %>
+                    <%= hidden_field_tag "material_outgoing_item[][product_batch_number_id]", material_outgoing_item.product_batch_number_id, :class=>"product_batch_number_id#{c} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+                    <%= render 'layouts/form_item', c: c, field_name: "product_batch_number_id", field_value: (material_outgoing_item.product_batch_number.number if material_outgoing_item.product_batch_number.present?) %>
+                    <%= hidden_field_tag 'material_outgoing_item[][product_id]', material_outgoing_item.product_id, {:class=>"product_id#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %> 
+
+                    <%= hidden_field_tag "material_outgoing_item[][material_batch_number_id]", nil %>
+                    <%= hidden_field_tag "material_outgoing_item[][material_id]", nil %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= text_field_tag 'part_name', "#{part.name if part.present?}", {:class=>"part_name#{c} uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'part_id', "#{part.part_id if part.present?}", {:class=>"part_id#{c} uk-input uk-form-small", :disabled=> true} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'unit_name', unit_name, {:class=>"unit_name#{c} uk-input uk-form-width-small uk-form-small uk-text-center", :disabled=> true} %>
+                </td>
+               
+                <td>
+                  <%= number_field_tag 'material_outgoing_item[][quantity]', material_outgoing_item.quantity, {:placeholder=> 'quantity', :class=>"quantity#{c} uk-input uk-form-width-small uk-form-small uk-text-right"} %>
+                </td>
+                <td>
+                  <%= text_field_tag 'material_outgoing_item[][remarks]',material_outgoing_item.remarks, {:placeholder=> 'remarks', :class=>"uk-input uk-form-small"} %>
+                </td>
+                <td>
+                  <%= select_tag "material_outgoing_item[][status]", options_for_select(['active','deleted'],
+                    material_outgoing_item.status) , { :class=>'uk-select uk-form-small'} %>
+                </td>
+              </tr>
+            <% end if @material_outgoing_items.present? %>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', material_outgoings_path(:q=> params[:q], :q1=> params[:q1], :q2=> params[:q2]), class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" , data: { disable_with: "Please wait..." }%>
+  </p>
+
+<% end %>

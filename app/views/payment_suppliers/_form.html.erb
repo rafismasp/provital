@@ -1,0 +1,365 @@
+
+<%= form_with(model: payment_supplier, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if payment_supplier.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(payment_supplier.errors.count, "error") %> prohibited this payment_supplier from being saved:</h2>
+
+      <ul>
+      <% payment_supplier.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Suppliers</div>
+            <div class="uk-width-3-4@m">
+              <%= hidden_field_tag "payment_supplier[supplier_id]", (form.object.supplier.present? ? form.object.supplier_id : ""), :class=>"supplier_id uk-input uk-form-width-medium uk-form-small" %>
+              <% if form_kind == "edit" %>
+                <%= text_field_tag :supplier_name, @payment_supplier.supplier.name, :class=> "uk-select uk-form-width-large uk-form-small", :disabled=> true %>
+              <% else %>
+                <%= render 'layouts/form_item', c: nil, field_name: "supplier_id", field_value: (form.object.supplier.present? ? form.object.supplier.name : ""), kind: params[:q] %>
+              <% end %>
+
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :number, id: :payment_supplier_number, :class=> "uk-input uk-form-width-large uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Pay.Method</div>
+            <div class="uk-width-2-3@m">
+              <%= form.select :supplier_payment_method_id, options_for_select(@supplier_payment_methods.map{|c| [c.name, c.id ]}, form.object.supplier_payment_method_id), {:include_blank => true}, {class: "uk-select uk-form-width-large uk-form-small", :required=> true} if @supplier_payment_methods.present? %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Bank Transfer</div>
+            <div class="uk-width-3-4@m">
+              <%= form.select :bank_transfer_id, options_for_select(@bank_transfers.map{|c| [c.description, c.id ]}, form.object.bank_transfer_id), {:include_blank => true}, {class: "uk-select uk-form-width-large uk-form-small", :required=> true} if @bank_transfers.present? %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">DPP</div>
+            <div class="uk-width-1-3@m">
+              <%= form.select :kind_dpp, options_for_select(['DPP','DPP+PPN'], form.object.kind_dpp), {:include_blank => false}, {class: "uk-select uk-form-width-large uk-form-small"} if @currencies.present? %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Currency</div>
+            <div class="uk-width-1-4@m select_currencies">
+              <%= form.select :currency_id, options_for_select(@currencies.map{|c| [c.name, c.id ]}, form.object.currency_id), {:include_blank => true}, {class: "uk-select uk-form-width-large uk-form-small", :required=> true} if @currencies.present? %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Payment Date</div>
+            <div class="uk-width-2-3@m">
+              <%= form.date_field :date, id: :payment_supplier_date, :value=> (form.object.date.present? ? form.object.date : DateTime.now().strftime("%Y-%m-%d")), :class=> "uk-input uk-form-width-medium uk-form-small", :required=> true %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m" title="Nomor Giro/ Cek">Pay.Number</div>
+            <div class="uk-width-2-3@m">
+              <%= form.text_field :payment_methode_number, id: :payment_supplier_payment_methode_number, :class=> "uk-input uk-form-width-large uk-form-small"%>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Sub Total</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :subtotal, id: :payment_supplier_subtotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PPN Total</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :ppntotal, id: :payment_supplier_ppntotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">PPH Total</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :pphtotal, id: :payment_supplier_pphtotal, :value => form.object.pphtotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :onchange=> "change_pph_total(this, '"+params[:controller].to_s+"');", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Down Payment</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :dptotal, id: :payment_supplier_dptotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :onchange=> "change_down_payment(this, '"+params[:controller].to_s+"');", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-4@m">Remarks</div>
+            <div class="uk-width-3-4@m">
+              <%= form.text_field :remarks, id: :payment_supplier_remarks, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+        </div>
+      </div>
+      <div class="uk-width-1-3@m">
+        <div class="uk-margin-small">
+          <div class="uk-grid">
+            <div class="uk-width-1-3@m">Grand Total</div>
+            <div class="uk-width-2-3@m">
+              <%= form.number_field :grandtotal, id: :payment_supplier_grandtotal, :class=> "uk-input uk-form-width-large uk-form-small uk-text-right", :readonly=> true, :min=> 0 %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-2@m button-grn-modal">
+        <a class='uk-button uk-button-primary uk-button-small' href='#payreq-sections' uk-toggle>Select Payreq</a>
+      </div>
+    </div>
+  </div>
+  <hr class="uk-margin-small">
+  <div id="item">
+    <ul uk-tab class="uk-margin-small">
+      <% case @payment_supplier.kind_dpp %>
+      <% when 'DPP+PPN' %>
+        <li class="uk-active"><a href="#">DPP+PPN</a></li>
+      <% else %>
+        <li class="uk-active"><a href="#">DPP</a></li>
+        <li><a href="#">PPN</a></li>
+      <% end %>
+    </ul>
+
+    <ul class="uk-switcher uk-margin">
+      <% case @payment_supplier.kind_dpp %>
+      <% when 'DPP+PPN' %>
+        <li>
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider">
+              <tr>
+                <th>#</th>
+                <th>Payreq Number</th>
+                <th>Invoice Number</th>
+                <th>PO Number</th>
+                <th>GRN Number</th>
+                <th>Currency</th>
+                <th>PPN</th>
+              </tr>
+              <% c=0 %>
+              <% if @payment_supplier_items.present? %>
+                <% @payment_supplier_items.each do |payment_item| %>
+
+                  <% po_number  = payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.purchase_order_supplier.number if e.purchase_order_supplier.present?}.uniq.join(", ") %>
+                  <% grn_number = "" %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.material_receiving.number if e.material_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.product_receiving.number if e.product_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.general_receiving.number if e.general_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.consumable_receiving.number if e.consumable_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.equipment_receiving.number if e.equipment_receiving.present? }.uniq.join(", ") %>
+                  <tr>
+                    <%= hidden_field_tag "record_item[][id]", payment_item.id %>
+                    <td class="counter">
+                      <%= c+=1%>
+                    </td>
+                    <td><%= payment_item.payment_request_supplier.number %></td>
+                    <td><%= payment_item.invoice_supplier.number %></td>
+                    <td><%= po_number %></td>
+                    <td><%= grn_number %></td>
+                    <td><%= payment_item.payment_request_supplier.currency.name %></td>
+                    <td>Rp. <%= number_with_precision(payment_item.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td>
+                      <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], payment_item.status), :class=>"uk-select uk-form-small", :prompt=>"--select--" %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="10">Tidak ada Data!</td>
+                </tr>
+              <% end %>
+            </table>
+          </div>
+        </li>
+      <% else %>
+        <li>
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider">
+              <tr>
+                <th>#</th>
+                <th>Payreq Number</th>
+                <th>Invoice Number</th>
+                <th>PO Number</th>
+                <th>GRN Number</th>
+                <th>Currency</th>
+                <th>Subtotal</th>
+                <th>PPH</th>
+                <th>DP</th>
+                <th>Total</th>
+              </tr>
+              <% c=0 %>
+              <% if @payment_supplier_items.present? %>
+                <% @payment_supplier_items.each do |payment_item| %>
+                  <% po_number  = payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.purchase_order_supplier.number if e.purchase_order_supplier.present?}.uniq.join(", ") %>
+                  <% grn_number = "" %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.material_receiving.number if e.material_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.product_receiving.number if e.product_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.general_receiving.number if e.general_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.consumable_receiving.number if e.consumable_receiving.present? }.uniq.join(", ") %>
+                  <% grn_number += payment_item.invoice_supplier.invoice_supplier_items.map { |e| e.equipment_receiving.number if e.equipment_receiving.present? }.uniq.join(", ") %>
+                  <tr>
+                    <%= hidden_field_tag "record_item[][id]", payment_item.id %>
+                    <td class="counter">
+                      <%= c+=1%>
+                    </td>
+                    <td><%= payment_item.payment_request_supplier.number %></td>
+                    <td><%= payment_item.invoice_supplier.number %></td>
+                    <td><%= po_number %></td>
+                    <td><%= "#{grn_number}" %></td>
+                    <td><%= payment_item.payment_request_supplier.currency.name %></td>
+                    <td><%= number_with_precision(payment_item.invoice_supplier.subtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td><%= number_with_precision(payment_item.invoice_supplier.pphtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td><%= number_with_precision(payment_item.invoice_supplier.dptotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td><%= number_with_precision(payment_item.invoice_supplier.grandtotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    <td>
+                      <%= select_tag "record_item[][status]", options_for_select(['active','deleted'], payment_item.status), :class=>"uk-select uk-form-small", :prompt=>"--select--" %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="10">Tidak ada Data!</td>
+                </tr>
+              <% end %>
+            </table>
+          </div>
+        </li>
+        <li>
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider">
+              <tr>
+                <th>#</th>
+                <th>Payreq Number</th>
+                <th>Invoice Number</th>
+                <th>PO Number</th>
+                <th>GRN Number</th>
+                <th>Currency</th>
+                <th>PPN</th>
+              </tr>
+              <% c=0 %>
+              <% if @payment_supplier_items.present? %>
+                <% @payment_supplier_items.each do |payment_item| %>
+                  <% payment_item.invoice_supplier.invoice_supplier_items.each do |inv_item| %>
+                    <tr>
+                      <td class="counter">
+                        <%= c+=1%>
+                      </td>
+                      <td><%= payment_item.payment_request_supplier.number %></td>
+                      <td><%= payment_item.invoice_supplier.number %></td>
+                      <td><%= inv_item.purchase_order_supplier.number %></td>
+                      <td>
+                        <%= "#{inv_item.material_receiving.present? ? inv_item.material_receiving.number : nil}" %>
+                        <%= "#{inv_item.product_receiving.present? ? inv_item.product_receiving.number : nil}" %>
+                      </td>
+                      <td><%= payment_item.payment_request_supplier.currency.name %></td>
+                      <td>Rp. <%= number_with_precision(payment_item.ppntotal, precision: 0, delimiter: ".", separator: ",") %></td>
+                    </tr>
+                  <% end %>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="10">Tidak ada Data!</td>
+                </tr>
+              <% end %>
+            </table>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div id="payreq-sections" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h4 class="uk-modal-title">Payment Request Suppliers</h4>
+      </div>
+      <div class="uk-modal-body">             
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_payment_request_suppliers">  
+          <tr>
+            <td>#</td>
+            <td>Checked</td>
+            <td>Payreq Number</td>
+            <td>Payreq Date</td>
+          </tr>
+          <% c = 0 %>
+          <% @payment_request_suppliers.each do |payreq| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td>
+                <input class="uk-checkbox select_payment_request_supplier_id" type="checkbox" <%= payreq.payment_supplier_id.to_i == @payment_supplier.id.to_i ? "checked" : nil if @payment_supplier.present? %> payment_request_supplier_id="<%= payreq.id %>"></td>
+              </td>
+              <td><%= payreq.number %></td>
+              <td><%= payreq.date %></td>
+            </tr>
+          <% end if @payment_request_suppliers.present? %>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+        <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                      :onclick=> "load_payment_request_supplier_id(this, '"+params[:controller].to_s+"');" %>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', payment_suppliers_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

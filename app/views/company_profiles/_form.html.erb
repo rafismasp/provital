@@ -1,0 +1,105 @@
+
+<%= form_with(model: company_profile, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if company_profile.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(company_profile.errors.count, "error") %> prohibited this company_profile from being saved:</h2>
+
+      <ul>
+      <% company_profile.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-5@m">Name</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :name, id: :company_profile_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <ul uk-tab class="uk-margin-small">
+    <li class="uk-active"><a href="#">General</a></li>
+    <li><a href="#">Payment Receipt</a></li>
+  </ul>
+
+  <ul class="uk-switcher uk-margin">
+    <li>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Address row 1</div>
+          <div class="uk-width-3-4@m">
+            <%= form.text_field :address_row1, id: :company_profile_address_row1, :class=> "uk-input uk-form-width-large uk-form-small" %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Address row 2</div>
+          <div class="uk-width-3-4@m">
+            <%= form.text_field :address_row2, id: :company_profile_address_row2, :class=> "uk-input uk-form-width-large uk-form-small" %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-5@m">Address row 3</div>
+          <div class="uk-width-3-4@m">
+            <%= form.text_field :address_row3, id: :company_profile_address_row3, :class=> "uk-input uk-form-width-large uk-form-small" %>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-4@m">
+            <%= link_to 'Add Item', 'javascript:;', class: "uk-button uk-button-primary uk-button-small", :onclick=> "add_item(this, '"+params[:controller].to_s+"')" %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1@m">
+            <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+              <tr>
+                <td>#</td>
+                <td>Currency</td>
+                <td>Bank Name</td>
+                <td>Bank Account</td>
+                <td>Signature</td>
+                <td>Hapus</td>
+              </tr>
+              <% c = 0 %>
+              <% @company_payment_receivings.each do |item| %>
+                <tr>
+                  <td><%= c += 1 %></td>
+                  <td>
+                    <%= select_tag "bank[][currency_id]", options_for_select(@currencies.map{|c| [c.name, c.id ]}, item.currency_id ) , { :include_blank => "-- Select --", :class=> "uk-select uk-form-small"} if @currencies.present? %>
+                  </td>
+                  <td><%= text_field_tag "bank[][bank_name]", item.bank_name, {:class=> "uk-input uk-form-small"} %></td>
+                  <td><%= text_field_tag "bank[][bank_account]", item.bank_account, {:class=> "uk-input uk-form-small"} %></td>
+                  <td><%= text_field_tag "bank[][signature]", item.signature, {:class=> "uk-input uk-form-small"} %></td>
+                  <td>
+                    <%= select_tag "bank[][status]", options_for_select(['active','deleted'],
+                      item.status) , { :class=>'uk-select uk-form-small'} %></td>
+                </tr>
+              <% end if @company_payment_receivings.present? %>
+            </table>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', company_profiles_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

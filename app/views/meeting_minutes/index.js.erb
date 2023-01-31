@@ -1,0 +1,17 @@
+<% case params[:partial] %>
+<% when 'add_pic' %>
+	<% if params[:btnc].to_i > 5 %>						
+		for ( var i = 0; i < 6; i++ ) {
+			$('.select_pic_'+i).show();
+		}
+		alert("Maksimal 5 PIC");
+	<% else %>
+		$(".tdpic<%= params[:c] %>").append("<br><%= escape_javascript(render 'partial') %>");						
+	<% end %>
+<% when 'add_attendence' %>
+	$('.attendence_list tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% when 'add_meeting_minute_item' %>
+	$('.meeting_minute_item_list tr:last').after("<%= escape_javascript(render 'partial') %>");
+<% else %>
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

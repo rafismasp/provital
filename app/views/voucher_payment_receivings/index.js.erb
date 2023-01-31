@@ -1,0 +1,24 @@
+<% case params[:partial] %>
+<% when 'filter_select' %>
+	$('#index_content').html("<%= escape_javascript(render 'partial') %>");	
+<% when 'change_filter_column' %>
+	$('#filter_detail').html("<%= escape_javascript(render 'partial') %>");
+<% when 'add_item' %>
+  <% if params[:c].to_i == 1 %>
+    $('.tbody_item').html("<%= escape_javascript(render 'partial') %>");
+  <% else %>
+    $('.tbody_item tr:last').after("<%= escape_javascript(render 'partial') %>");
+  <% end %>
+
+  // $(".nominal_td").mask('#,##0.00', {reverse: true});
+
+	vr_price_change("vr_price_change", "<%= params[:controller].to_s %>")
+	// remove_row("remove_row", "<%= params[:controller].to_s %>")
+	// search_periode_voucher("search_periode_voucher", "<%= params[:controller].to_s %>")
+	
+
+	// UIkit.modal('.add_item').hide();
+<% else %>
+	$('#modal-sections').remove();
+	$('#content').html("<%= escape_javascript(render 'index') %>");
+<% end %>

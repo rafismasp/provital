@@ -1,0 +1,62 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <div class="uk-overflow-auto" id="index_content">
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>PO Kind </th>
+          <th>PO Number </th>
+          <th>PO Date</th>
+          <th>Part Code</th>
+          <th>Part Name</th>
+          <th>Unit</th>
+          <th>Quantity</th>
+          <th>Outstanding</th>
+          <th>Due Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @records.each do |item| %>
+          <% part = nil %>
+          <% if item.purchase_request_item.present? %>
+            <% if item.purchase_request_item.product.present? %>
+              <% part = item.purchase_request_item.product %>
+            <% elsif item.purchase_request_item.material.present? %>
+              <% part = item.purchase_request_item.material %>
+            <% elsif item.purchase_request_item.consumable.present? %>
+              <% part = item.purchase_request_item.consumable %>
+            <% elsif item.purchase_request_item.equipment.present? %>
+              <% part = item.purchase_request_item.equipment %>
+            <% elsif item.purchase_request_item.general.present? %>
+              <% part = item.purchase_request_item.general %>
+            <% end %>
+          <% elsif item.pdm_item.present? %>
+            <% if item.pdm_item.material.present? %>
+              <% part = item.pdm_item.material %>
+            <% end %>
+          <% end %>
+
+
+          <% unit_name = (part.present? ? part.unit.name : "") %>
+          <tr>
+            <td><%= @c+=1 %></td>
+            <td width="5%"><i><%= item.purchase_order_supplier.kind %></i></td>
+            <td width="10%"><b><%= item.purchase_order_supplier.number %></b></td>
+            <td width="10%"><i><%= item.purchase_order_supplier.date %></i></td>
+            <td><%= part.part_id if part.present? %></td>
+            <td><%= part.name if part.present? %></td>
+            <td><%= unit_name %></td>
+            <td width="5%"><%= number_with_precision(item.quantity, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td width="5%"><%= number_with_precision(item.outstanding, precision: 2, delimiter: ".", separator: ",") %></td>
+            <td width="10%"><%= item.due_date %></td>
+            <td><%= link_to 'Show', purchase_order_supplier_path(:id=> item.purchase_order_supplier_id, :q=> item.purchase_order_supplier.kind, :page=> params[:page], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+          </tr>
+        <% end if @records.present? %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  </div>
+<% end %>

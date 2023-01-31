@@ -1,0 +1,72 @@
+
+<%= form_with(model: product_type, local: true, class: "uk-form-horizontal") do |form| %>
+
+  <% if product_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(product_type.errors.count, "error") %> prohibited this product_type from being saved:</h2>
+
+      <ul>
+      <% product_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Category</div>
+      <div class="uk-width-3-4@m">
+        <%= select_tag "category", options_for_select(@product_categories.map { |e| [e.name, e.id] }, (product_type.product_sub_category.present? ? product_type.product_sub_category.product_category_id : nil)) , { :class=>'uk-select uk-form-small ', :onchange=> "change_product_category(this, '"+params[:controller].to_s+"')"} %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Sub Category</div>
+      <div class="uk-width-3-4@m product_sub_category">
+        <%= form.collection_select :product_sub_category_id, @product_sub_categories, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-large uk-form-small" if @product_sub_categories.present? %>
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Customer</div>
+      <div class="uk-width-3-4@m">
+        <%= form.collection_select :customer_id, @customers, :id,:name, {:prompt=>"-- Select --"}, class: "uk-select uk-form-width-large uk-form-small" if @customers.present? %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Brand</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :brand, id: :product_type_brand, :class=> "uk-input uk-form-width-medium uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Code</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :code, id: :product_type_code, :class=> "uk-input uk-form-width-small uk-form-small" %>
+      </div>
+    </div>
+  </div>
+  <div class="uk-margin-small">
+    <div class="uk-grid">
+      <div class="uk-width-1-4@m">Type</div>
+      <div class="uk-width-3-4@m">
+        <%= form.text_field :name, id: :product_type_name, :class=> "uk-input uk-form-width-large uk-form-small" %>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p uk-margin>
+    <%= link_to 'Back', product_types_path, class: "uk-button uk-button-secondary uk-button-small" %>
+    <%= form.submit "Save", class: "uk-button uk-button-primary uk-button-small" %>
+  </p>
+
+<% end %>

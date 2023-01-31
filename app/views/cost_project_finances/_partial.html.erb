@@ -1,0 +1,91 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% else %>
+  <% case params[:kind] %>
+  <% when 'old' %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>SO Number</th>
+          <th>Project Name</th>
+          <th>Customer</th>
+          <th>Tgl.Sales Order</th>
+          <th>Amount SO</th>
+          <th>Purchase Order</th>
+          <th>Amount PO</th>
+          <th>Amount GRN</th>
+          <th>Net</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @records.each do |record| %>
+          <tr>
+            <td><%= @c+=1 %></td>
+            <td><%= record.number %></td>
+            <td><%= record.remarks %></td>
+            <td><%= record.customer.name if record.customer.present? %></td>
+            <td><%= record.date %></td>
+            <td>
+              <%= record.customer.currency.symbol if record.customer.present? and record.customer.currency.present? %>
+              <%= number_with_precision(record.cost_project[:so_amount], precision: 0, delimiter: ".", separator: ",") if record.cost_project.present? %></td>
+            <td><%= record.po_supplier_number %></td>
+            <td>
+              <%= number_with_precision(record.cost_project[:po_amount], precision: 0, delimiter: ".", separator: ",") if record.cost_project.present? %>
+            </td>
+            <td>
+              <%= number_with_precision(record.cost_project[:grn_amount], precision: 0, delimiter: ".", separator: ",") if record.cost_project.present? %>
+            </td>
+            <td>
+              <%= record.cost_project[:po_currency] if record.cost_project.present? %>
+              <%= number_with_precision(record.cost_project[:total], precision: 0, delimiter: ".", separator: ",") if record.cost_project.present? %>
+            </td>
+          </tr>
+        <% end if @records.present? %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% else %>
+    <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+      <thead class="bg-primary">
+        <tr>
+          <th>#</th>
+          <th>SO Number</th>
+          <th>Project Name</th>
+          <th>Customer</th>
+          <th>Tgl.Sales Order</th>
+          <th>Amount SO</th>
+          <th>Purchase Order</th>
+          <th>Amount PO</th>
+          <th>Amount GRN</th>
+          <th>Net</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @records.each do |record| %>
+          <tr>
+            <td><%= @c+=1 %></td>
+            <td><%= record.sales_order.number %></td>
+            <td><%= record.sales_order.remarks %></td>
+            <td><%= record.customer.name if record.customer.present? %></td>
+            <td><%= record.date %></td>
+            <td>
+              <%= record.customer.currency.symbol if record.customer.present? and record.customer.currency.present? %>
+              <%= number_with_precision(record.amount_so, precision: 0, delimiter: ".", separator: ",") %></td>
+            <td><%= record.po_supplier_number %></td>
+            <td>
+              <%= number_with_precision(record.amount_po, precision: 0, delimiter: ".", separator: ",") %>
+            </td>
+            <td>
+              <%= number_with_precision(record.amount_grn, precision: 0, delimiter: ".", separator: ",") %>
+            </td>
+            <td>
+              <%#= record.cost_project[:po_currency] if record.cost_project.present? %>
+              <%= number_with_precision(record.amount_so - record.amount_grn, precision: 0, delimiter: ".", separator: ",") %>
+            </td>
+          </tr>
+        <% end if @records.present? %>
+      </tbody>
+    </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+  <% end %>
+<% end %>

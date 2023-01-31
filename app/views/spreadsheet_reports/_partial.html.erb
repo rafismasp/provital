@@ -1,0 +1,29 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when 'load_feature_list' %>  
+  <table class="uk-table uk-table-small uk-table-hover uk-table-divider" id="item">
+  	<thead>
+	    <tr>
+	      <th>Order Number</th>
+	      <th>Field Name</th>
+	      <th>Status</th>
+	    </tr>
+  	</thead>
+  	<tbody>
+	    <% c=0 %>
+	    <% @column_lists.each do |column_name| %>
+	      <tr>
+	        <td>
+			    	<%= hidden_field_tag "new_record_item[][name]", column_name %>
+			    	<%= text_field_tag "new_record_item[][sequence_number]", c+=1, {:class=>'uk-input uk-form-width-small uk-form-small'}%></td>
+	        <td><%= text_field_tag "column_name", column_name, {:class=>'uk-input uk-form-width-medium uk-form-small', :disabled=> true} %></td>
+	        <td>
+	          <%= select_tag "new_record_item[][status]", options_for_select(['active','deleted']) , { :class=>'uk-select uk-form-small'} %>
+	        </td>
+	      </tr>
+	    <% end if @column_lists.present? %>
+	  </tbody>
+  </table>
+<% else %>
+<% end %>

@@ -1,0 +1,254 @@
+<% case partial_type %>
+<% when 'change_invoice_tools_kind'%>
+  <% case params[:invoice_tools_kind] %>
+  <% when 'move_invoce_detail' %>
+    <div class="uk-width-auto@m">
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Customer</div>
+          <div class="uk-width-1-1 uk-width-1-3@m">
+            <%= select_tag "customer_id", options_for_select(@customers.map{|c| [c.name, c.id ]},(params[:customer_id])), {:prompt => " -- select -- ", class: "uk-select uk-form-width-large uk-form-small", :onchange=>"(change_invoice_tools_kind(this, '"+params[:controller].to_s+"'))"}  %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Invoice Lama</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= hidden_field_tag "old_invoice_customer_id", "", :class=>"uk-input uk-form-small", :required=>true %>
+            <%= render 'layouts/form_item', field_name: "invoice_customer_id",field_value: "", cutomer_value: params[:customer_id], kind: "old" %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= date_field_tag "old_invoice_date", nil, {class: "uk-select uk-form-width-large uk-form-small", disabled: true}  %>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Invoice Lama</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= hidden_field_tag "new_invoice_customer_id", "", :class=>"uk-input uk-form-small", :required=>true %>
+            <%= render 'layouts/form_item', field_name: "invoice_customer_id",field_value: "", cutomer_value: params[:customer_id], kind: "new" %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= date_field_tag "new_invoice_date", nil, {class: "uk-select uk-form-width-large uk-form-small", disabled: true}  %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%#= link_to 'Create New Number', 'javascript:;' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% when 'change_invoice_number' %>
+    <div class="uk-width-auto@m">
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Customer</div>
+          <div class="uk-width-1-1 uk-width-1-3@m">
+            <%= select_tag "customer_id", options_for_select(@customers.map{|c| [c.name, c.id ]},(params[:customer_id])), {:prompt => " -- select -- ", class: "uk-select uk-form-width-large uk-form-small", :onchange=>"(change_invoice_tools_kind(this, '"+params[:controller].to_s+"'))"}  %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Invoice Lama</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= hidden_field_tag "old_invoice_customer_id", "", :class=>"uk-input uk-form-small", :required=>true %>
+            <%= render 'layouts/form_item', field_name: "invoice_customer_id",field_value: "", cutomer_value: params[:customer_id], kind: "old" %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= date_field_tag "old_invoice_date", nil, {class: "uk-select uk-form-width-large uk-form-small", disabled: true}  %>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Invoice Baru</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= text_field_tag "new_invoice_customer_number", "", :class=>"uk-input uk-form-small", :required=>true %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= date_field_tag "new_invoice_customer_date", Date.today(), {class: "uk-select uk-form-width-large uk-form-small", :required=>true}  %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%#= link_to 'Create New Number', 'javascript:;' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% when 'new_invoice' %>
+    <div class="uk-width-auto@m">
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Customer</div>
+          <div class="uk-width-1-1 uk-width-1-3@m">
+            <%= select_tag "customer_id", options_for_select(@customers.map{|c| [c.name, c.id ]},(params[:customer_id])), {:prompt => " -- select -- ", class: "uk-select uk-form-width-large uk-form-small", :onchange=>"(change_invoice_tools_kind(this, '"+params[:controller].to_s+"'))"}  %>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Invoice Baru</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <script type="text/javascript">
+              <% if @check_invoice.present? %>
+                alert("Nomor sudah ada")
+                $("#new_invoice_customer_number").val("");
+                $("#new_invoice_customer_number").focus();
+              <% end %>
+            </script>
+            <%= text_field_tag "new_invoice_customer_number", params[:number], :class=>"uk-input uk-form-small", :onchange=>"(check_invoice_number(this, '"+params[:controller].to_s+"'))", :required=>true %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= date_field_tag "new_invoice_customer_date", Date.today(), {class: "uk-select uk-form-width-large uk-form-small", :required=>true}  %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%#= link_to 'Create New Number', 'javascript:;' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% when 'do_move_invoice' %>
+    <div class="uk-width-auto@m">
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Customer</div>
+          <div class="uk-width-1-1 uk-width-1-3@m">
+            <%= select_tag "customer_id", options_for_select(@customers.map{|c| [c.name, c.id ]},(params[:customer_id])), {:prompt => " -- select -- ", class: "uk-select uk-form-width-large uk-form-small", :onchange=>"(change_invoice_tools_kind(this, '"+params[:controller].to_s+"'))"}  %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Filter Tanggal</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= date_field_tag "start_delivery_order_date", session[:date_begin], {class: "uk-select uk-form-width-large uk-form-small", :onfocusout=>"(change_invoice_tools_kind(this, '"+params[:controller].to_s+"'))"}  %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= date_field_tag "end_delivery_order_date", session[:date_end], {class: "uk-select uk-form-width-large uk-form-small", :onfocusout=>"(change_invoice_tools_kind(this, '"+params[:controller].to_s+"'))"}  %>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Nomor DO</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <a class='uk-button uk-button-default uk-button-small' href='#do_lists-sections' uk-toggle>--- Pilih ---</a>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%#= link_to 'Create New Number', 'javascript:;' %>
+          </div>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <div class="uk-grid">
+          <div class="uk-width-1-1 uk-width-1-6@m">Nomor Invoice</div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%= hidden_field_tag "invoice_customer_id", "", :class=>"uk-input uk-form-small", :required=>true %>
+            <%= render 'layouts/form_item', field_name: "invoice_customer_id",field_value: nil, cutomer_value: params[:customer_id], kind: nil %>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-4@m">
+            <%#= link_to 'Create New Number', 'javascript:;' %>
+          </div>
+        </div>
+      </div>
+      <hr>
+
+      <div class="uk-margin-small table_do">
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_do_lists">
+          <tr>
+            <td>#</td>
+            <td>No. DO</td>
+            <td>Tanggal DO</td>
+            <td>Customer</td>
+            <td>Status</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  <% end %>
+<% when 'modal' %>
+  <% case params[:invoice_tools_kind] %>
+  <% when 'do_move_invoice' %>
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+      <h4 class="uk-modal-title">List DO</h4>
+    </div>
+    <div class="uk-modal-body"> 
+      <div class="scrollable" style="max-height: 50vh;overflow-y: auto;">            
+        <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_do_lists">
+          <tr>
+            <td>#</td>
+            <td class="uk-text-middle">Checked All</br>
+            <input class="select_all_do_list" type="checkbox" style="margin-left: 10px;margin-right: 10px;" onchange="cek_all_petty('<%= params[:controller].to_s %>')" id="checked_all_pettycash" value="" aria-label="checkall"></td>
+            <td>No. DO</td>
+            <td>Tanggal DO</td>
+            <td>Customer</td>
+            <td>Status</td>
+          </tr>
+          <% c = 0 %>
+          <% params[:stuff] = params[:stuff].present? ? params[:stuff] : [] %>
+          <% @delivery_orders.each do |record| %>
+            <tr>
+              <td><%= c+=1 %></td>
+              <td>
+                <% value_check = params[:stuff].include? record.id %>
+                <%= check_box_tag 'cb_po', record.number, value_check, :class=> 'uk-checkbox select_do_list', :table_name => record.class.table_name, :val=> record.id, :c=> c, :cclick=> nil%>  
+              </td>
+              <td><%= record.number %></td>
+              <td><%= record.date %></td>
+              <td><%= record.customer.name %></td>
+              <td><%= record.status %></td>
+            </tr>
+          <% end if @delivery_orders.present? %>
+        </table>
+      </div>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <a class="uk-button uk-button-default uk-modal-close uk-button-small">Cancel</a>
+      <%= link_to 'Load', 'javascript:;', class: "uk-button uk-button-primary uk-button-small",
+                    :onclick=> "load_do_list(this, '"+params[:controller].to_s+"');" %>
+    </div>
+  <% end %>
+<% when 'load_do_list' %>
+  <% case params[:invoice_tools_kind] %>
+  <% when 'do_move_invoice' %>
+    <table class="uk-table uk-table-small uk-table-bordered uk-table-striped uk-table-hover uk-table-divider" id="select_do_lists">
+      <tr>
+        <td>#</td>
+        <td>No. DO</td>
+        <td>Tanggal DO</td>
+        <td>Customer</td>
+        <td>Status</td>
+        <td>Invoice Number</td>
+        <td>Invoice Date</td>
+      </tr>
+      <tbody>
+      <% c = 0 %>
+      <% @delivery_orders.where(:id=>params[:stuff]).each do |record| %>
+        <tr>
+          <td>
+            <%= c+=1 %>
+            <%= hidden_field_tag "delivery_orders[][id]", record.id %>    
+            <%= hidden_field_tag "do_invoice_customer_id", record.invoice_customer_id, {:class=>"do_invoice_customer_id"} %>
+          </td>
+          <td><%= record.number %></td>
+          <td><%= record.date %></td>
+          <td><%= record.customer.name %></td>
+          <td><%= record.status %></td>
+          <td>
+            <%= text_field_tag "do_invoice_number", record.invoice_customer.present? ? record.invoice_customer.number : nil, {:class=>'uk-input uk-form-small do_invoice_number', :readonly=>true} %>    
+          </td>
+          <td>
+            <%= date_field_tag "do_invoice_date", record.invoice_customer.present? ? record.invoice_customer.date : nil, {:class=>'uk-input uk-form-small do_invoice_date', :readonly=>true} %>    
+          </td>
+        </tr>
+      </tbody>
+      <% end if @delivery_orders.present? %>
+    </table>
+  <% end %>
+<% end %>

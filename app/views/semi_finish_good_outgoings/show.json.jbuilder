@@ -1,0 +1,1 @@
+json.partial! "semi_finish_good_outgoings/semi_finish_good_outgoing", semi_finish_good_outgoing: @semi_finish_good_outgoing

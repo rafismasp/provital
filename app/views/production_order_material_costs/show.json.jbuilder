@@ -1,0 +1,1 @@
+json.partial! "production_order_material_cost/production_order_material_cost", production_order_material_cost: @production_order_material_cost

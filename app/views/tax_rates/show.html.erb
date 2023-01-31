@@ -1,0 +1,55 @@
+
+<div class="uk-container uk-container-expand">        
+  <div class="uk-grid uk-grid-medium  " data-uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-card uk-card-default uk-card-small uk-card-hover">
+        <div class="uk-card-header">
+          <div class="uk-grid uk-grid-small">
+            <div class="uk-width-auto"><h4>Show <%= params[:controller].humanize %></h4></div>
+            <div class="uk-width-expand uk-text-right panel-icons">
+              <%= link_to '', tax_rates_path, class: "uk-icon-link", :title=>"Close", :'data-uk-tooltip'=> '', :'data-uk-icon'=>"icon: close" %>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <form class="uk-form-horizontal">
+            
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Currency</div>
+                <div class="uk-width-3-4@m select_currencies">
+                  <%= text_field_tag :currency, @tax_rate.currency.name, :class=> "uk-select uk-form-width-small uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Currency Value</div>
+                <div class="uk-width-3-4@m">       
+                  <%= text_field_tag :currency_value, @tax_rate.currency_value, :class=> "uk-input uk-form-width-medium uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+
+            <div class="uk-margin-small">
+              <div class="uk-grid">
+                <div class="uk-width-1-4@m">Period</div>
+                <div class="uk-width-auto">
+                  <%= date_field_tag 'date_begin', @tax_rate.begin_date, class: "uk-input uk-form-small", :disabled=> true %>
+                </div>
+                <div class="uk-width-auto">
+                  <%= date_field_tag 'date_end', @tax_rate.end_date, class: "uk-input uk-form-small", :disabled=> true %>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <p uk-margin>
+              <%= link_to 'Back', tax_rates_path, class: "uk-button uk-button-secondary uk-button-small" %>
+              <%= link_to 'Edit', edit_tax_rate_path(@tax_rate), class: "uk-button uk-button-primary uk-button-small" %>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

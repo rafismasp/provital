@@ -1,0 +1,107 @@
+<% case params[:partial] %>
+<% when 'change_filter_column' %>
+  <%= render 'layouts/filter_option' %>
+<% when "add_item" %>
+  <tr id="trid<%= params[:c] %>" row_id="<%= params[:c] %>" valign=top>
+    <td width=22px class='counter uk-text-left'><%= params[:c] %></td>
+    <td>
+      <%#= hidden_field_tag "new_record_item[][material_id]", nil, :class=>"material_id#{params[:c]} uk-input uk-form-width-medium uk-form-small", :prompt=>"--select--"%>
+      <%#= render 'layouts/form_item', c: params[:c], field_name: "material_id", field_value: "" %>
+      <%= text_field_tag 'new_record_item[][coa_number]',nil, {:class=>"coa_number#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-left", :required=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][coa_name]',nil, {:class=>"coa_name#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-left", :required=> true} %>
+    </td>
+    <td>
+      <%= text_field_tag 'new_record_item[][description]',nil, {:class=>"description#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-left", :required=> true} %>
+    </td>
+    <td>
+      <%#= number_field_tag 'new_record_item[][amount]',0, { :class=>"amount#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-right nominal_td", :onchange=>"vr_price_change()", :required=> true} %>
+      <%= text_field_tag 'new_record_item[][amount]',0, { :class=>"amount#{params[:c]} uk-input uk-form-width-auto uk-form-small uk-text-right nominal_td", :onchange=>"vr_price_change(this, '"+params[:controller].to_s+"')", :required=> true} %>
+    </td>
+    <td align='center' width=30px>
+      <%#= link_to "", 'javascript:;', {:onclick=>'$(this).parent().parent().remove();', :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+      <%= link_to "", 'javascript:;', { :onclick=>"remove_row('#{params[:c]}','#{params[:controller].to_s}')", :class=>"uk-icon-link", :'data-uk-icon'=>"icon: trash"} %>
+    </td>
+  </tr>
+<% else %>
+  <% case params[:view_kind] %>
+  <% when 'item' %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>No. Voucher</th>
+            <th>Nama Pengirim</th>
+            <th>Tanggal Pembayaran</th>
+            <th>No. Coa</th>
+            <th>Nama Coa</th>
+            <th>Keterangan</th>
+            <th>Amount</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @voucher_payment_receivings.each do |item| %>
+            <tr uk-tooltip="title: <%= row_tooltip(item) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= item.voucher_payment_receiving.status %></td>
+              <td><%= item.voucher_payment_receiving.number %></td>
+              <td><%= item.voucher_payment_receiving.name_account %></td>
+              <td><%= item.voucher_payment_receiving.date %></td>
+              <td><%= item.coa_number %></td>
+              <td><%= item.coa_name %></td>
+              <td><%= item.description %></td>
+              <td class="uk-text-right"><%= number_with_precision(item.amount, precision: 2, delimiter: ".", separator: ",") %></td>
+              <td><%= link_to 'Show', voucher_payment_receiving_path(:id=> item.voucher_payment_receiving_id, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+              <td><%= link_to 'Edit', edit_voucher_payment_receiving_path(item.voucher_payment_receiving, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value])%></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% else %>
+    <div class="uk-overflow-auto" id="index_content">
+      <table class="uk-table uk-table-small uk-table-hover uk-table-divider">                 
+        <thead class="bg-primary">
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>No. Voucher</th>
+            <th>Nama Pengirim</th>
+            <th>Tanggal Pembayaran</th>
+            <th>Total Amount</th>
+            <th class="uk-text-center">Jenis Voucher</th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% c=0 %>
+          <% @voucher_payment_receivings.each do |voucher_payment_receiving| %>
+            <tr uk-tooltip="title: <%= row_tooltip(voucher_payment_receiving) %>; pos: top-left">
+              <td><%= c+=1 %></td>
+              <td><%= voucher_payment_receiving.status %></td>
+              <td><%= voucher_payment_receiving.number %></td>
+              <td><%#= voucher_payment_receiving.name_account %>
+                <%= (voucher_payment_receiving.try(:name_account) ? voucher_payment_receiving.name_account  : (voucher_payment_receiving.try(:customer_id).present? ? voucher_payment_receiving.customer.name : nil)) %></td>
+              <td><%= voucher_payment_receiving.date %></td>
+              <td class="uk-text-right"><%= number_with_precision(voucher_payment_receiving.total_amount, precision: 2, delimiter: ".", separator: ",") %></td>
+              <td align="center">
+                <% if voucher_payment_receiving.class.table_name[0...-1] == 'voucher_payment_receiving' %>
+                  <%= "VP Receive Umum" %>
+                <% else %>
+                  <%= "VP Receive Customer" %>
+                <% end %>
+              </td>
+              <td><%= link_to 'Show', voucher_payment_receiving_path(:table_name=>voucher_payment_receiving.class.table_name[0...-1], :id=> voucher_payment_receiving.id, :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value]) %></td>
+              <td><%= link_to 'Edit', edit_voucher_payment_receiving_path(voucher_payment_receiving,:table_name=>voucher_payment_receiving.class.table_name[0...-1], :view_kind=> params[:view_kind], :filter_column=> params[:filter_column], :filter_value=> params[:filter_value])%></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table><%== render partial: 'pagy/bootstrap_nav', locals: {pagy: @pagy} if @pagy.present? %>
+    </div>
+  <% end %>
+<% end %>
